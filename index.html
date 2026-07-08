@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema de Gestão de Estágios — IFRS Campus Rio Grande">
+  <title>Central de Estágios — IFRS Campus Rio Grande</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* Estilos específicos da home/login — mesma estrutura da v1, sem o grid de cards */
+
+    .home-main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-1) var(--space-6);
+      min-height: calc(100vh - 64px - 56px);
+    }
+
+    .home-row {
+      width: 100%;
+      max-width: 1160px;
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: var(--space-8, 48px);
+    }
+
+    @media (max-width: 800px) {
+      .home-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-6);
+        flex: initial;
+        padding-top: var(--space-6);
+      }
+      .home-headline { padding-top: 0; }
+      .login-card { align-self: stretch; }
+    }
+
+    .home-headline {
+      text-align: left;
+      flex: 1;
+      align-self: flex-start;
+      padding-top: var(--space-8, 64px);
+      transform: scale(1.5);
+      transform-origin: top left;
+    }
+
+    .home-eyebrow {
+      font-size: var(--font-size-sm);
+      font-weight: 800;
+      color: #2e7d32;
+      margin-bottom: var(--space-2);
+    }
+
+    .home-eyebrow-bem {
+      display: inline-block;
+      padding-bottom: 2px;
+      border-bottom: 2.5px solid #2e7d32;
+    }
+
+    .home-headline h1 {
+      font-size: var(--font-size-2xl);
+      font-weight: 800;
+      line-height: var(--line-height-tight);
+      color: var(--color-text);
+    }
+
+    .home-headline h1 span {
+      color: #1565c0;
+    }
+
+    .home-headline h1 span em {
+      font-style: normal;
+      color: #2e7d32;
+    }
+
+    .home-headline .home-desc {
+      margin-top: var(--space-3);
+      font-size: var(--font-size-md);
+      color: var(--color-text-muted);
+      max-width: 560px;
+    }
+
+    @media (max-width: 480px) {
+      .home-headline h1 { font-size: var(--font-size-xl); }
+    }
+
+    /* Card de login, no lugar do hub-grid — todos os elementos +20%, ancorado perto do rodapé */
+    .login-card {
+      width: 100%;
+      max-width: 576px;       /* 480px + 20% */
+      flex-shrink: 0;
+      align-self: flex-end;   /* antes: center — agora fica mais próximo do rodapé */
+      margin-bottom: var(--space-8, 32px);
+      background: var(--color-surface, #fff);
+      border: 1.5px solid var(--color-border, #e5e7eb);
+      border-radius: var(--radius-lg, 16px);
+      padding: 29px;          /* var(--space-6)=24px + 20% */
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 19px;              /* var(--space-4)=16px + 20% */
+    }
+
+    .login-card p {
+      color: var(--color-text-muted);
+      font-size: 17px;        /* var(--font-size-sm)=14px + 20% */
+    }
+
+    /* Botão e ícone do Google dentro do card também +20% */
+    .login-card .btn-lg {
+      padding: 19px 38px;      /* var(--space-4) var(--space-8) = 16px 32px, + 20% */
+      font-size: 19px;         /* var(--font-size-md)=16px + 20% */
+    }
+
+    .login-card .btn-lg svg {
+      width: 24px;             /* 20px + 20% */
+      height: 24px;
+    }
+
+    .login-logged-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .login-logged-avatar {
+      width: 67px;             /* 56px + 20% */
+      height: 67px;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════ -->
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="header-brand">
+          <span class="header-logo-wrap"><img src="assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+        </a>
+        <div id="header-user-area"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CONTEÚDO PRINCIPAL — Login único do sistema
+       ═══════════════════════════════════════ -->
+  <main class="home-main">
+    <div class="home-row">
+      <div class="home-headline">
+        <p class="home-eyebrow"><span class="home-eyebrow-bem">Bem</span>-vindo(a)!</p>
+        <h1>Sistema de<br><span>Gestão de Estágios <em>SGE</em></span></h1>
+        <p class="home-desc">Gerencie seu estágio de forma rápida, prática e segura. Entre com sua conta Google institucional para continuar.</p>
+      </div>
+
+      <div id="login-area" class="login-card">
+        <!-- Preenchido via JS: botão de login OU dados de quem já está logado -->
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════ -->
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    function renderLoginButton() {
+      const area = document.getElementById('login-area');
+      area.innerHTML = `
+        <button id="btn-google-login" class="btn btn-primary btn-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Entrar com Google
+        </button>
+        <p>Use seu e-mail institucional IFRS para continuar.</p>
+      `;
+
+      document.getElementById('btn-google-login').addEventListener('click', () => {
+        const btn = document.getElementById('btn-google-login');
+        btn.classList.add('is-loading');
+        btn.disabled = true;
+
+        requestLogin(
+          (session) => {
+            const area = getUserArea(session.email);
+            const path = getAreaPath(area);
+            if (!path) {
+              clearSession();
+              btn.classList.remove('is-loading');
+              btn.disabled = false;
+              const errEl = document.createElement('p');
+              errEl.className = 'text-sm text-error';
+              errEl.textContent = `O e-mail ${session.email} não pertence a nenhum domínio institucional reconhecido (@aluno.riogrande.ifrs.edu.br ou @riogrande.ifrs.edu.br).`;
+              btn.parentNode.appendChild(errEl);
+              return;
+            }
+            window.location.href = path;
+          },
+          (errorMsg) => {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+            const errEl = document.createElement('p');
+            errEl.className = 'text-sm text-error';
+            errEl.textContent = errorMsg;
+            btn.parentNode.appendChild(errEl);
+          }
+        );
+      });
+    }
+
+    // ── Ponto de entrada ──
+    (function init() {
+      const session = getSession();
+      const path = session ? getAreaPath(getUserArea(session.email)) : null;
+      if (path) {
+        window.location.href = path;
+      } else {
+        renderLoginButton();
+      }
+    })();
+  </script>
+</body>
+</html>
