@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="../assets/img/fav.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estágio — SGE IFRS Campus Rio Grande</title>
+  <title>Solicitar Estágio — SGE IFRS Campus Rio Grande</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,11 +19,34 @@
 
   <style>
     /* Mega menu da área do estudante — teste, inspirado no padrão do Integra IFRS.
-       Vive dentro do próprio header (não é mais uma barra separada). */
+       Vive dentro do próprio header (não é mais uma barra separada).
+       Estrutura: Perfil e Oportunidades são links diretos (um destino só);
+       Solicitações e Acompanhamentos são gatilhos com painel de opções. */
     .header-brand-group {
       display: flex;
       align-items: center;
-      gap: var(--space-6);
+      gap: var(--space-5);
+    }
+
+    .mega-nav-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 14px 4px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+
+    a.mega-nav-link:hover {
+      color: #2e7d32;
+    }
+
+    .mega-nav-link.is-current {
+      color: #2e7d32;
+      border-bottom-color: #2e7d32;
     }
 
     .mega-nav-trigger {
@@ -135,12 +158,20 @@
           <a href="../index.html" class="header-brand">
             <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
           </a>
-          <button class="mega-nav-trigger" id="mega-trigger" aria-expanded="false" aria-controls="mega-panel">
-            Serviços do Estudante
+          <a href="perfil.html" class="mega-nav-link">Perfil</a>
+          <button class="mega-nav-trigger" data-menu="solicitacoes" aria-expanded="false" aria-controls="painel-solicitacoes">
+            Solicitações
             <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
             </svg>
           </button>
+          <button class="mega-nav-trigger" data-menu="acompanhamentos" aria-expanded="false" aria-controls="painel-acompanhamentos">
+            Acompanhamentos
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <a href="oportunidades.html" class="mega-nav-link">Oportunidades</a>
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-3);">
           <div id="header-user-area"></div>
@@ -154,28 +185,46 @@
       </div>
     </div>
 
-    <!-- Painel do mega menu — ancorado no header (position:sticky já dá o containing block) -->
-    <div class="mega-panel" id="mega-panel" hidden>
+    <!-- Painel: Solicitações -->
+    <div class="mega-panel" id="painel-solicitacoes" hidden>
       <div class="container mega-panel-grid">
-        <a href="perfil.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Meu Perfil</span>
-          <span class="mega-panel-item-desc">Cadastro e dados pessoais</span>
-        </a>
         <a href="estagio.html" class="mega-panel-item is-current">
-          <span class="mega-panel-item-title">Estágio</span>
-          <span class="mega-panel-item-desc">Solicitação, acompanhamento e relatórios de estágio</span>
+          <span class="mega-panel-item-title">Solicitar Estágio</span>
+          <span class="mega-panel-item-desc">Solicitação de estágio obrigatório ou não obrigatório</span>
         </a>
         <a href="aproveitamento.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Aproveitamento de Experiência</span>
-          <span class="mega-panel-item-desc">Substituição do estágio por experiência profissional</span>
+          <span class="mega-panel-item-title">Certificação de Conhecimento</span>
+          <span class="mega-panel-item-desc">Substituição do estágio por experiência profissional já exercida</span>
         </a>
         <span class="mega-panel-item is-disabled">
-          <span class="mega-panel-item-title">Conversão de Estágio <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-title">Conversão de Estágio Não Obrigatório <span class="mega-nav-badge">Em breve</span></span>
           <span class="mega-panel-item-desc">Reconhecimento de estágio não obrigatório como obrigatório</span>
         </span>
         <span class="mega-panel-item is-disabled">
-          <span class="mega-panel-item-title">Equivalência de Programa <span class="mega-nav-badge">Em breve</span></span>
-          <span class="mega-panel-item-desc">Equiparação de atividade institucional ao estágio obrigatório</span>
+          <span class="mega-panel-item-title">Aproveitamento de Programas/Projetos <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-desc">Uso da experiência em programas/projetos de ensino, pesquisa, extensão ou indissociáveis como estágio obrigatório</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Painel: Acompanhamentos -->
+    <div class="mega-panel" id="painel-acompanhamentos" hidden>
+      <div class="container mega-panel-grid">
+        <a href="acompanhamento-estagio.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Estágio</span>
+          <span class="mega-panel-item-desc">Status, relatórios parciais e final do seu estágio</span>
+        </a>
+        <a href="acompanhamento-certificacao.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Certificação de Conhecimento</span>
+          <span class="mega-panel-item-desc">Status da sua solicitação de certificação de conhecimento</span>
+        </a>
+        <span class="mega-panel-item is-disabled">
+          <span class="mega-panel-item-title">Acompanhar Conversão de Estágio Não Obrigatório <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-desc">Status da sua solicitação de conversão</span>
+        </span>
+        <span class="mega-panel-item is-disabled">
+          <span class="mega-panel-item-title">Acompanhar Aproveitamento de Programas/Projetos <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-desc">Status da sua solicitação de aproveitamento</span>
         </span>
       </div>
     </div>
@@ -187,8 +236,8 @@
   <main id="main-content">
     <section class="page-hero">
       <div class="container">
-        <h1 class="page-hero-title">Estágio</h1>
-        <p class="page-hero-desc">Solicitação, acompanhamento e relatórios.</p>
+        <h1 class="page-hero-title">Solicitar Estágio</h1>
+        <p class="page-hero-desc">Solicitação de estágio obrigatório ou não obrigatório.</p>
       </div>
     </section>
 
@@ -202,7 +251,7 @@
           Em construção
         </h2>
         <p style="color:var(--color-text-muted);">
-          A solicitação de estágio, acompanhamento e relatórios parciais/finais serão adicionados aqui.
+          O formulário de solicitação de estágio será adicionado aqui.
         </p>
       </div>
     </div>
@@ -236,24 +285,40 @@
       requireAreaAuth('estudante', '../index.html');
     });
 
-    // Mega menu — abre/fecha o painel de serviços
+    // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
     (function () {
-      var trigger = document.getElementById('mega-trigger');
-      var panel = document.getElementById('mega-panel');
-      if (!trigger || !panel) return;
+      var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));
+      if (!triggers.length) return;
 
-      trigger.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var isOpen = trigger.getAttribute('aria-expanded') === 'true';
-        trigger.setAttribute('aria-expanded', String(!isOpen));
-        panel.hidden = isOpen;
+      function fecharTodos() {
+        triggers.forEach(function (t) {
+          t.setAttribute('aria-expanded', 'false');
+          var p = document.getElementById('painel-' + t.dataset.menu);
+          if (p) p.hidden = true;
+        });
+      }
+
+      triggers.forEach(function (trigger) {
+        var panel = document.getElementById('painel-' + trigger.dataset.menu);
+        if (!panel) return;
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+          fecharTodos();
+          if (!isOpen) {
+            trigger.setAttribute('aria-expanded', 'true');
+            panel.hidden = false;
+          }
+        });
       });
 
       document.addEventListener('click', function (e) {
-        if (!panel.contains(e.target) && !trigger.contains(e.target)) {
-          trigger.setAttribute('aria-expanded', 'false');
-          panel.hidden = true;
-        }
+        var dentroDeAlgumPainel = Array.prototype.some.call(
+          document.querySelectorAll('.mega-panel'),
+          function (p) { return p.contains(e.target); }
+        );
+        var noGatilho = e.target.closest && e.target.closest('.mega-nav-trigger');
+        if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
       });
     })();
   </script>
