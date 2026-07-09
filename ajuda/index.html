@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajuda — SGE IFRS Campus Rio Grande</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+
+  <!-- Google Identity Services (só pra exibir o perfil se já houver sessão — esta página não exige login) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       HEADER — página pública, sem exigência de login
+       ═══════════════════════════════════════ -->
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="../index.html" class="header-brand">
+          <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+        </a>
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div id="header-user-area"></div>
+          <a href="../index.html" class="back-link">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+            </svg>
+            Início
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CONTEÚDO — em construção
+       ═══════════════════════════════════════ -->
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="page-hero-title">Ajuda</h1>
+        <p class="page-hero-desc">
+          Central de ajuda do Sistema de Gestão de Estágios — aberta a todos, sem necessidade de login.
+        </p>
+      </div>
+    </section>
+
+    <div class="container">
+      <div style="max-width:640px;margin:0 auto;padding:var(--space-10) var(--space-4);text-align:center;">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
+             style="color:var(--color-text-muted);margin-bottom:var(--space-4);">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
+        </svg>
+        <h2 style="font-size:var(--font-size-xl);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2);">
+          Em construção
+        </h2>
+        <p style="color:var(--color-text-muted);">
+          Estamos preparando perguntas frequentes, tutoriais e contatos de suporte. Volte em breve.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════ -->
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // Página pública — sem guard de login. Só exibe o perfil no header se já houver sessão.
+    document.addEventListener('DOMContentLoaded', function () {
+      var session = getSession();
+      if (session) updateHeaderUser(session, '../index.html');
+    });
+  </script>
+</body>
+</html>

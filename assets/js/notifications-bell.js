@@ -95,7 +95,6 @@
         html += '<div class="sge-bell-section">Pendências</div>';
       }
       html += _alertas.map(function (a) {
-        var paginaAdmin = '/estagios/admin/' + (a.link || '');
         return '<div class="sge-bell-item sge-bell-item--alerta" data-link="' + _esc(a.link || '') + '">' +
           '<div class="sge-bell-dot sge-bell-dot--alert"></div>' +
           '<div class="sge-bell-item-body">' +
