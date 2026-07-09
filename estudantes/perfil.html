@@ -182,28 +182,191 @@
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO — em construção
+       CONTEÚDO — formulário estático (sem lógica ainda, campos/botões iguais à v1)
        ═══════════════════════════════════════ -->
-  <main id="main-content">
-    <section class="page-hero">
-      <div class="container">
-        <h1 class="page-hero-title">Meu Perfil</h1>
-        <p class="page-hero-desc">Cadastro e dados pessoais.</p>
-      </div>
-    </section>
-
+  <main class="form-page" id="main-content">
     <div class="container">
-      <div style="max-width:640px;margin:0 auto;padding:var(--space-10) var(--space-4);text-align:center;">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
-             style="color:var(--color-text-muted);margin-bottom:var(--space-4);">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 style="font-size:var(--font-size-xl);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2);">
-          Em construção
-        </h2>
-        <p style="color:var(--color-text-muted);">
-          O cadastro e os dados pessoais do estudante serão adicionados aqui.
-        </p>
+      <div class="form-wrapper">
+
+        <div class="form-page-header" style="display:flex;align-items:center;gap:var(--space-4);">
+          <div id="perfil-avatar" aria-hidden="true"></div>
+          <div>
+            <h1>Meu Perfil</h1>
+            <p>Cadastro e dados pessoais.</p>
+          </div>
+        </div>
+
+        <div class="info-banner" role="note">
+          <strong>Primeiro acesso.</strong> Preencha seus dados para se cadastrar. Após o envio, o setor de estágios validará seu cadastro e você receberá um e-mail de confirmação.
+          Dúvidas: <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </div>
+
+        <form id="form-cadastro" novalidate>
+
+          <!-- Seção 1: Identificação -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              Seção 1 — Identificação
+            </h2>
+            <div class="form-group">
+              <label class="form-label required" for="cad-nome">Nome completo</label>
+              <input type="text" id="cad-nome" class="form-control" placeholder="Conforme consta no RG e CPF"
+                required aria-required="true" autocomplete="name">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="cad-cpf">CPF</label>
+                <input type="text" id="cad-cpf" class="form-control" placeholder="000.000.000-00"
+                  required aria-required="true" inputmode="numeric" aria-describedby="cad-cpf-hint">
+                <span id="cad-cpf-hint" class="form-hint">11 dígitos. Ex: 123.456.789-09</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="cad-nascimento">Data de nascimento</label>
+                <input type="date" id="cad-nascimento" class="form-control" required aria-required="true">
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção 2: Contato -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+              Seção 2 — Contato
+            </h2>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="cad-email-inst">E-mail institucional</label>
+                <input type="email" id="cad-email-inst" class="form-control"
+                  placeholder="matricula@aluno.riogrande.ifrs.edu.br" required aria-required="true"
+                  aria-describedby="cad-email-inst-hint" autocomplete="email">
+                <span id="cad-email-inst-hint" class="form-hint">Domínio @aluno.riogrande.ifrs.edu.br</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="cad-email-pessoal">E-mail pessoal</label>
+                <input type="email" id="cad-email-pessoal" class="form-control"
+                  placeholder="seuemail@gmail.com" required aria-required="true" autocomplete="email">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="cad-telefone">Telefone celular (WhatsApp preferencial)</label>
+              <input type="tel" id="cad-telefone" class="form-control" placeholder="(53)999999999"
+                required aria-required="true" inputmode="tel" aria-describedby="cad-telefone-hint" autocomplete="tel">
+              <span id="cad-telefone-hint" class="form-hint">DDD + número, sem espaços ou traços.</span>
+            </div>
+          </div>
+
+          <!-- Seção 3: Endereço -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+              Seção 3 — Endereço
+            </h2>
+            <div class="form-group">
+              <label class="form-label required" for="cad-endereco">Endereço</label>
+              <input type="text" id="cad-endereco" class="form-control"
+                placeholder="Rua ou avenida, número, bloco, apartamento"
+                required aria-required="true" autocomplete="street-address">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="cad-cep">CEP</label>
+                <input type="text" id="cad-cep" class="form-control" placeholder="00000-000"
+                  inputmode="numeric" required aria-required="true" autocomplete="postal-code">
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="cad-bairro">Bairro</label>
+                <input type="text" id="cad-bairro" class="form-control" placeholder="Bairro" required aria-required="true">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="cad-cidade">Cidade</label>
+                <input type="text" id="cad-cidade" class="form-control" placeholder="Cidade"
+                  value="Rio Grande" required aria-required="true" autocomplete="address-level2">
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="cad-uf">UF</label>
+                <select id="cad-uf" class="form-control" required aria-required="true" autocomplete="address-level1">
+                  <option value="RS" selected>RS</option>
+                  <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                  <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                  <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                  <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                  <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                  <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                  <option value="RJ">RJ</option><option value="RN">RN</option><option value="RO">RO</option>
+                  <option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option>
+                  <option value="SE">SE</option><option value="TO">TO</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção 4: Dados Acadêmicos -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+              Seção 4 — Dados Acadêmicos
+            </h2>
+            <p class="form-hint" style="margin-bottom:var(--space-4);">
+              Informe todos os cursos em que está matriculado (máximo 6). Para cada um, selecione o curso e informe a matrícula correspondente.
+            </p>
+
+            <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;margin-bottom:var(--space-3);">
+              <div class="form-group" style="flex:1.5;min-width:220px;margin-bottom:0;">
+                <label class="form-label required" for="cad-email-inst-add">E-mail institucional do curso</label>
+                <input type="email" id="cad-email-inst-add" class="form-control"
+                  placeholder="matricula@aluno.riogrande.ifrs.edu.br" autocomplete="email">
+              </div>
+              <div class="form-group" style="flex:2;min-width:220px;margin-bottom:0;">
+                <label class="form-label required" for="cad-curso-add">Curso</label>
+                <select id="cad-curso-add" class="form-control">
+                  <option value="">Selecione o curso...</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex:1;min-width:150px;margin-bottom:0;">
+                <label class="form-label required" for="cad-matricula-add">Matrícula</label>
+                <input type="text" id="cad-matricula-add" class="form-control"
+                  placeholder="Ex.: 2023100001" inputmode="numeric">
+              </div>
+              <div style="padding-bottom:2px;">
+                <button type="button" id="cad-btn-add-curso" class="btn btn-secondary">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="margin-right:4px"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Adicionar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção 5: Declaração -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Seção 5 — Declaração
+            </h2>
+            <div class="declaration-box">
+              <p>Declaro que todas as informações prestadas são verdadeiras, que estou regularmente matriculado(a) no IFRS Campus Rio Grande e que estou ciente das regras de estágio previstas na Lei nº 11.788/2008 e na Instrução Normativa IFRS.</p>
+              <div class="form-check">
+                <input type="checkbox" id="cad-declaracao" required aria-required="true">
+                <label class="form-check-label required" for="cad-declaracao">
+                  Declaro que as informações são verdadeiras e concordo com as condições acima.
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions form-actions--between">
+            <button type="button" id="cad-btn-limpar" class="btn btn-ghost">Limpar</button>
+            <button type="submit" id="cad-btn-enviar" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+              Enviar Cadastro
+            </button>
+          </div>
+
+        </form>
       </div>
     </div>
   </main>
@@ -255,6 +418,26 @@
           panel.hidden = true;
         }
       });
+    })();
+
+    // Formulário ainda sem lógica (validação, máscaras, envio) — só evita recarregar a página.
+    document.getElementById('form-cadastro').addEventListener('submit', function (e) {
+      e.preventDefault();
+    });
+
+    // Avatar da sessão no cabeçalho da página (mesma lógica visual da v1)
+    (function () {
+      var s = typeof getSession === 'function' ? getSession() : null;
+      var el = document.getElementById('perfil-avatar');
+      if (!el || !s) return;
+      if (s.picture) {
+        el.innerHTML = '<img src="' + s.picture + '" alt="Foto de perfil" referrerpolicy="no-referrer" '
+          + 'style="width:64px;height:64px;border-radius:50%;border:2px solid var(--color-border);object-fit:cover;display:block;">';
+      } else if (s.name) {
+        el.innerHTML = '<div style="width:64px;height:64px;border-radius:50%;background:var(--color-primary);color:#fff;'
+          + 'display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600;">'
+          + s.name.charAt(0).toUpperCase() + '</div>';
+      }
     })();
   </script>
 </body>
