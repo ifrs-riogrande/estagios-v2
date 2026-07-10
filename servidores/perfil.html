@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Perfil — SGE IFRS Campus Rio Grande</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+
+  <!-- Google Identity Services (necessário para revogar o token no logout) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* Blocos de papel (Orientador/Coordenador/Supervisor) — escondidos até marcar o checkbox */
+    .papel-bloco {
+      margin-top: var(--space-4);
+      padding-left: var(--space-5);
+      border-left: 2px solid var(--color-border, #e5e7eb);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       HEADER — logo à esquerda; sino, perfil e voltar à direita (igual v1)
+       ═══════════════════════════════════════ -->
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="../index.html" class="header-brand">
+          <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+        </a>
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div id="header-user-area"></div>
+          <a href="index.html" class="back-link">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+            </svg>
+            Servidores
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CONTEÚDO — formulário estático (sem lógica ainda, só o front)
+       ═══════════════════════════════════════ -->
+  <main class="form-page" id="main-content">
+    <div class="container">
+      <div class="form-wrapper">
+
+        <div class="form-page-header" style="display:flex;align-items:center;gap:var(--space-4);">
+          <div id="perfil-avatar" aria-hidden="true"></div>
+          <div>
+            <h1>Meu Perfil</h1>
+            <p>Dados pessoais e papéis institucionais (orientador, coordenador, supervisor).</p>
+          </div>
+        </div>
+
+        <div class="info-banner" role="note">
+          Seus dados pessoais são únicos — preencha uma vez só. Depois, marque abaixo quais papéis você exerce
+          (pode marcar mais de um). O setor de estágios valida cada papel antes de ficar ativo.
+        </div>
+
+        <form id="form-perfil-servidor" novalidate>
+
+          <!-- ══════════════════════════════════
+               SEÇÃO 1 — DADOS PESSOAIS
+          ══════════════════════════════════ -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              Seção 1 — Dados Pessoais
+            </h2>
+            <div class="form-group">
+              <label class="form-label required" for="srv-nome">Nome completo</label>
+              <input type="text" id="srv-nome" class="form-control" placeholder="Conforme consta no RG e CPF"
+                required aria-required="true" autocomplete="name">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="srv-cpf">CPF</label>
+                <input type="text" id="srv-cpf" class="form-control" placeholder="000.000.000-00"
+                  required aria-required="true" inputmode="numeric" aria-describedby="srv-cpf-hint">
+                <span id="srv-cpf-hint" class="form-hint">11 dígitos. Ex: 123.456.789-09</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="srv-siape">Matrícula SIAPE</label>
+                <input type="text" id="srv-siape" class="form-control" placeholder="Ex: 1234567" inputmode="numeric" required aria-required="true">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="srv-telefone">Telefone / WhatsApp</label>
+                <input type="tel" id="srv-telefone" class="form-control" placeholder="(53)999999999"
+                  required aria-required="true" inputmode="tel" autocomplete="tel">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="srv-email">E-mail institucional</label>
+                <input type="email" id="srv-email" class="form-control" disabled>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════
+               SEÇÃO 2 — MEUS PAPÉIS INSTITUCIONAIS
+          ══════════════════════════════════ -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+              Seção 2 — Meus Papéis
+            </h2>
+            <p class="form-hint" style="margin-bottom:var(--space-4);">
+              Marque todos os papéis que você exerce hoje. Cada um vai para validação do setor de estágios separadamente.
+            </p>
+
+            <!-- ── Orientador ── -->
+            <div class="form-check">
+              <input type="checkbox" id="papel-orientador" data-papel-toggle="bloco-orientador">
+              <label class="form-check-label" for="papel-orientador">Sou Orientador</label>
+            </div>
+            <div class="papel-bloco" id="bloco-orientador" hidden>
+              <div class="form-group">
+                <label class="form-label required">Tipo de vínculo</label>
+                <div class="radio-group" id="ori-vinculo" role="radiogroup" aria-required="true">
+                  <div class="radio-option">
+                    <input type="radio" id="ori-vinculo-efetivo" name="ori-vinculo" value="Efetivo">
+                    <label for="ori-vinculo-efetivo">Efetivo</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="ori-vinculo-substituto" name="ori-vinculo" value="Substituto">
+                    <label for="ori-vinculo-substituto">Substituto</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row" id="ori-contrato-datas" hidden>
+                <div class="form-group">
+                  <label class="form-label" for="ori-inicio-contrato">Início do contrato</label>
+                  <input type="date" id="ori-inicio-contrato" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="ori-fim-contrato">Fim do contrato</label>
+                  <input type="date" id="ori-fim-contrato" class="form-control">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label required" for="ori-titulacao">Titulação</label>
+                  <select id="ori-titulacao" class="form-control" required aria-required="true">
+                    <option value="">Selecione...</option>
+                    <option value="Especialização">Especialização</option>
+                    <option value="Mestrado">Mestrado</option>
+                    <option value="Doutorado">Doutorado</option>
+                    <option value="Pós-doutorado">Pós-doutorado</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label required" for="ori-area-formacao">Área de formação</label>
+                  <input type="text" id="ori-area-formacao" class="form-control" placeholder="Ex: Engenharia Civil">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label required">Cursos que orienta</label>
+                <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;">
+                  <div class="form-group" style="flex:2;min-width:220px;margin-bottom:0;">
+                    <select id="ori-curso-add" class="form-control" disabled>
+                      <option value="">Carregando cursos…</option>
+                    </select>
+                  </div>
+                  <div style="padding-bottom:2px;">
+                    <button type="button" class="btn btn-secondary">
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="margin-right:4px"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                      Adicionar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Coordenador ── -->
+            <div class="form-check" style="margin-top:var(--space-5);">
+              <input type="checkbox" id="papel-coordenador" data-papel-toggle="bloco-coordenador">
+              <label class="form-check-label" for="papel-coordenador">Sou Coordenador de Curso</label>
+            </div>
+            <div class="papel-bloco" id="bloco-coordenador" hidden>
+              <div class="form-group">
+                <label class="form-label required">Curso(s) que coordena</label>
+                <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;">
+                  <div class="form-group" style="flex:2;min-width:220px;margin-bottom:0;">
+                    <select id="coord-curso-add" class="form-control" disabled>
+                      <option value="">Carregando cursos…</option>
+                    </select>
+                  </div>
+                  <div style="padding-bottom:2px;">
+                    <button type="button" class="btn btn-secondary">
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="margin-right:4px"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                      Adicionar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="coord-portaria">Portaria de designação</label>
+                <input type="text" id="coord-portaria" class="form-control" placeholder="Ex: Portaria nº 123/2026">
+                <span class="form-hint">Opcional — número do documento oficial de designação, se houver.</span>
+              </div>
+            </div>
+
+            <!-- ── Supervisor ── -->
+            <div class="form-check" style="margin-top:var(--space-5);">
+              <input type="checkbox" id="papel-supervisor" data-papel-toggle="bloco-supervisor">
+              <label class="form-check-label" for="papel-supervisor">Sou Supervisor de Estágio (concedente IFRS Campus Rio Grande)</label>
+            </div>
+            <div class="papel-bloco" id="bloco-supervisor" hidden>
+              <p class="form-hint" style="margin-bottom:var(--space-3);">
+                Só para supervisão de estágios em que o próprio IFRS Campus Rio Grande é a concedente (estágio interno).
+                Supervisor de empresa externa continua no cadastro específico de empresas/supervisores.
+              </p>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label required" for="sup-setor">Setor / Departamento</label>
+                  <input type="text" id="sup-setor" class="form-control" placeholder="Ex: Coordenadoria de TI">
+                </div>
+                <div class="form-group">
+                  <label class="form-label required" for="sup-cargo">Cargo</label>
+                  <input type="text" id="sup-cargo" class="form-control" placeholder="Ex: Técnico de TI">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="sup-nivel-formacao">Nível de formação</label>
+                  <select id="sup-nivel-formacao" class="form-control">
+                    <option value="">Selecione...</option>
+                    <option value="Ensino Médio">Ensino Médio</option>
+                    <option value="Graduação">Graduação</option>
+                    <option value="Especialização">Especialização</option>
+                    <option value="Mestrado">Mestrado</option>
+                    <option value="Doutorado">Doutorado</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="sup-area-formacao">Área de formação</label>
+                  <input type="text" id="sup-area-formacao" class="form-control" placeholder="Ex: Administração">
+                </div>
+              </div>
+              <div class="declaration-box">
+                <p>Declaro estar ciente das responsabilidades de supervisão de estágio previstas na Lei nº 11.788/2008.</p>
+                <div class="form-check">
+                  <input type="checkbox" id="sup-declaracao">
+                  <label class="form-check-label" for="sup-declaracao">Declaro estar ciente e concordo com as condições acima.</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions form-actions--between">
+            <button type="button" id="btn-limpar" class="btn btn-ghost">Limpar</button>
+            <button type="submit" id="btn-salvar" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+              Salvar Perfil
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════ -->
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/notifications-bell.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // Guarda de acesso: só servidores autenticados. Sem sessão válida → volta ao login central.
+    document.addEventListener('DOMContentLoaded', function () {
+      const session = requireAreaAuth('servidor', '../index.html');
+      if (session && session.email) {
+        document.getElementById('srv-email').value = session.email;
+      }
+    });
+
+    // Formulário ainda sem lógica (validação, envio) — só evita recarregar a página.
+    document.getElementById('form-perfil-servidor').addEventListener('submit', function (e) {
+      e.preventDefault();
+    });
+
+    // Mostra/esconde os blocos de papel ao marcar/desmarcar cada checkbox
+    document.querySelectorAll('[data-papel-toggle]').forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        const bloco = document.getElementById(checkbox.dataset.papelToggle);
+        if (bloco) bloco.hidden = !checkbox.checked;
+      });
+    });
+
+    // Tipo de vínculo do orientador: mostra datas de contrato só se "Substituto"
+    document.querySelectorAll('input[name="ori-vinculo"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        document.getElementById('ori-contrato-datas').hidden = (this.value !== 'Substituto');
+      });
+    });
+
+    // Avatar da sessão no cabeçalho da página (mesma lógica visual da v1)
+    (function () {
+      var s = typeof getSession === 'function' ? getSession() : null;
+      var el = document.getElementById('perfil-avatar');
+      if (!el || !s) return;
+      if (s.picture) {
+        el.innerHTML = '<img src="' + s.picture + '" alt="Foto de perfil" referrerpolicy="no-referrer" '
+          + 'style="width:64px;height:64px;border-radius:50%;border:2px solid var(--color-border);object-fit:cover;display:block;">';
+      } else if (s.name) {
+        el.innerHTML = '<div style="width:64px;height:64px;border-radius:50%;background:var(--color-primary);color:#fff;'
+          + 'display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600;">'
+          + s.name.charAt(0).toUpperCase() + '</div>';
+      }
+    })();
+  </script>
+</body>
+</html>
