@@ -264,22 +264,22 @@
     <div class="container">
       <div class="hub-grid hub-grid--3" role="list">
 
-        <a href="estagio.html" class="hub-card" role="listitem" style="border-color:#2e7d32">
+        <a href="#" class="hub-card" role="listitem" style="border-color:#2e7d32" data-abre-painel="solicitacoes">
           <svg class="hub-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.073a2.25 2.25 0 01-2.25 2.25h-12a2.25 2.25 0 01-2.25-2.25V6a2.25 2.25 0 012.25-2.25h4.5M20.25 14.15l-7.5-7.5M20.25 14.15H15m5.25 0V9"/>
           </svg>
           <span class="hub-card__label">Solicitar Estágio ou Certificação</span>
-          <span class="hub-card__desc">Peça seu estágio, certificação de conhecimento ou conversão para não obrigatório</span>
-          <span class="hub-card-arrow" style="background:#e8f5e9;color:#2e7d32">→</span>
+          <span class="hub-card__desc">Peça seu estágio, certificação de conhecimento, conversão ou aproveitamento — veja todas as opções</span>
+          <span class="hub-card-arrow" style="background:#e8f5e9;color:#2e7d32">▾</span>
         </a>
 
-        <a href="acompanhamento-estagio.html" class="hub-card" role="listitem" style="border-color:#1565c0">
+        <a href="#" class="hub-card" role="listitem" style="border-color:#1565c0" data-abre-painel="acompanhamentos">
           <svg class="hub-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           <span class="hub-card__label">Acompanhar Solicitações</span>
-          <span class="hub-card__desc">Veja o status do seu estágio, relatórios e demais solicitações</span>
-          <span class="hub-card-arrow" style="background:#e3f2fd;color:#1565c0">→</span>
+          <span class="hub-card__desc">Veja o status do seu estágio, certificação e demais solicitações — veja todas as opções</span>
+          <span class="hub-card-arrow" style="background:#e3f2fd;color:#1565c0">▾</span>
         </a>
 
         <a href="oportunidades.html" class="hub-card" role="listitem" style="border-color:#6d28e6">
@@ -359,6 +359,17 @@
         if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
       });
     })();
+
+    // Cards da home abrem o mesmo painel do menu — nunca uma lista resumida
+    // e desatualizada em relação ao que o header realmente mostra.
+    document.querySelectorAll('[data-abre-painel]').forEach(function (card) {
+      card.addEventListener('click', function (e) {
+        e.preventDefault();
+        var trigger = document.querySelector('.mega-nav-trigger[data-menu="' + card.dataset.abrePainel + '"]');
+        if (trigger) trigger.click();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
   </script>
 </body>
 </html>
