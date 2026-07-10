@@ -365,6 +365,7 @@
     document.querySelectorAll('[data-abre-painel]').forEach(function (card) {
       card.addEventListener('click', function (e) {
         e.preventDefault();
+        e.stopPropagation();
         var trigger = document.querySelector('.mega-nav-trigger[data-menu="' + card.dataset.abrePainel + '"]');
         if (trigger) trigger.click();
         window.scrollTo({ top: 0, behavior: 'smooth' });
