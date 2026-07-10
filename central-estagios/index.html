@@ -18,13 +18,41 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
-    /* Mega menu da Central de Estágios — gatilho único "Painel", baseado
-       no hub-grid de admin/index.html da v1 (Dashboard, Estágios, Cadastros,
-       Oportunidades, Declarações — Configurações ficou fora, é do Admin). */
+    /* Mega menu da Central de Estágios — baseado no hub-grid de admin/index.html
+       da v1: Dashboard, Estágios, Oportunidades e Declarações são links diretos;
+       só Cadastros abre painel com sub-itens (Alunos, Concedentes, Orientadores,
+       Supervisores, Coordenadores, Diretor Geral, DEN, DEX, Agentes). */
     .header-brand-group {
       display: flex;
       align-items: center;
       gap: var(--space-5);
+      flex-wrap: wrap;
+    }
+
+    .mega-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+
+    a.mega-nav-link:hover {
+      color: #2e7d32;
+    }
+
+    .mega-nav-link.is-current {
+      color: #2e7d32;
+      border-bottom-color: #2e7d32;
+    }
+
+    .mega-nav-link .mega-nav-chevron {
+      opacity: .6;
     }
 
     .mega-nav-trigger {
@@ -70,8 +98,8 @@
 
     .mega-panel-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: var(--space-6);
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-5);
       padding: var(--space-6) var(--space-4);
     }
 
@@ -117,12 +145,26 @@
           <a href="../index.html" class="header-brand">
             <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
           </a>
-          <button class="mega-nav-trigger" data-menu="modulos" aria-expanded="false" aria-controls="painel-modulos">
-            Painel
-            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
+          <a href="dashboard.html" class="mega-nav-link">
+            Dashboard
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
+          <a href="estagios.html" class="mega-nav-link">
+            Estágios
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
+          <button class="mega-nav-trigger" data-menu="cadastros" aria-expanded="false" aria-controls="painel-cadastros">
+            Cadastros
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </button>
+          <a href="oportunidades.html" class="mega-nav-link">
+            Oportunidades
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
+          <a href="declaracoes.html" class="mega-nav-link">
+            Declarações
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-3);">
           <div id="header-user-area"></div>
@@ -136,28 +178,44 @@
       </div>
     </div>
 
-    <!-- Painel: Módulos da Central de Estágios -->
-    <div class="mega-panel" id="painel-modulos" hidden>
+    <!-- Painel: Cadastros -->
+    <div class="mega-panel" id="painel-cadastros" hidden>
       <div class="container mega-panel-grid">
-        <a href="dashboard.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Dashboard</span>
-          <span class="mega-panel-item-desc">Visão geral do programa de estágios</span>
+        <a href="cadastros-alunos.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Alunos</span>
+          <span class="mega-panel-item-desc">Cadastros de estudantes</span>
         </a>
-        <a href="estagios.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Estágios</span>
-          <span class="mega-panel-item-desc">Acompanhamento, aprovação, validação e encaminhamento das solicitações</span>
+        <a href="cadastros-concedentes.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Concedentes</span>
+          <span class="mega-panel-item-desc">Cadastros de empresas concedentes de estágio</span>
         </a>
-        <a href="cadastros.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Cadastros</span>
-          <span class="mega-panel-item-desc">Validação de cadastros de estudantes, empresas, supervisores, orientadores e coordenadores</span>
+        <a href="cadastros-orientadores.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Orientadores</span>
+          <span class="mega-panel-item-desc">Cadastros de orientadores</span>
         </a>
-        <a href="oportunidades.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Oportunidades</span>
-          <span class="mega-panel-item-desc">Validação das vagas de estágio e emprego publicadas</span>
+        <a href="cadastros-supervisores.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Supervisores</span>
+          <span class="mega-panel-item-desc">Cadastros de supervisores de estágio</span>
         </a>
-        <a href="declaracoes.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Declarações</span>
-          <span class="mega-panel-item-desc">Emissão e gestão de declarações</span>
+        <a href="cadastros-coordenadores.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Coordenadores</span>
+          <span class="mega-panel-item-desc">Cadastros de coordenadores de curso</span>
+        </a>
+        <a href="cadastros-diretor-geral.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Diretor Geral</span>
+          <span class="mega-panel-item-desc">Cadastro do Diretor Geral</span>
+        </a>
+        <a href="cadastros-den.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Diretoria de Ensino</span>
+          <span class="mega-panel-item-desc">Cadastro da Diretoria de Ensino (DEN)</span>
+        </a>
+        <a href="cadastros-dex.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Diretoria de Extensão</span>
+          <span class="mega-panel-item-desc">Cadastro da Diretoria de Extensão (DEX)</span>
+        </a>
+        <a href="cadastros-agentes.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Agentes de Integração</span>
+          <span class="mega-panel-item-desc">Cadastros de agentes de integração</span>
         </a>
       </div>
     </div>
@@ -207,7 +265,7 @@
       requireAreaAuth('servidor', '../index.html');
     });
 
-    // Mega menu — abre/fecha o painel de módulos
+    // Mega menu — abre/fecha o painel de Cadastros
     (function () {
       var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));
       if (!triggers.length) return;
