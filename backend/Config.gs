@@ -58,6 +58,20 @@ var CONFIG = {
     ESTUDANTE: '@aluno.riogrande.ifrs.edu.br',
     SERVIDOR: '@riogrande.ifrs.edu.br',
   },
+
+  // Papéis institucionais configurados na aba ConfigAcesso (Institucional/Config).
+  // Todo servidor com um desses papéis é redirecionado pra área correspondente
+  // após o login — ver papeis.gs. Quem não tem nenhum papel segue como
+  // servidor comum (orientador/coordenador).
+  PAPEIS: {
+    CENTRAL_ESTAGIOS: 'Central de Estágios',
+    ADMIN: 'Admin',
+    DEX: 'DEX',
+    DEN: 'DEN',
+    DIRETOR_GERAL: 'Diretor Geral',
+    REGISTRO_ACADEMICO: 'Registro Acadêmico',
+    NAPNE: 'NAPNE',
+  },
 };
 
 /**

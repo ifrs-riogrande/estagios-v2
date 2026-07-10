@@ -16,6 +16,7 @@
 var GET_ROUTES = {
   'ping': doGetPing,
   'verificarSessao': doGetVerificarSessao,
+  'verificarAreaServidor': doGetVerificarAreaServidor,
 };
 
 var POST_ROUTES = {
@@ -61,6 +62,19 @@ function doGetVerificarSessao(e) {
   var v = validarAuthToken(e.parameter.authToken);
   if (!v.valido) return respostaErro(v.erro, 401);
   return respostaOk({ email: v.email });
+}
+
+/**
+ * Verifica se o servidor logado tem um papel institucional configurado
+ * (Central de Estágios, Admin, DEX, DEN, Diretor Geral, Registro Acadêmico,
+ * NAPNE) e devolve pra onde o front-end deve redirecionar. `caminho: null`
+ * significa servidor comum (orientador/coordenador) — segue o fluxo normal.
+ */
+function doGetVerificarAreaServidor(e) {
+  var v = validarAreaAcesso(e.parameter.authToken, 'servidor');
+  if (!v.valido) return respostaErro(v.erro, 401);
+  var caminho = obterCaminhoRedirecionamentoServidor(v.email);
+  return respostaOk({ email: v.email, caminho: caminho });
 }
 
 // ─────────────────────────────────────────

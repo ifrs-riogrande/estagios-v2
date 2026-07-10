@@ -496,6 +496,35 @@ main {
 }
 
 /* ─────────────────────────────────────────
+   PLACEHOLDER "EM CONSTRUÇÃO"
+   Usado por toda página/módulo ainda sem funcionalidade real.
+   Antes cada página repetia o mesmo bloco com estilo inline —
+   uma classe só, usada em todo lugar, nada duplicado.
+   ───────────────────────────────────────── */
+.construcao {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+}
+
+.construcao__icon {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.construcao__titulo {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.construcao__desc {
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────────────────
    CONTEÚDO PRINCIPAL DE FORMULÁRIO
    ───────────────────────────────────────── */
 .form-page {

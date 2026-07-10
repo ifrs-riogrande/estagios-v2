@@ -243,9 +243,30 @@
   </footer>
 
   <script src="assets/js/utils.js"></script>
+  <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    /**
+     * Servidor pode ter um papel institucional configurado no backend
+     * (Central de Estágios, Admin, DEX, DEN, Diretor Geral, Registro
+     * Acadêmico, NAPNE) — só o backend sabe disso (aba ConfigAcesso),
+     * nunca o front-end. Se a checagem falhar por qualquer motivo (ex:
+     * backend ainda não publicado), cai no caminho padrão de servidor
+     * comum — nunca concede acesso elevado por causa de uma falha.
+     */
+    async function obterDestinoPosLogin(userArea, session) {
+      const caminhoPadrao = getAreaPath(userArea);
+      if (userArea !== 'servidor') return caminhoPadrao;
+
+      try {
+        const resp = await API.get('verificarAreaServidor', { authToken: session.token });
+        return (resp && resp.caminho) || caminhoPadrao;
+      } catch (_) {
+        return caminhoPadrao;
+      }
+    }
 
     function renderLoginButton() {
       const area = document.getElementById('login-area');
@@ -273,7 +294,7 @@
         btn.disabled = true;
 
         requestLogin(
-          (session) => {
+          async (session) => {
             const userArea = getUserArea(session.email);
             const path = getAreaPath(userArea);
             if (!path) {
@@ -286,7 +307,7 @@
               btn.parentNode.appendChild(errEl);
               return;
             }
-            window.location.href = path;
+            window.location.href = await obterDestinoPosLogin(userArea, session);
           },
           (errorMsg) => {
             btn.classList.remove('is-loading');
@@ -301,11 +322,11 @@
     }
 
     // ── Ponto de entrada ──
-    (function init() {
+    (async function init() {
       const session = getSession();
-      const path = session ? getAreaPath(getUserArea(session.email)) : null;
-      if (path) {
-        window.location.href = path;
+      const userArea = session ? getUserArea(session.email) : null;
+      if (userArea) {
+        window.location.href = await obterDestinoPosLogin(userArea, session);
       } else {
         renderLoginButton();
       }
