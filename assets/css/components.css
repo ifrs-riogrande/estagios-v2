@@ -375,6 +375,55 @@ textarea.form-control {
   background: #eff6ff;
 }
 
+/* Toast — notificação flutuante temporária (canto inferior direito) */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 360px;
+}
+
+.toast {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  animation: toast-in .2s ease-out;
+}
+
+.toast a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.toast--info {
+  background: var(--color-info-light);
+  border: 1px solid var(--color-info-border);
+  color: #1E40AF;
+}
+
+.toast--success {
+  background: var(--color-success-light);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-success);
+}
+
+.toast--error {
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error-border);
+  color: var(--color-error);
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* Grupo de checkboxes/radios */
 .form-check-group {
   display: flex;

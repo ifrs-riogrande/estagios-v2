@@ -262,11 +262,6 @@
           </div>
         </div>
 
-        <div class="info-banner" role="note">
-          <strong>Primeiro acesso.</strong> Preencha seus dados para se cadastrar. Após o envio, o setor de estágios validará seu cadastro e você receberá um e-mail de confirmação.
-          Dúvidas: <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
-        </div>
-
         <form id="form-cadastro" novalidate>
 
           <!-- Seção 1: Identificação -->
@@ -287,8 +282,6 @@
                   required aria-required="true" inputmode="numeric" aria-describedby="cad-cpf-hint">
                 <span id="cad-cpf-hint" class="form-hint">11 dígitos. Ex: 123.456.789-09</span>
               </div>
-            </div>
-            <div class="form-row">
               <div class="form-group">
                 <label class="form-label required" for="cad-nascimento">Data de nascimento</label>
                 <input type="date" id="cad-nascimento" class="form-control" required aria-required="true">
@@ -316,11 +309,26 @@
                   placeholder="seuemail@gmail.com" required aria-required="true" autocomplete="email">
               </div>
             </div>
-            <div class="form-group">
-              <label class="form-label required" for="cad-telefone">Telefone celular (WhatsApp preferencial)</label>
-              <input type="tel" id="cad-telefone" class="form-control" placeholder="(53)999999999"
-                required aria-required="true" inputmode="tel" aria-describedby="cad-telefone-hint" autocomplete="tel">
-              <span id="cad-telefone-hint" class="form-hint">DDD + número, sem espaços ou traços.</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="cad-telefone">Telefone celular (WhatsApp preferencial)</label>
+                <input type="tel" id="cad-telefone" class="form-control" placeholder="(53)999999999"
+                  required aria-required="true" inputmode="tel" aria-describedby="cad-telefone-hint" autocomplete="tel">
+                <span id="cad-telefone-hint" class="form-hint">DDD + número, sem espaços ou traços.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label required">É WhatsApp?</label>
+                <div class="radio-group" id="cad-whatsapp" role="radiogroup" aria-required="true">
+                  <div class="radio-option">
+                    <input type="radio" id="cad-whatsapp-sim" name="cad-whatsapp" value="Sim">
+                    <label for="cad-whatsapp-sim">Sim</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="cad-whatsapp-nao" name="cad-whatsapp" value="Não">
+                    <label for="cad-whatsapp-nao">Não</label>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -463,6 +471,13 @@
     // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+
+      showToast(
+        '<strong>Primeiro acesso.</strong> Preencha seus dados para se cadastrar. '
+        + 'Após o envio, o setor de estágios validará seu cadastro e você receberá um e-mail de confirmação. '
+        + 'Dúvidas: <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>',
+        'info'
+      );
     });
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
