@@ -24,6 +24,113 @@
       padding-left: var(--space-5);
       border-left: 2px solid var(--color-border, #e5e7eb);
     }
+
+    /* Mega menu da área do servidor — mesmo padrão da área do estudante.
+       Perfil é link direto (um destino só); Acompanhamento é gatilho com painel. */
+    .header-brand-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+
+    .mega-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+
+    a.mega-nav-link:hover {
+      color: #2e7d32;
+    }
+
+    .mega-nav-link.is-current {
+      color: #2e7d32;
+      border-bottom-color: #2e7d32;
+    }
+
+    .mega-nav-link .mega-nav-chevron {
+      opacity: .6;
+    }
+
+    .mega-nav-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .mega-nav-trigger[aria-expanded="true"] {
+      color: #2e7d32;
+      border-bottom-color: #2e7d32;
+    }
+
+    .mega-nav-chevron {
+      width: 16px;
+      height: 16px;
+      transition: transform .15s;
+    }
+
+    .mega-nav-trigger[aria-expanded="true"] .mega-nav-chevron {
+      transform: rotate(180deg);
+    }
+
+    .mega-panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--color-border, #e5e7eb);
+      box-shadow: 0 12px 24px rgba(0,0,0,.08);
+      z-index: 50;
+    }
+
+    .mega-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-6);
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .mega-panel-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-decoration: none;
+      padding: var(--space-2);
+      border-radius: var(--radius-md, 8px);
+      transition: background .12s;
+    }
+
+    a.mega-panel-item:hover {
+      background: #f7faf7;
+    }
+
+    .mega-panel-item-title {
+      font-weight: 700;
+      color: #1565c0;
+      font-size: var(--font-size-md);
+    }
+
+    .mega-panel-item-desc {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
   </style>
 </head>
 <body>
@@ -34,9 +141,23 @@
   <header id="app-header">
     <div class="container">
       <div class="header-inner">
-        <a href="../index.html" class="header-brand">
-          <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
-        </a>
+        <div class="header-brand-group">
+          <a href="../index.html" class="header-brand">
+            <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+          </a>
+          <a href="perfil.html" class="mega-nav-link is-current">
+            Perfil
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </a>
+          <button class="mega-nav-trigger" data-menu="acompanhamento" aria-expanded="false" aria-controls="painel-acompanhamento">
+            Acompanhamento
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
         <div style="display:flex;align-items:center;gap:var(--space-3);">
           <div id="header-user-area"></div>
           <a href="index.html" class="back-link">
@@ -46,6 +167,24 @@
             Servidores
           </a>
         </div>
+      </div>
+    </div>
+
+    <!-- Painel: Acompanhamento -->
+    <div class="mega-panel" id="painel-acompanhamento" hidden>
+      <div class="container mega-panel-grid">
+        <a href="acompanhamento-orientacoes.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Orientações</span>
+          <span class="mega-panel-item-desc">Seus orientandos e pendências de aceite de orientação</span>
+        </a>
+        <a href="acompanhamento-supervisoes.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Supervisões</span>
+          <span class="mega-panel-item-desc">Estágios que você supervisiona (concedente IFRS Campus Rio Grande)</span>
+        </a>
+        <a href="acompanhamento-coordenacao.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Coordenação</span>
+          <span class="mega-panel-item-desc">Estágios do seu curso e pareceres de aproveitamento pendentes</span>
+        </a>
       </div>
     </div>
   </header>
@@ -324,6 +463,43 @@
         document.getElementById('ori-contrato-datas').hidden = (this.value !== 'Substituto');
       });
     });
+
+    // Mega menu — abre/fecha o painel de Acompanhamento
+    (function () {
+      var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));
+      if (!triggers.length) return;
+
+      function fecharTodos() {
+        triggers.forEach(function (t) {
+          t.setAttribute('aria-expanded', 'false');
+          var p = document.getElementById('painel-' + t.dataset.menu);
+          if (p) p.hidden = true;
+        });
+      }
+
+      triggers.forEach(function (trigger) {
+        var panel = document.getElementById('painel-' + trigger.dataset.menu);
+        if (!panel) return;
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+          fecharTodos();
+          if (!isOpen) {
+            trigger.setAttribute('aria-expanded', 'true');
+            panel.hidden = false;
+          }
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        var dentroDeAlgumPainel = Array.prototype.some.call(
+          document.querySelectorAll('.mega-panel'),
+          function (p) { return p.contains(e.target); }
+        );
+        var noGatilho = e.target.closest && e.target.closest('.mega-nav-trigger');
+        if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
+      });
+    })();
 
     // Avatar da sessão no cabeçalho da página (mesma lógica visual da v1)
     (function () {
