@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="../assets/img/fav.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central de Estágios — SGE IFRS Campus Rio Grande</title>
+  <title>Dashboard — Central de Estágios — SGE IFRS Campus Rio Grande</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,9 +18,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
-    /* Mega menu da Central de Estágios — gatilho único "Painel", baseado
-       no hub-grid de admin/index.html da v1 (Dashboard, Estágios, Cadastros,
-       Oportunidades, Declarações — Configurações ficou fora, é do Admin). */
+    /* Mega menu da Central de Estágios — gatilho único "Painel" */
     .header-brand-group {
       display: flex;
       align-items: center;
@@ -126,11 +124,11 @@
         </div>
         <div style="display:flex;align-items:center;gap:var(--space-3);">
           <div id="header-user-area"></div>
-          <a href="../index.html" class="back-link">
+          <a href="index.html" class="back-link">
             <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
             </svg>
-            Início
+            Central de Estágios
           </a>
         </div>
       </div>
@@ -139,7 +137,7 @@
     <!-- Painel: Módulos da Central de Estágios -->
     <div class="mega-panel" id="painel-modulos" hidden>
       <div class="container mega-panel-grid">
-        <a href="dashboard.html" class="mega-panel-item">
+        <a href="dashboard.html" class="mega-panel-item is-current">
           <span class="mega-panel-item-title">Dashboard</span>
           <span class="mega-panel-item-desc">Visão geral do programa de estágios</span>
         </a>
@@ -164,17 +162,25 @@
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO
+       CONTEÚDO — em construção
        ═══════════════════════════════════════ -->
   <main id="main-content">
     <section class="page-hero">
       <div class="container">
-        <h1 class="page-hero-title">Central de Estágios</h1>
-        <p class="page-hero-desc">
-          Acompanhamento, aprovação, validação e encaminhamento das solicitações de estágio.
-        </p>
+        <h1 class="page-hero-title">Dashboard</h1>
+        <p class="page-hero-desc">Visão geral do programa de estágios.</p>
       </div>
     </section>
+
+    <div class="container">
+      <div class="construcao">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+        </svg>
+        <h2 class="construcao__titulo">Em construção</h2>
+        <p class="construcao__desc">Os indicadores gerais do programa de estágios serão adicionados aqui.</p>
+      </div>
+    </div>
   </main>
 
   <!-- ═══════════════════════════════════════
