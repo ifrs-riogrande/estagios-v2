@@ -207,11 +207,6 @@
     <div class="container">
       <div class="form-wrapper">
 
-        <div class="info-banner" role="note">
-          Seus dados pessoais são únicos — preencha uma vez só. Depois, marque abaixo quais papéis você exerce
-          (pode marcar mais de um). O setor de estágios valida cada papel antes de ficar ativo.
-        </div>
-
         <form id="form-perfil-servidor" novalidate>
 
           <!-- ══════════════════════════════════
@@ -456,6 +451,12 @@
       if (session && session.email) {
         document.getElementById('srv-email').value = session.email;
       }
+
+      showToast(
+        'Seus dados pessoais são únicos — preencha uma vez só. Depois, marque abaixo quais papéis você exerce '
+        + '(pode marcar mais de um). O setor de estágios valida cada papel antes de ficar ativo.',
+        'info'
+      );
     });
 
     // Formulário ainda sem lógica (validação, envio) — só evita recarregar a página.
