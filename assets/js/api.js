@@ -11,9 +11,8 @@
 'use strict';
 
 const API_CONFIG = {
-  // PENDENTE: preencher quando o backend GAS da v2 for publicado como Web App.
-  // Propositalmente inválido para não apontar sem querer para o backend da v1.
-  BASE_URL: 'PENDENTE_DEFINIR_BACKEND_V2',
+  // Web App do backend SGE v2 (backend/), deployment @1 — ver clasp deployments.
+  BASE_URL: 'https://script.google.com/macros/s/AKfycbzwbWCO0ANTTo86ky7TERw3WT2HIWe5H-sD7Yd8eQmEgq_oOhKsPgKeFzqWiKeslcuX1g/exec',
   TIMEOUT_MS: 30000,
 };
 
