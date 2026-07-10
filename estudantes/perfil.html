@@ -250,17 +250,20 @@
   <!-- ═══════════════════════════════════════
        CONTEÚDO — formulário estático (sem lógica ainda, campos/botões iguais à v1)
        ═══════════════════════════════════════ -->
-  <main class="form-page" id="main-content">
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container" style="display:flex;align-items:center;gap:var(--space-4);">
+        <div id="perfil-avatar" aria-hidden="true"></div>
+        <div>
+          <h1 class="page-hero-title">Meu Perfil</h1>
+          <p class="page-hero-desc">Cadastro e dados pessoais.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="form-page">
     <div class="container">
       <div class="form-wrapper">
-
-        <div class="form-page-header" style="display:flex;align-items:center;gap:var(--space-4);">
-          <div id="perfil-avatar" aria-hidden="true"></div>
-          <div>
-            <h1>Meu Perfil</h1>
-            <p>Cadastro e dados pessoais.</p>
-          </div>
-        </div>
 
         <form id="form-cadastro" novalidate>
 
@@ -317,16 +320,13 @@
                 <span id="cad-telefone-hint" class="form-hint">DDD + número, sem espaços ou traços.</span>
               </div>
               <div class="form-group">
-                <label class="form-label required">É WhatsApp?</label>
-                <div class="radio-group" id="cad-whatsapp" role="radiogroup" aria-required="true">
-                  <div class="radio-option">
-                    <input type="radio" id="cad-whatsapp-sim" name="cad-whatsapp" value="Sim">
-                    <label for="cad-whatsapp-sim">Sim</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" id="cad-whatsapp-nao" name="cad-whatsapp" value="Não">
-                    <label for="cad-whatsapp-nao">Não</label>
-                  </div>
+                <label class="form-label" for="cad-whatsapp">É WhatsApp?</label>
+                <div class="toggle-switch-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="cad-whatsapp" checked>
+                    <span class="toggle-track"></span>
+                  </label>
+                  <span id="cad-whatsapp-label" class="toggle-switch-label">Sim</span>
                 </div>
               </div>
             </div>
@@ -443,6 +443,7 @@
         </form>
       </div>
     </div>
+    </div>
   </main>
 
   <!-- ═══════════════════════════════════════
@@ -520,6 +521,11 @@
     // Formulário ainda sem lógica (validação, máscaras, envio) — só evita recarregar a página.
     document.getElementById('form-cadastro').addEventListener('submit', function (e) {
       e.preventDefault();
+    });
+
+    // Toggle "É WhatsApp?" — atualiza o texto Sim/Não ao lado do switch
+    document.getElementById('cad-whatsapp').addEventListener('change', function (e) {
+      document.getElementById('cad-whatsapp-label').textContent = e.target.checked ? 'Sim' : 'Não';
     });
 
     // Avatar da sessão no cabeçalho da página (mesma lógica visual da v1)
