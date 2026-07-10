@@ -56,18 +56,136 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Cursos</h1>
-        <p class="page-hero-desc">Gerencie os cursos habilitados no sistema de estágios.</p>
+        <p class="page-hero-desc">Gerencie a lista de cursos e defina quais estão habilitados para estágio obrigatório, estágio não obrigatório e certificação de conhecimento.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A gestão de cursos habilitados será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div class="page-tabs" role="tablist">
+        <button class="page-tab is-active" role="tab" aria-selected="true" aria-controls="tab-lista" id="btn-tab-lista" type="button">Lista de Cursos</button>
+        <button class="page-tab" role="tab" aria-selected="false" aria-controls="tab-habilitados" id="btn-tab-hab" type="button">Cursos Habilitados</button>
       </div>
+
+      <!-- ── Tab 1: Lista de Cursos ── -->
+      <div class="tab-panel is-active" id="tab-lista" role="tabpanel" aria-labelledby="btn-tab-lista">
+
+        <div id="feedback-lista" class="alert" style="display:none;margin-bottom:var(--space-5);"></div>
+
+        <div class="filters">
+          <div class="form-group">
+            <label class="form-label" for="filtro-status">Status</label>
+            <select id="filtro-status" class="form-control">
+              <option value="">Todos os status</option>
+              <option value="Ativo">Ativos</option>
+              <option value="Inativo">Inativos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="filtro-grupo">Grupo</label>
+            <select id="filtro-grupo" class="form-control">
+              <option value="">Todos os grupos</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:2;">
+            <label class="form-label" for="filtro-busca">Buscar</label>
+            <input id="filtro-busca" type="search" class="form-control" placeholder="Nome do curso…">
+          </div>
+          <div style="align-self:flex-end;">
+            <button id="btn-novo" class="btn btn-primary" type="button">+ Novo curso</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table" id="tabela-cursos" aria-label="Lista de cursos">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Grupo</th>
+                <th>E-mail Coord.</th>
+                <th>Status</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-cursos">
+              <tr>
+                <td colspan="5" style="text-align:center;padding:var(--space-12);">
+                  <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                  Carregando cursos…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p id="contagem-cursos" style="margin-top:var(--space-3);font-size:var(--font-size-sm);color:var(--color-text-muted);"></p>
+      </div>
+
+      <!-- ── Tab 2: Cursos Habilitados ── -->
+      <div class="tab-panel" id="tab-habilitados" role="tabpanel" aria-labelledby="btn-tab-hab">
+
+        <div class="alert alert-info" style="margin-bottom:var(--space-5);">
+          <div class="alert-content"><strong>Padrão:</strong> enquanto nenhuma configuração for salva, todos os cursos são considerados habilitados para todas as modalidades. Ao salvar pela primeira vez, somente os cursos marcados estarão habilitados.</div>
+        </div>
+
+        <div id="loading-hab" style="text-align:center;padding:var(--space-12);color:var(--color-text-muted);">
+          <div class="spinner" style="margin:0 auto var(--space-4);"></div>
+          <p>Carregando configuração atual...</p>
+        </div>
+
+        <div id="hab-content" style="display:none;">
+
+          <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-5);padding:var(--space-4);background:var(--color-bg);border-radius:var(--radius-md);border:1px solid var(--color-border);">
+            <div style="flex:1;min-width:220px;">
+              <p style="font-size:var(--font-size-xs);font-weight:600;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2);">Estágio Obrigatório</p>
+              <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="obrig" data-valor="true">Marcar todos</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="obrig" data-valor="false">Desmarcar todos</button>
+              </div>
+            </div>
+            <div style="flex:1;min-width:220px;">
+              <p style="font-size:var(--font-size-xs);font-weight:600;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2);">Estágio Não Obrigatório</p>
+              <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="nao" data-valor="true">Marcar todos</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="nao" data-valor="false">Desmarcar todos</button>
+              </div>
+            </div>
+            <div style="flex:1;min-width:220px;">
+              <p style="font-size:var(--font-size-xs);font-weight:600;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2);">Certificação de Conhecimento</p>
+              <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="cert" data-valor="true">Marcar todos</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="cert" data-valor="false">Desmarcar todos</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Curso</th>
+                  <th class="check-col">Obrigatório</th>
+                  <th class="check-col">Não Obrigatório</th>
+                  <th class="check-col">Certificação</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-hab"></tbody>
+            </table>
+          </div>
+
+          <div id="feedback-hab" style="display:none;margin-top:var(--space-6);"></div>
+
+          <div style="margin-top:var(--space-4);display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+            <button id="btn-salvar-hab" class="btn btn-primary" type="button">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right:4px"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"/></svg>
+              Salvar configuração
+            </button>
+            <span id="ultima-atualizacao" style="font-size:var(--font-size-sm);color:var(--color-text-muted);"></span>
+          </div>
+        </div>
+
+      </div>
+
     </div>
   </main>
 
@@ -84,6 +202,75 @@
     </div>
   </footer>
 
+  <!-- Modal: novo/editar curso -->
+  <div class="modal-backdrop" id="modal-curso">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-titulo">Novo curso</h2>
+        <button type="button" class="modal-close" id="modal-curso-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-feedback" class="alert" style="display:none;margin-bottom:var(--space-4);"></div>
+        <form id="form-curso" novalidate>
+          <input type="hidden" id="campo-id">
+          <div class="form-group">
+            <label class="form-label required" for="campo-nome">Nome do curso</label>
+            <input id="campo-nome" type="text" class="form-control" maxlength="120" required placeholder="Ex: Técnico Integrado em Informática">
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="campo-grupo">Grupo / Modalidade</label>
+            <select id="campo-grupo" class="form-control" required>
+              <option value="">Selecione…</option>
+              <option value="Técnico Integrado">Técnico Integrado</option>
+              <option value="Técnico Subsequente">Técnico Subsequente</option>
+              <option value="Tecnologia">Tecnologia</option>
+              <option value="Bacharelado">Bacharelado</option>
+              <option value="Licenciatura">Licenciatura</option>
+              <option value="Especialização">Especialização</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="campo-email-coord">E-mail fixo da coordenação de curso</label>
+            <input id="campo-email-coord" type="email" class="form-control" maxlength="120" placeholder="Ex: coord.informatica@riogrande.ifrs.edu.br">
+          </div>
+          <div class="form-group" id="grupo-status" style="display:none;">
+            <label class="form-label" for="campo-status">Status</label>
+            <select id="campo-status" class="form-control">
+              <option value="Ativo">Ativo</option>
+              <option value="Inativo">Inativo</option>
+            </select>
+            <span class="form-hint">Cursos inativos não aparecem nos selects do sistema, mas preservam dados históricos.</span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+        <button type="submit" form="form-curso" class="btn btn-primary" id="btn-salvar">Salvar curso</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: confirmar exclusão -->
+  <div class="modal-backdrop" id="modal-deletar">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="deletar-titulo" style="color:var(--color-error);">Excluir curso?</h2>
+        <button type="button" class="modal-close" id="modal-deletar-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="deletar-msg" style="color:var(--color-text-muted);"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-deletar-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btn-deletar-confirmar">Sim, excluir permanentemente</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
@@ -93,6 +280,324 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      initTabs();
+      carregarCursos();
+    });
+
+    // ════════════════════════════════════════════════════════
+    // ABAS
+    // ════════════════════════════════════════════════════════
+    function initTabs() {
+      document.querySelectorAll('.page-tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.page-tab').forEach(function (b) {
+            b.classList.remove('is-active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          btn.setAttribute('aria-selected', 'true');
+          var panel = document.getElementById(btn.getAttribute('aria-controls'));
+          if (panel) panel.classList.add('is-active');
+          if (btn.id === 'btn-tab-hab' && !habCarregado) {
+            habCarregado = true;
+            carregarHab();
+          }
+        });
+      });
+    }
+
+    // ════════════════════════════════════════════════════════
+    // TAB 1 — Lista de Cursos
+    // ════════════════════════════════════════════════════════
+    var todosCursos = [];
+
+    async function carregarCursos() {
+      try {
+        todosCursos = await API.get('listarTodosCursos');
+        renderizarTabela();
+        preencherFiltroGrupo();
+      } catch (err) {
+        document.getElementById('tbody-cursos').innerHTML =
+          '<tr><td colspan="5" style="text-align:center;padding:var(--space-12);color:var(--color-text-muted);">Erro ao carregar cursos. Recarregue a página.</td></tr>';
+        console.error(err);
+      }
+    }
+
+    function preencherFiltroGrupo() {
+      var grupos = Array.from(new Set(todosCursos.map(function (c) { return c.grupo; }))).sort();
+      var sel = document.getElementById('filtro-grupo');
+      grupos.forEach(function (g) {
+        var o = document.createElement('option');
+        o.value = g; o.textContent = g;
+        sel.appendChild(o);
+      });
+    }
+
+    function renderizarTabela() {
+      var filtroStatus = document.getElementById('filtro-status').value;
+      var filtroGrupo  = document.getElementById('filtro-grupo').value;
+      var filtroBusca  = document.getElementById('filtro-busca').value.trim().toLowerCase();
+      var filtrados = todosCursos.filter(function (c) {
+        if (filtroStatus && c.status !== filtroStatus) return false;
+        if (filtroGrupo  && c.grupo  !== filtroGrupo)  return false;
+        if (filtroBusca  && !c.nome.toLowerCase().includes(filtroBusca)) return false;
+        return true;
+      });
+      var tbody = document.getElementById('tbody-cursos');
+      if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state" style="padding:var(--space-8);"><p>Nenhum curso encontrado.</p></div></td></tr>';
+        document.getElementById('contagem-cursos').textContent = '';
+        return;
+      }
+      tbody.innerHTML = filtrados.map(function (c) {
+        return '<tr data-id="' + escapeHtml(c.id) + '">' +
+          '<td><strong>' + escapeHtml(c.nome) + '</strong></td>' +
+          '<td>' + escapeHtml(c.grupo) + '</td>' +
+          '<td>' + (c.emailCoordenacao ? escapeHtml(c.emailCoordenacao) : '<span style="color:var(--color-text-muted)">—</span>') + '</td>' +
+          '<td><span class="badge ' + (c.status === 'Ativo' ? 'badge-success' : 'badge-error') + '">' + escapeHtml(c.status) + '</span></td>' +
+          '<td style="text-align:right;white-space:nowrap;">' +
+            '<button class="btn btn-sm btn-secondary" data-editar="' + escapeHtml(c.id) + '">Editar</button> ' +
+            (c.status === 'Ativo'
+              ? '<button class="btn btn-sm btn-danger" data-status="' + escapeHtml(c.id) + '" data-novo-status="Inativo">Inativar</button> '
+              : '<button class="btn btn-sm btn-secondary" data-status="' + escapeHtml(c.id) + '" data-novo-status="Ativo">Reativar</button> ') +
+            '<button class="btn btn-sm btn-danger" data-excluir="' + escapeHtml(c.id) + '">Excluir</button>' +
+          '</td></tr>';
+      }).join('');
+      var ativos = filtrados.filter(function (c) { return c.status === 'Ativo'; }).length;
+      document.getElementById('contagem-cursos').textContent =
+        filtrados.length + ' curso(s) exibido(s) — ' + ativos + ' ativo(s)';
+    }
+
+    ['filtro-status', 'filtro-grupo', 'filtro-busca'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', renderizarTabela);
+      document.getElementById(id).addEventListener('change', renderizarTabela);
+    });
+
+    // Delegação de eventos na tabela (editar / status / excluir)
+    document.getElementById('tbody-cursos').addEventListener('click', function (e) {
+      var btnEditar  = e.target.closest('[data-editar]');
+      var btnStatus  = e.target.closest('[data-status]');
+      var btnExcluir = e.target.closest('[data-excluir]');
+      if (btnEditar)  abrirEdicao(btnEditar.dataset.editar);
+      if (btnStatus)  alterarStatus(btnStatus.dataset.status, btnStatus.dataset.novoStatus);
+      if (btnExcluir) deletarCurso(btnExcluir.dataset.excluir);
+    });
+
+    function abrirModal(curso) {
+      var ehNovo = !curso;
+      document.getElementById('modal-titulo').textContent = ehNovo ? 'Novo curso' : 'Editar curso';
+      document.getElementById('campo-id').value          = ehNovo ? '' : curso.id;
+      document.getElementById('campo-nome').value         = ehNovo ? '' : curso.nome;
+      document.getElementById('campo-grupo').value        = ehNovo ? '' : curso.grupo;
+      document.getElementById('campo-email-coord').value  = ehNovo ? '' : (curso.emailCoordenacao || '');
+      document.getElementById('campo-status').value       = ehNovo ? 'Ativo' : curso.status;
+      document.getElementById('grupo-status').style.display = ehNovo ? 'none' : '';
+      ocultarFeedbackModal();
+      document.getElementById('modal-curso').classList.add('is-open');
+      document.getElementById('campo-nome').focus();
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-curso').classList.remove('is-open');
+    }
+
+    document.getElementById('btn-novo').addEventListener('click', function () { abrirModal(null); });
+    document.getElementById('btn-cancelar').addEventListener('click', fecharModal);
+    document.getElementById('modal-curso-fechar').addEventListener('click', fecharModal);
+    document.getElementById('modal-curso').addEventListener('click', function (e) { if (e.target === this) fecharModal(); });
+
+    function abrirEdicao(id) {
+      var curso = todosCursos.find(function (c) { return c.id === id; });
+      if (curso) abrirModal(curso);
+    }
+
+    async function alterarStatus(id, novoStatus) {
+      var curso = todosCursos.find(function (c) { return c.id === id; });
+      if (!curso) return;
+      var acao = novoStatus === 'Inativo' ? 'inativar' : 'reativar';
+      if (!confirm('Deseja ' + acao + ' o curso "' + curso.nome + '"?')) return;
+      try {
+        var res = await API.post('salvarCurso', { id: curso.id, nome: curso.nome, grupo: curso.grupo, status: novoStatus });
+        todosCursos = res.cursos || todosCursos;
+        renderizarTabela();
+        mostrarFeedbackLista('success', 'Curso ' + (novoStatus === 'Inativo' ? 'inativado' : 'reativado') + ' com sucesso.');
+      } catch (err) {
+        mostrarFeedbackLista('error', err.message || 'Erro ao alterar status.');
+      }
+    }
+
+    var idParaDeletar = null;
+
+    function deletarCurso(id) {
+      var curso = todosCursos.find(function (c) { return c.id === id; });
+      if (!curso) return;
+      idParaDeletar = id;
+      document.getElementById('deletar-msg').textContent =
+        'Deseja excluir permanentemente o curso "' + curso.nome + '"? Esta ação não pode ser desfeita.';
+      document.getElementById('modal-deletar').classList.add('is-open');
+    }
+
+    document.getElementById('btn-deletar-cancelar').addEventListener('click', function () {
+      document.getElementById('modal-deletar').classList.remove('is-open');
+      idParaDeletar = null;
+    });
+    document.getElementById('modal-deletar-fechar').addEventListener('click', function () {
+      document.getElementById('modal-deletar').classList.remove('is-open');
+      idParaDeletar = null;
+    });
+    document.getElementById('modal-deletar').addEventListener('click', function (e) {
+      if (e.target === this) { this.classList.remove('is-open'); idParaDeletar = null; }
+    });
+    document.getElementById('btn-deletar-confirmar').addEventListener('click', async function () {
+      if (!idParaDeletar) return;
+      var id = idParaDeletar;
+      var curso = todosCursos.find(function (c) { return c.id === id; });
+      var btn = this;
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        var res = await API.post('deletarCurso', { id: id });
+        todosCursos = res.cursos || todosCursos;
+        document.getElementById('modal-deletar').classList.remove('is-open');
+        idParaDeletar = null;
+        renderizarTabela();
+        mostrarFeedbackLista('success', 'Curso "' + (curso ? curso.nome : '') + '" excluído permanentemente.');
+      } catch (err) {
+        mostrarFeedbackLista('error', err.message || 'Erro ao excluir curso.');
+        document.getElementById('modal-deletar').classList.remove('is-open');
+      } finally {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+      }
+    });
+
+    document.getElementById('form-curso').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      ocultarFeedbackModal();
+      var id               = document.getElementById('campo-id').value.trim() || null;
+      var nome             = document.getElementById('campo-nome').value.trim();
+      var grupo            = document.getElementById('campo-grupo').value;
+      var status           = document.getElementById('campo-status').value;
+      var emailCoordenacao = document.getElementById('campo-email-coord').value.trim();
+      if (!nome)  { mostrarFeedbackModal('error', 'Informe o nome do curso.'); return; }
+      if (!grupo) { mostrarFeedbackModal('error', 'Selecione o grupo/modalidade.'); return; }
+      if (emailCoordenacao && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCoordenacao)) {
+        mostrarFeedbackModal('error', 'E-mail da coordenação inválido.'); return;
+      }
+      var btn = document.getElementById('btn-salvar');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        var payload = id
+          ? { id: id, nome: nome, grupo: grupo, status: status, emailCoordenacao: emailCoordenacao }
+          : { nome: nome, grupo: grupo, emailCoordenacao: emailCoordenacao };
+        var res = await API.post('salvarCurso', payload);
+        todosCursos = res.cursos || todosCursos;
+        renderizarTabela();
+        fecharModal();
+        mostrarFeedbackLista('success', id ? 'Curso atualizado com sucesso.' : 'Curso adicionado com sucesso.');
+      } catch (err) {
+        mostrarFeedbackModal('error', err.message || 'Erro ao salvar curso.');
+      } finally {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+      }
+    });
+
+    function mostrarFeedbackLista(tipo, msg) {
+      var el = document.getElementById('feedback-lista');
+      el.className = 'alert ' + (tipo === 'success' ? 'alert-success' : 'alert-error');
+      el.textContent = msg;
+      el.style.display = 'flex';
+      setTimeout(function () { el.style.display = 'none'; }, 5000);
+    }
+    function mostrarFeedbackModal(tipo, msg) {
+      var el = document.getElementById('modal-feedback');
+      el.className = 'alert ' + (tipo === 'success' ? 'alert-success' : 'alert-error');
+      el.textContent = msg;
+      el.style.display = 'flex';
+    }
+    function ocultarFeedbackModal() {
+      var el = document.getElementById('modal-feedback');
+      el.style.display = 'none';
+      el.textContent = '';
+    }
+
+    // ════════════════════════════════════════════════════════
+    // TAB 2 — Cursos Habilitados
+    // ════════════════════════════════════════════════════════
+    var habCarregado = false;
+    var cursosHab = [];
+
+    async function carregarHab() {
+      document.getElementById('loading-hab').style.display = 'block';
+      document.getElementById('hab-content').style.display  = 'none';
+      try {
+        var resultados = await Promise.all([API.get('listarCursos'), API.get('obterConfigCursos')]);
+        cursosHab = resultados[0] || [];
+        renderTabelaHab(resultados[1] || {});
+        document.getElementById('loading-hab').style.display = 'none';
+        document.getElementById('hab-content').style.display  = 'block';
+      } catch (err) {
+        document.getElementById('loading-hab').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar configuração: ' + escapeHtml(err.message || 'tente recarregar') + '</div></div>';
+      }
+    }
+
+    function renderTabelaHab(config) {
+      var obrigSet = (config.obrigatorio    == null) ? null : new Set(config.obrigatorio);
+      var naoSet   = (config.naoObrigatorio == null) ? null : new Set(config.naoObrigatorio);
+      var certSet  = (config.certificacao   == null) ? null : new Set(config.certificacao);
+      var tbody = document.getElementById('tabela-hab');
+      var html = '';
+      var grupoAtual = '';
+      cursosHab.forEach(function (c, idx) {
+        if (c.grupo !== grupoAtual) {
+          grupoAtual = c.grupo;
+          html += '<tr class="table-group-row"><td colspan="4">' + escapeHtml(c.grupo) + '</td></tr>';
+        }
+        var chkObrig = (obrigSet === null || obrigSet.has(c.nome)) ? 'checked' : '';
+        var chkNao   = (naoSet   === null || naoSet.has(c.nome))   ? 'checked' : '';
+        var chkCert  = (certSet  === null || certSet.has(c.nome))  ? 'checked' : '';
+        html += '<tr>' +
+          '<td>' + escapeHtml(c.nome) + '</td>' +
+          '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-obrig" data-idx="' + idx + '" ' + chkObrig + ' aria-label="Obrigatório para ' + escapeHtml(c.nome) + '"></div></td>' +
+          '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-nao" data-idx="' + idx + '" ' + chkNao + ' aria-label="Não Obrigatório para ' + escapeHtml(c.nome) + '"></div></td>' +
+          '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-cert" data-idx="' + idx + '" ' + chkCert + ' aria-label="Certificação de Conhecimento para ' + escapeHtml(c.nome) + '"></div></td>' +
+          '</tr>';
+      });
+      tbody.innerHTML = html || '<tr><td colspan="4"><div class="empty-state" style="padding:var(--space-8);"><p>Nenhum curso ativo cadastrado. Adicione cursos na aba <strong>Lista de Cursos</strong>.</p></div></td></tr>';
+      if (config.obrigatorio == null && config.naoObrigatorio == null) {
+        document.getElementById('ultima-atualizacao').textContent = 'Nenhuma configuração salva ainda — todos os cursos estão habilitados para todas as modalidades.';
+      }
+    }
+
+    document.querySelectorAll('[data-marcar]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tipo = btn.dataset.marcar;
+        var marcar = btn.dataset.valor === 'true';
+        var cls = tipo === 'obrig' ? '.cb-obrig' : (tipo === 'nao' ? '.cb-nao' : '.cb-cert');
+        document.querySelectorAll(cls).forEach(function (cb) { cb.checked = marcar; });
+      });
+    });
+
+    document.getElementById('btn-salvar-hab').addEventListener('click', async function () {
+      var btn = this;
+      var fb  = document.getElementById('feedback-hab');
+      btn.disabled = true; btn.classList.add('is-loading');
+      fb.style.display = 'none'; fb.innerHTML = '';
+      try {
+        var obrigatorio    = Array.from(document.querySelectorAll('.cb-obrig:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
+        var naoObrigatorio = Array.from(document.querySelectorAll('.cb-nao:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
+        var certificacao   = Array.from(document.querySelectorAll('.cb-cert:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
+        await API.post('salvarConfigCursos', { obrigatorio: obrigatorio, naoObrigatorio: naoObrigatorio, certificacao: certificacao });
+        fb.style.display = 'block';
+        fb.innerHTML = '<div class="alert alert-success"><div class="alert-content"><strong>Configuração salva com sucesso!</strong> ' + obrigatorio.length + ' para Obrigatório · ' + naoObrigatorio.length + ' para Não Obrigatório · ' + certificacao.length + ' para Certificação de Conhecimento.</div></div>';
+        var agora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+        document.getElementById('ultima-atualizacao').textContent = 'Última atualização: ' + agora;
+      } catch (err) {
+        fb.style.display = 'block';
+        fb.innerHTML = '<div class="alert alert-error"><div class="alert-content"><strong>Erro ao salvar:</strong> ' + escapeHtml(err.message || 'Tente novamente.') + '</div></div>';
+      } finally {
+        btn.disabled = false; btn.classList.remove('is-loading');
+      }
     });
   </script>
 </body>

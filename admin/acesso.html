@@ -56,18 +56,63 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Configurações de Acesso</h1>
-        <p class="page-hero-desc">Gerencie os papéis e permissões de acesso ao sistema.</p>
+        <p class="page-hero-desc">Defina quem tem acesso a cada módulo institucional do sistema — Central de Estágios, Admin, DEX, DEN, Diretor Geral, Registro Acadêmico e NAPNE.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A gestão dos papéis e permissões de acesso (ConfigAcesso) será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div class="alert alert-info" style="margin-bottom:var(--space-6);">
+        <div class="alert-content">O e-mail cadastrado para cada papel define quem tem <strong>acesso àquele módulo</strong> do sistema. Um mesmo e-mail pode ter mais de um papel; Central de Estágios e Admin podem ter vários e-mails de setor, enquanto os demais papéis costumam ter só um titular.</div>
       </div>
+
+      <div id="feedback-lista" class="alert" style="display:none;margin-bottom:var(--space-5);"></div>
+
+      <div class="filters">
+        <div class="form-group">
+          <label class="form-label" for="filtro-papel">Papel</label>
+          <select id="filtro-papel" class="form-control">
+            <option value="">Todos os papéis</option>
+            <option value="Central de Estágios">Central de Estágios</option>
+            <option value="Admin">Admin</option>
+            <option value="DEX">DEX</option>
+            <option value="DEN">DEN</option>
+            <option value="Diretor Geral">Diretor Geral</option>
+            <option value="Registro Acadêmico">Registro Acadêmico</option>
+            <option value="NAPNE">NAPNE</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:2;">
+          <label class="form-label" for="filtro-busca">Buscar por e-mail</label>
+          <input id="filtro-busca" type="search" class="form-control" placeholder="Buscar por e-mail…">
+        </div>
+        <div style="align-self:flex-end;">
+          <button id="btn-novo" class="btn btn-primary" type="button">+ Adicionar acesso</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table" id="tabela-acesso" aria-label="Configurações de acesso por papel">
+          <thead>
+            <tr>
+              <th>E-mail</th>
+              <th>Papel</th>
+              <th>Observação</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-acesso">
+            <tr>
+              <td colspan="4" style="text-align:center;padding:var(--space-12);">
+                <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                Carregando configurações de acesso…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p id="contagem-acesso" style="margin-top:var(--space-3);font-size:var(--font-size-sm);color:var(--color-text-muted);"></p>
     </div>
   </main>
 
@@ -84,6 +129,69 @@
     </div>
   </footer>
 
+  <!-- Modal: novo/editar acesso -->
+  <div class="modal-backdrop" id="modal-acesso">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-titulo">Novo acesso</h2>
+        <button type="button" class="modal-close" id="modal-acesso-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-feedback" class="alert" style="display:none;margin-bottom:var(--space-4);"></div>
+        <form id="form-acesso" novalidate>
+          <input type="hidden" id="campo-id">
+          <div class="form-group">
+            <label class="form-label required" for="campo-papel">Papel</label>
+            <select id="campo-papel" class="form-control" required>
+              <option value="">Selecione…</option>
+              <option value="Central de Estágios">Central de Estágios</option>
+              <option value="Admin">Admin</option>
+              <option value="DEX">DEX — Diretoria de Extensão</option>
+              <option value="DEN">DEN — Diretoria de Ensino</option>
+              <option value="Diretor Geral">Diretor Geral</option>
+              <option value="Registro Acadêmico">Registro Acadêmico</option>
+              <option value="NAPNE">NAPNE</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="campo-email">E-mail institucional</label>
+            <input id="campo-email" type="email" class="form-control" maxlength="200" required placeholder="Ex.: setor@riogrande.ifrs.edu.br" aria-describedby="campo-email-hint">
+            <span id="campo-email-hint" class="form-hint">E-mail que terá acesso ao módulo correspondente a este papel.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="campo-observacao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+            <input id="campo-observacao" type="text" class="form-control" maxlength="200" placeholder="Ex.: titular 2026, substituto durante licença...">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar">Cancelar</button>
+        <button type="submit" form="form-acesso" class="btn btn-primary" id="btn-salvar">Salvar acesso</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: confirmar exclusão -->
+  <div class="modal-backdrop" id="modal-deletar">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="deletar-titulo" style="color:var(--color-error);">Remover acesso?</h2>
+        <button type="button" class="modal-close" id="modal-deletar-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="deletar-msg" style="color:var(--color-text-muted);"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-deletar-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btn-deletar-confirmar">Sim, remover acesso</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
@@ -93,7 +201,178 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarAcessos();
     });
+
+    var todosAcessos = [];
+
+    async function carregarAcessos() {
+      try {
+        todosAcessos = await API.get('listarConfigAcesso');
+        renderizarTabela();
+      } catch (err) {
+        document.getElementById('tbody-acesso').innerHTML =
+          '<tr><td colspan="4" style="text-align:center;padding:var(--space-12);color:var(--color-text-muted);">Erro ao carregar configurações de acesso. Recarregue a página.</td></tr>';
+        console.error(err);
+      }
+    }
+
+    function renderizarTabela() {
+      var filtroPapel  = document.getElementById('filtro-papel').value;
+      var filtroBusca  = document.getElementById('filtro-busca').value.trim().toLowerCase();
+      var filtrados = todosAcessos.filter(function (a) {
+        if (filtroPapel && a.papel !== filtroPapel) return false;
+        if (filtroBusca && !a.email.toLowerCase().includes(filtroBusca)) return false;
+        return true;
+      });
+      var tbody = document.getElementById('tbody-acesso');
+      if (filtrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:var(--space-8);"><p>Nenhum acesso configurado ainda.</p></div></td></tr>';
+        document.getElementById('contagem-acesso').textContent = '';
+        return;
+      }
+      tbody.innerHTML = filtrados.map(function (a) {
+        return '<tr data-id="' + escapeHtml(a.id) + '">' +
+          '<td>' + escapeHtml(a.email) + '</td>' +
+          '<td><span class="badge badge-info">' + escapeHtml(a.papel) + '</span></td>' +
+          '<td>' + (a.observacao ? escapeHtml(a.observacao) : '<span style="color:var(--color-text-muted)">—</span>') + '</td>' +
+          '<td style="text-align:right;white-space:nowrap;">' +
+            '<button class="btn btn-sm btn-secondary" data-editar="' + escapeHtml(a.id) + '">Editar</button> ' +
+            '<button class="btn btn-sm btn-danger" data-excluir="' + escapeHtml(a.id) + '">Remover</button>' +
+          '</td></tr>';
+      }).join('');
+      document.getElementById('contagem-acesso').textContent = filtrados.length + ' acesso(s) configurado(s)';
+    }
+
+    ['filtro-papel', 'filtro-busca'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', renderizarTabela);
+      document.getElementById(id).addEventListener('change', renderizarTabela);
+    });
+
+    document.getElementById('tbody-acesso').addEventListener('click', function (e) {
+      var btnEditar  = e.target.closest('[data-editar]');
+      var btnExcluir = e.target.closest('[data-excluir]');
+      if (btnEditar)  abrirEdicao(btnEditar.dataset.editar);
+      if (btnExcluir) excluirAcesso(btnExcluir.dataset.excluir);
+    });
+
+    function abrirModal(acesso) {
+      var ehNovo = !acesso;
+      document.getElementById('modal-titulo').textContent   = ehNovo ? 'Novo acesso' : 'Editar acesso';
+      document.getElementById('campo-id').value              = ehNovo ? '' : acesso.id;
+      document.getElementById('campo-papel').value           = ehNovo ? '' : acesso.papel;
+      document.getElementById('campo-email').value            = ehNovo ? '' : acesso.email;
+      document.getElementById('campo-observacao').value       = ehNovo ? '' : (acesso.observacao || '');
+      ocultarFeedbackModal();
+      document.getElementById('modal-acesso').classList.add('is-open');
+      document.getElementById('campo-papel').focus();
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-acesso').classList.remove('is-open');
+    }
+
+    document.getElementById('btn-novo').addEventListener('click', function () { abrirModal(null); });
+    document.getElementById('btn-cancelar').addEventListener('click', fecharModal);
+    document.getElementById('modal-acesso-fechar').addEventListener('click', fecharModal);
+    document.getElementById('modal-acesso').addEventListener('click', function (e) { if (e.target === this) fecharModal(); });
+
+    function abrirEdicao(id) {
+      var acesso = todosAcessos.find(function (a) { return a.id === id; });
+      if (acesso) abrirModal(acesso);
+    }
+
+    var idParaRemover = null;
+
+    function excluirAcesso(id) {
+      var acesso = todosAcessos.find(function (a) { return a.id === id; });
+      if (!acesso) return;
+      idParaRemover = id;
+      document.getElementById('deletar-msg').textContent =
+        'Deseja remover o acesso de "' + acesso.email + '" ao papel "' + acesso.papel + '"? Esta pessoa perderá acesso a esse módulo.';
+      document.getElementById('modal-deletar').classList.add('is-open');
+    }
+
+    document.getElementById('btn-deletar-cancelar').addEventListener('click', function () {
+      document.getElementById('modal-deletar').classList.remove('is-open');
+      idParaRemover = null;
+    });
+    document.getElementById('modal-deletar-fechar').addEventListener('click', function () {
+      document.getElementById('modal-deletar').classList.remove('is-open');
+      idParaRemover = null;
+    });
+    document.getElementById('modal-deletar').addEventListener('click', function (e) {
+      if (e.target === this) { this.classList.remove('is-open'); idParaRemover = null; }
+    });
+    document.getElementById('btn-deletar-confirmar').addEventListener('click', async function () {
+      if (!idParaRemover) return;
+      var id = idParaRemover;
+      var acesso = todosAcessos.find(function (a) { return a.id === id; });
+      var btn = this;
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        var res = await API.post('excluirConfigAcesso', { id: id });
+        todosAcessos = res.acessos || todosAcessos;
+        document.getElementById('modal-deletar').classList.remove('is-open');
+        idParaRemover = null;
+        renderizarTabela();
+        mostrarFeedbackLista('success', 'Acesso de "' + (acesso ? acesso.email : '') + '" removido com sucesso.');
+      } catch (err) {
+        mostrarFeedbackLista('error', err.message || 'Erro ao remover acesso.');
+        document.getElementById('modal-deletar').classList.remove('is-open');
+      } finally {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+      }
+    });
+
+    document.getElementById('form-acesso').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      ocultarFeedbackModal();
+      var id          = document.getElementById('campo-id').value.trim() || null;
+      var papel       = document.getElementById('campo-papel').value;
+      var email       = document.getElementById('campo-email').value.trim().toLowerCase();
+      var observacao  = document.getElementById('campo-observacao').value.trim();
+      if (!papel) { mostrarFeedbackModal('error', 'Selecione o papel.'); return; }
+      if (!email) { mostrarFeedbackModal('error', 'Informe o e-mail institucional.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        mostrarFeedbackModal('error', 'E-mail inválido.'); return;
+      }
+      var btn = document.getElementById('btn-salvar');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        var payload = id
+          ? { id: id, papel: papel, email: email, observacao: observacao }
+          : { papel: papel, email: email, observacao: observacao };
+        var res = await API.post('salvarConfigAcesso', payload);
+        todosAcessos = res.acessos || todosAcessos;
+        renderizarTabela();
+        fecharModal();
+        mostrarFeedbackLista('success', id ? 'Acesso atualizado com sucesso.' : 'Acesso adicionado com sucesso.');
+      } catch (err) {
+        mostrarFeedbackModal('error', err.message || 'Erro ao salvar acesso.');
+      } finally {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+      }
+    });
+
+    function mostrarFeedbackLista(tipo, msg) {
+      var el = document.getElementById('feedback-lista');
+      el.className = 'alert ' + (tipo === 'success' ? 'alert-success' : 'alert-error');
+      el.textContent = msg;
+      el.style.display = 'flex';
+      setTimeout(function () { el.style.display = 'none'; }, 5000);
+    }
+    function mostrarFeedbackModal(tipo, msg) {
+      var el = document.getElementById('modal-feedback');
+      el.className = 'alert ' + (tipo === 'success' ? 'alert-success' : 'alert-error');
+      el.textContent = msg;
+      el.style.display = 'flex';
+    }
+    function ocultarFeedbackModal() {
+      var el = document.getElementById('modal-feedback');
+      el.style.display = 'none';
+      el.textContent = '';
+    }
   </script>
 </body>
 </html>
