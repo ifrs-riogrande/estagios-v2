@@ -102,6 +102,15 @@
   padding: 0;
 }
 
+/* Garante que o atributo `hidden` sempre esconda o elemento, mesmo quando
+   uma classe do próprio sistema (ex: .form-group, .form-row) define
+   display:flex/grid — sem isso, a regra do user-agent para [hidden]
+   (display:none) perde a disputa de cascata pra qualquer classe de autor
+   com a mesma especificidade. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   font-size: 16px;
   scroll-behavior: smooth;
