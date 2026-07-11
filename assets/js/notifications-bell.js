@@ -23,11 +23,9 @@
     var style = document.createElement('style');
     style.id  = 'sge-bell-styles';
     style.textContent = [
-      '.sge-bell-wrap{position:relative;display:inline-flex;align-items:center;margin-right:4px}',
-      '.sge-bell-btn{position:relative;background:none;border:none;cursor:pointer;padding:0 9px;border-radius:8px;color:var(--color-text-secondary,#6b7280);display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}',
-      '.sge-bell-btn:hover{background:var(--color-surface,#f3f4f6);color:var(--color-text,#111827)}',
-      '.sge-bell-btn svg{width:20px;height:20px;flex-shrink:0}',
-      '.sge-bell-badge{position:absolute;top:2px;right:2px;min-width:16px;height:16px;background:#ef4444;color:#fff;border-radius:99px;font-size:10px;font-weight:700;line-height:16px;text-align:center;padding:0 4px;pointer-events:none;display:none}',
+      '.sge-bell-wrap{position:relative;display:inline-flex;align-items:center;margin-right:8px}',
+      '.sge-bell-btn svg{width:18px;height:18px;flex-shrink:0}',
+      '.sge-bell-badge{position:absolute;top:-5px;right:-7px;min-width:16px;height:16px;background:#ef4444;color:#fff;border-radius:99px;font-size:10px;font-weight:700;line-height:16px;text-align:center;padding:0 4px;pointer-events:none;display:none}',
       '.sge-bell-badge.has-count{display:block}',
       '.sge-bell-drop{position:absolute;top:calc(100% + 8px);right:0;width:320px;background:#fff;border:1px solid var(--color-border,#e5e7eb);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:500;display:none;overflow:hidden}',
       '.sge-bell-drop.is-open{display:block}',
@@ -59,11 +57,14 @@
     var wrap = document.createElement('div');
     wrap.className = 'sge-bell-wrap';
     wrap.innerHTML =
-      '<button class="sge-bell-btn" id="sge-bell-btn" aria-label="Notificações" aria-expanded="false" aria-haspopup="true">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">' +
-          '<path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>' +
-        '</svg>' +
-        '<span class="sge-bell-badge" id="sge-bell-badge"></span>' +
+      '<button class="sge-bell-btn header-pill" id="sge-bell-btn" aria-label="Notificações" aria-expanded="false" aria-haspopup="true">' +
+        '<span class="sge-bell-icon-wrap">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">' +
+            '<path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>' +
+          '</svg>' +
+          '<span class="sge-bell-badge" id="sge-bell-badge"></span>' +
+        '</span>' +
+        '<span>Notificações</span>' +
       '</button>' +
       '<div class="sge-bell-drop" id="sge-bell-drop" role="dialog" aria-label="Notificações">' +
         '<div class="sge-bell-drop-header">' +
