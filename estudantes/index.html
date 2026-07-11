@@ -206,7 +206,7 @@
     <div class="mega-panel" id="painel-solicitacoes" hidden>
       <div class="container mega-panel-grid">
         <a href="estagio.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Solicitar Estágio</span>
+          <span class="mega-panel-item-title">Estágio</span>
           <span class="mega-panel-item-desc">Solicitação de estágio obrigatório ou não obrigatório</span>
         </a>
         <a href="aproveitamento.html" class="mega-panel-item">
@@ -228,7 +228,7 @@
     <div class="mega-panel" id="painel-acompanhamentos" hidden>
       <div class="container mega-panel-grid">
         <a href="acompanhamento-estagio.html" class="mega-panel-item">
-          <span class="mega-panel-item-title">Acompanhar Estágio</span>
+          <span class="mega-panel-item-title">Estágio</span>
           <span class="mega-panel-item-desc">Status, relatórios parciais e final do seu estágio</span>
         </a>
         <a href="acompanhamento-certificacao.html" class="mega-panel-item">
@@ -262,35 +262,29 @@
     </section>
 
     <div class="container">
-      <div class="hub-grid hub-grid--3" role="list">
-
-        <a href="#" class="hub-card" role="listitem" style="border-color:#2e7d32" data-abre-painel="solicitacoes">
-          <svg class="hub-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.073a2.25 2.25 0 01-2.25 2.25h-12a2.25 2.25 0 01-2.25-2.25V6a2.25 2.25 0 012.25-2.25h4.5M20.25 14.15l-7.5-7.5M20.25 14.15H15m5.25 0V9"/>
-          </svg>
-          <span class="hub-card__label">Solicitar Estágio ou Certificação</span>
-          <span class="hub-card__desc">Peça seu estágio, certificação de conhecimento, conversão ou aproveitamento — veja todas as opções</span>
-          <span class="hub-card-arrow" style="background:#e8f5e9;color:#2e7d32">▾</span>
-        </a>
-
-        <a href="#" class="hub-card" role="listitem" style="border-color:#1565c0" data-abre-painel="acompanhamentos">
-          <svg class="hub-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span class="hub-card__label">Acompanhar Solicitações</span>
-          <span class="hub-card__desc">Veja o status do seu estágio, certificação e demais solicitações — veja todas as opções</span>
-          <span class="hub-card-arrow" style="background:#e3f2fd;color:#1565c0">▾</span>
-        </a>
-
-        <a href="oportunidades.html" class="hub-card" role="listitem" style="border-color:#6d28e6">
-          <svg class="hub-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/>
-          </svg>
-          <span class="hub-card__label">Buscar Oportunidades</span>
-          <span class="hub-card__desc">Confira vagas de estágio e emprego disponíveis para você</span>
-          <span class="hub-card-arrow" style="background:#f3e5f5;color:#6d28e6">→</span>
-        </a>
-
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🔔 Notificações</h2>
+          <p class="card-subtitle">Um quadro destacando mensagens importantes sobre seus estágios e solicitações.</p>
+        </div>
+        <!-- Conteúdo de exemplo — pendente de endpoint no backend (ex.: listarNotificacoesEstudante) -->
+        <div class="card-body" id="notificacoes-lista" style="display:flex;flex-direction:column;gap:var(--space-3);">
+          <div class="alert alert-warning">
+            <div class="alert-content">⚠️ Seu relatório semestral vence em 10 dias.</div>
+          </div>
+          <div class="alert alert-success">
+            <div class="alert-content">✅ Seu Termo de Compromisso foi aprovado.</div>
+          </div>
+          <div class="alert alert-info">
+            <div class="alert-content">📄 Há um aditivo aguardando assinatura.</div>
+          </div>
+          <div class="alert alert-info">
+            <div class="alert-content">📄 Mantenha seu perfil atualizado.</div>
+          </div>
+          <div class="alert alert-info">
+            <div class="alert-content">📢 Nova vaga disponível em oportunidades.</div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -359,18 +353,6 @@
         if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
       });
     })();
-
-    // Cards da home abrem o mesmo painel do menu — nunca uma lista resumida
-    // e desatualizada em relação ao que o header realmente mostra.
-    document.querySelectorAll('[data-abre-painel]').forEach(function (card) {
-      card.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var trigger = document.querySelector('.mega-nav-trigger[data-menu="' + card.dataset.abrePainel + '"]');
-        if (trigger) trigger.click();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
   </script>
 </body>
 </html>
