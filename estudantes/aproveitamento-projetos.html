@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="../assets/img/fav.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conversão de Estágio Não Obrigatório — SGE IFRS Campus Rio Grande</title>
+  <title>Aproveitamento de Programas/Projetos — SGE IFRS Campus Rio Grande</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -211,11 +211,11 @@
           <span class="mega-panel-item-title">Certificação de Conhecimento</span>
           <span class="mega-panel-item-desc">Substituição do estágio por experiência profissional já exercida</span>
         </a>
-        <a href="conversao.html" class="mega-panel-item is-current">
+        <a href="conversao.html" class="mega-panel-item">
           <span class="mega-panel-item-title">Conversão de Estágio Não Obrigatório</span>
           <span class="mega-panel-item-desc">Reconhecimento de estágio não obrigatório como obrigatório</span>
         </a>
-        <a href="aproveitamento-projetos.html" class="mega-panel-item">
+        <a href="aproveitamento-projetos.html" class="mega-panel-item is-current">
           <span class="mega-panel-item-title">Aproveitamento de Programas/Projetos</span>
           <span class="mega-panel-item-desc">Uso da experiência em programas/projetos de ensino, pesquisa, extensão ou indissociáveis como estágio obrigatório</span>
         </a>
@@ -246,20 +246,21 @@
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO — formulário de conversão de estágio não obrigatório
+       CONTEÚDO — formulário de aproveitamento de programas/projetos
        ═══════════════════════════════════════ -->
   <main class="form-page" id="main-content">
     <div class="container">
       <div class="form-wrapper">
 
         <div class="form-page-header">
-          <h1>Conversão de Estágio Não Obrigatório</h1>
-          <p>Reconhecimento de estágio não obrigatório já concluído como cumprimento do estágio obrigatório. É possível somar a carga horária de mais de um estágio não obrigatório concluído.</p>
+          <h1>Aproveitamento de Programas/Projetos</h1>
+          <p>Uso da experiência em programas/projetos de ensino, pesquisa, extensão ou indissociáveis como cumprimento do estágio obrigatório. É possível somar a carga horária de mais de um programa/projeto.</p>
         </div>
 
+        <div id="status-banner" class="alert" style="display:none;margin-bottom:var(--space-6);"></div>
         <div id="form-feedback" class="form-feedback" role="status" aria-live="polite"></div>
 
-        <form id="form-conversao" novalidate>
+        <form id="form-projetos" novalidate>
 
           <!-- ── Seção 1: Seus Dados ── -->
           <div class="form-section">
@@ -336,7 +337,7 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Matrícula</label>
-                <input type="text" id="matricula-conversao" class="form-control" readonly placeholder="Preenchida automaticamente" style="background:var(--color-bg);cursor:not-allowed;">
+                <input type="text" id="matricula-projetos" class="form-control" readonly placeholder="Preenchida automaticamente" style="background:var(--color-bg);cursor:not-allowed;">
               </div>
             </div>
             <div class="form-group">
@@ -345,72 +346,30 @@
                 <option value="">Selecione o curso primeiro...</option>
               </select>
             </div>
-
-            <div id="msg-sem-estagios" class="alert alert-error" style="display:none;" role="alert">
-              <div class="alert-content" id="msg-sem-estagios-texto"></div>
-            </div>
           </div>
 
-          <!-- ── Seção 2: Estágios não obrigatórios concluídos ── -->
+          <!-- ── Seção 2: Programas/Projetos participados ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 018.75 1h2.5A2.75 2.75 0 0114 3.75v.443c.572.055 1.14.122 1.706.2C17.053 4.582 18 5.75 18 7.07v3.469c0 1.126-.694 2.191-1.83 2.54-1.952.599-4.024.921-6.17.921s-4.218-.322-6.17-.921C2.694 12.73 2 11.665 2 10.539V7.07c0-1.321.947-2.489 2.294-2.676A41.047 41.047 0 016 4.193V3.75z" clip-rule="evenodd"/></svg>
+              Seção 2 — Programas/Projetos Participados
+            </h2>
+            <p class="form-hint" style="margin-bottom:var(--space-5);">Adicione cada programa ou projeto em que participou, com o documento comprobatório correspondente. A carga horária total é somada automaticamente.</p>
+
+            <div id="lista-projetos" style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-3);"></div>
+
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-projeto">+ Adicionar programa/projeto</button>
+            <span id="projetos-error" class="form-error hidden" role="alert" style="display:block;margin-top:var(--space-2);"></span>
+
+            <p id="total-horas-projetos" style="margin-top:var(--space-5);font-size:var(--font-size-sm);font-weight:600;color:var(--color-text);">Carga horária total: 0 horas</p>
+            <p class="form-hint">Sugestão: some pelo menos 300 horas no total. Como a experiência em programas/projetos costuma ser menos intensa que um estágio, uma carga um pouco maior que a do estágio obrigatório (200h) é recomendável — não é um mínimo obrigatório, apenas uma referência.</p>
+          </div>
+
+          <!-- ── Seção 3: Declaração de veracidade ── -->
           <div class="form-section">
             <h2 class="form-section-title">
               <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-              Seção 2 — Estágios Não Obrigatórios Concluídos
-            </h2>
-            <p class="form-hint" style="margin-bottom:var(--space-5);">Selecione o(s) estágio(s) não obrigatório(s) já concluído(s) que deseja usar nesta conversão. A carga horária de cada um selecionado é somada automaticamente.</p>
-
-            <div id="loading-estagios" style="text-align:center;padding:var(--space-8);color:var(--color-text-muted);">
-              <div class="spinner" style="margin:0 auto var(--space-3);"></div>
-              Carregando seus estágios concluídos...
-            </div>
-
-            <div id="conteudo-estagios" style="display:none;">
-              <div class="table-wrapper">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th class="check-col" style="width:48px;"></th>
-                      <th>Concedente</th>
-                      <th>Período</th>
-                      <th style="text-align:right;">Carga Horária</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabela-estagios-concluidos"></tbody>
-                </table>
-              </div>
-              <p id="total-horas-selecionadas" style="margin-top:var(--space-3);font-size:var(--font-size-sm);font-weight:600;color:var(--color-text);">Carga horária total selecionada: 0 horas</p>
-              <input type="hidden" id="estagios-selecionados-value">
-              <span id="estagios-selecionados-error" class="form-error hidden" role="alert"></span>
-            </div>
-          </div>
-
-          <!-- ── Seção 3: Upload de documentos ── -->
-          <div class="form-section">
-            <h2 class="form-section-title">
-              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-              Seção 3 — Upload de Documentos
-            </h2>
-            <div class="form-group">
-              <label class="form-label required" for="doc-matricula">Comprovante de matrícula</label>
-              <div class="file-input-wrapper">
-                <label class="file-input-label" for="doc-matricula">
-                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-                  <span class="file-text">Selecionar comprovante de matrícula (PDF)</span>
-                  <span class="file-selected" id="matricula-doc-name"></span>
-                  <span class="file-types">PDF — máx. 5 MB</span>
-                </label>
-                <input type="file" class="form-control-file" id="doc-matricula" accept=".pdf" required aria-required="true" aria-describedby="doc-matricula-error">
-              </div>
-              <span id="doc-matricula-error" class="form-error hidden" role="alert"></span>
-              <p class="form-hint">Emitido pela Secretaria, com assinatura, do semestre vigente.</p>
-            </div>
-          </div>
-
-          <!-- ── Seção 4: Declaração de veracidade ── -->
-          <div class="form-section">
-            <h2 class="form-section-title">
-              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-              Seção 4 — Declaração de Veracidade
+              Seção 3 — Declaração de Veracidade
             </h2>
             <div class="declaration-box">
               <div class="form-check">
@@ -423,9 +382,9 @@
             </div>
           </div>
 
-          <div class="form-actions form-actions--between">
-            <button type="button" id="btn-limpar" class="btn btn-ghost">Limpar</button>
-            <button type="submit" id="btn-enviar" class="btn btn-primary btn-lg">
+          <div class="form-actions form-actions--between" id="bloco-acoes">
+            <button type="button" class="btn btn-ghost" id="btn-rascunho">Salvar rascunho</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-enviar">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
               Enviar Solicitação
             </button>
@@ -461,13 +420,15 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-    var form = document.getElementById('form-conversao');
+    var form = document.getElementById('form-projetos');
     var btnEnviar = document.getElementById('btn-enviar');
+    var btnRascunho = document.getElementById('btn-rascunho');
     var _submitting = false;
 
     var dadosEstudante = null;
+    var solicitacaoAtual = null;
     var cursosPorNome = {};
-    var estagiosConcluidos = []; // [{ id, empresa, dataInicio, dataFim, cargaHorariaTotal }]
+    var _projUid = 0;
 
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
@@ -538,6 +499,15 @@
             selVinculo.dispatchEvent(new Event('change'));
           }
         }
+
+        try {
+          solicitacaoAtual = await API.get('obterMeuAproveitamentoProjetos', { curso: selVinculo.value || '' });
+        } catch (e) { solicitacaoAtual = null; }
+        if (solicitacaoAtual) preencherFormularioExistente(solicitacaoAtual);
+
+        renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
+        var editavel = !solicitacaoAtual || !solicitacaoAtual.status || solicitacaoAtual.status === 'Rascunho' || solicitacaoAtual.status === 'Devolvido';
+        setFormEditavel(editavel);
       } catch (err) {
         showFormFeedback('form-feedback', 'error', 'Erro ao carregar', err.message || 'Não foi possível carregar seus dados. Recarregue a página.');
       }
@@ -576,8 +546,6 @@
       btn.disabled = true;
       btn.classList.add('is-loading');
       try {
-        // Atualização parcial — só os campos exibidos nesta página; o backend
-        // deve mesclar com o restante do cadastro (endereço etc. não mudam aqui).
         await API.post('atualizarContatoEstudante', {
           telefone: telefone, whatsapp: document.getElementById('dados-whatsapp').checked, emailPessoal: emailPessoal,
         });
@@ -590,22 +558,20 @@
       }
     });
 
-    // ── Curso → matrícula, período letivo, estágios concluídos elegíveis ──
+    // ── Curso → matrícula, período letivo ──
     document.getElementById('vinculo-curso').addEventListener('change', function () {
       var cursoNome = this.value;
       var selSem = document.getElementById('semestre-atual');
 
       if (!cursoNome) {
-        document.getElementById('matricula-conversao').value = '';
+        document.getElementById('matricula-projetos').value = '';
         selSem.innerHTML = '<option value="">Selecione o curso primeiro...</option>';
         selSem.disabled = true;
-        document.getElementById('conteudo-estagios').style.display = 'none';
-        document.getElementById('msg-sem-estagios').style.display = 'none';
         return;
       }
 
       var entry = (dadosEstudante.cursos || []).find(function (c) { return c.curso === cursoNome; });
-      document.getElementById('matricula-conversao').value = entry ? entry.matricula : '';
+      document.getElementById('matricula-projetos').value = entry ? entry.matricula : '';
 
       var grupo = (cursosPorNome[cursoNome] || {}).grupo || '';
       var opcoes = opcoesSemestrePorGrupo(grupo);
@@ -613,135 +579,261 @@
       selSem.disabled = false;
 
       clearFieldError('vinculo-curso');
-      carregarEstagiosConcluidos(cursoNome);
     });
 
     // ════════════════════════════════════════════════════════
-    // SEÇÃO 2 — Estágios não obrigatórios concluídos (elegibilidade + soma de horas)
+    // SEÇÃO 2 — Programas/Projetos (lista dinâmica de cards, sem re-render —
+    // cada card é criado/removido individualmente para não perder os
+    // arquivos já escolhidos em outros cards)
     // ════════════════════════════════════════════════════════
-    async function carregarEstagiosConcluidos(curso) {
-      document.getElementById('loading-estagios').style.display = 'block';
-      document.getElementById('conteudo-estagios').style.display = 'none';
-      document.getElementById('msg-sem-estagios').style.display = 'none';
-      btnEnviar.disabled = true;
+    function criarCardProjeto(dados) {
+      dados = dados || {};
+      var uid = ++_projUid;
+      var inputId = 'proj-doc-' + uid;
+      var nameId = 'proj-doc-name-' + uid;
+      var anoMax = new Date().getFullYear() + 1;
 
-      try {
-        var lista = await API.get('listarEstagiosNaoObrigatoriosConcluidos', { curso: curso });
-        estagiosConcluidos = lista || [];
-        document.getElementById('loading-estagios').style.display = 'none';
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML =
+        '<div class="card-body" style="position:relative;padding:var(--space-4);">' +
+          '<button type="button" class="btn btn-sm btn-danger" style="position:absolute;top:var(--space-4);right:var(--space-4);">Remover</button>' +
+          '<div class="form-row" style="padding-right:100px;">' +
+            '<div class="form-group"><label class="form-label required">Nome do programa/projeto</label>' +
+              '<input type="text" class="form-control proj-nome" value="' + escapeHtml(dados.nome || '') + '" maxlength="200" placeholder="Ex.: PIBIC — Iniciação Científica"></div>' +
+            '<div class="form-group"><label class="form-label required">Tipo</label>' +
+              '<select class="form-control proj-tipo">' +
+                '<option value="">Selecione...</option>' +
+                '<option value="Ensino">Ensino</option>' +
+                '<option value="Pesquisa">Pesquisa</option>' +
+                '<option value="Extensão">Extensão</option>' +
+                '<option value="Indissociável">Indissociável (ensino + pesquisa + extensão)</option>' +
+              '</select></div>' +
+          '</div>' +
+          '<div class="form-group"><label class="form-label required">Coordenador(a)/orientador(a) responsável</label>' +
+            '<input type="text" class="form-control proj-coordenador" value="' + escapeHtml(dados.coordenador || '') + '" maxlength="200" placeholder="Nome do(a) professor(a) responsável"></div>' +
+          '<div class="form-row">' +
+            '<div class="form-group"><label class="form-label required">Ano de participação</label>' +
+              '<input type="number" class="form-control proj-ano" value="' + escapeHtml(String(dados.ano || '')) + '" min="2000" max="' + anoMax + '" placeholder="Ex.: 2024"></div>' +
+            '<div class="form-group"><label class="form-label required">Carga horária (h)</label>' +
+              '<input type="number" class="form-control proj-horas" value="' + escapeHtml(String(dados.horas || '')) + '" min="1" max="9999" placeholder="Ex.: 120"></div>' +
+          '</div>' +
+          '<div class="form-group">' +
+            '<label class="form-label required" for="' + inputId + '">Documento comprobatório (declaração/certificado)</label>' +
+            '<div class="file-input-wrapper">' +
+              '<label class="file-input-label" for="' + inputId + '">' +
+                '<svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>' +
+                '<span class="file-text">Selecionar documento (PDF)</span>' +
+                '<span class="file-selected" id="' + nameId + '"' + (dados.docUrl ? '' : ' style="display:none;"') + '>' + (dados.docUrl ? '✓ Documento já enviado' : '') + '</span>' +
+                '<span class="file-types">PDF — máx. 5 MB</span>' +
+              '</label>' +
+              '<input type="file" class="form-control-file proj-doc" id="' + inputId + '" accept=".pdf"' + (dados.docUrl ? '' : ' required') + '>' +
+            '</div>' +
+            '<span id="' + inputId + '-error" class="form-error hidden" role="alert"></span>' +
+          '</div>' +
+        '</div>';
 
-        if (estagiosConcluidos.length === 0) {
-          document.getElementById('msg-sem-estagios-texto').innerHTML =
-            '<strong>Nenhum estágio não obrigatório concluído encontrado.</strong> Esta conversão exige pelo menos um estágio não obrigatório já concluído para o curso selecionado. Entre em contato com o setor de estágios se você acredita que isso é um erro.';
-          document.getElementById('msg-sem-estagios').style.display = 'block';
-          document.getElementById('conteudo-estagios').style.display = 'none';
-          return;
-        }
+      card.dataset.temDocSalvo = dados.docUrl ? '1' : '';
 
-        renderizarEstagiosConcluidos();
-        document.getElementById('conteudo-estagios').style.display = 'block';
-        btnEnviar.disabled = false;
-      } catch (err) {
-        document.getElementById('loading-estagios').innerHTML =
-          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar seus estágios concluídos: ' + escapeHtml(err.message || 'tente recarregar') + '</div></div>';
+      card.querySelector('.btn-danger').addEventListener('click', function () {
+        card.remove();
+        atualizarTotalHorasProjetos();
+      });
+      card.querySelector('.proj-horas').addEventListener('input', atualizarTotalHorasProjetos);
+
+      document.getElementById('lista-projetos').appendChild(card);
+      validarPdf(inputId, nameId, inputId + '-error');
+      return card;
+    }
+
+    document.getElementById('btn-add-projeto').addEventListener('click', function () {
+      criarCardProjeto();
+      clearFieldError('projetos');
+    });
+
+    function coletarProjetos() {
+      var cards = document.querySelectorAll('#lista-projetos .card');
+      var lista = [];
+      cards.forEach(function (card) {
+        var fileInput = card.querySelector('.proj-doc');
+        lista.push({
+          nome: card.querySelector('.proj-nome').value.trim(),
+          tipo: card.querySelector('.proj-tipo').value,
+          coordenador: card.querySelector('.proj-coordenador').value.trim(),
+          ano: card.querySelector('.proj-ano').value,
+          horas: card.querySelector('.proj-horas').value,
+          docInputId: fileInput.id,
+          temDocSalvo: card.dataset.temDocSalvo === '1',
+        });
+      });
+      return lista;
+    }
+
+    function atualizarTotalHorasProjetos() {
+      var total = Array.from(document.querySelectorAll('#lista-projetos .proj-horas'))
+        .reduce(function (soma, inp) { return soma + (Number(inp.value) || 0); }, 0);
+      document.getElementById('total-horas-projetos').textContent = 'Carga horária total: ' + total + ' horas';
+    }
+
+    // ════════════════════════════════════════════════════════
+    // STATUS / MODO SOMENTE LEITURA (Rascunho, Devolvido, Aguardando..., Deferido, Indeferido)
+    // ════════════════════════════════════════════════════════
+    function renderizarStatusBanner(status) {
+      var banner = document.getElementById('status-banner');
+      if (!status || status === 'Rascunho') { banner.style.display = 'none'; return; }
+
+      var tipo = 'info';
+      var html = '';
+      if (status === 'Devolvido') {
+        tipo = 'warning';
+        var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
+        html = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
+          (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
+      } else if (status === 'Deferido') {
+        tipo = 'success';
+        var horas = (solicitacaoAtual && solicitacaoAtual.cargaHomologada) || '';
+        html = '<div class="alert-content"><strong>Solicitação deferida!</strong> Carga horária homologada: ' + escapeHtml(String(horas)) + ' horas. O aproveitamento foi registrado como estágio obrigatório cumprido.</div>';
+      } else if (status === 'Indeferido') {
+        tipo = 'error';
+        var just = (solicitacaoAtual && solicitacaoAtual.justificativa) || '';
+        html = '<div class="alert-content"><strong>Solicitação indeferida.</strong>' +
+          (just ? '<br>Justificativa: ' + escapeHtml(just) : '') + '<br>Entre em contato com o setor de estágios para mais informações.</div>';
+      } else {
+        var labels = {
+          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise do coordenador de curso.',
+          'Aguardando Admin': 'O coordenador emitiu o parecer. Aguardando verificação pelo setor de estágios.',
+          'Aguardando DEN': 'O setor de estágios encaminhou sua solicitação à DEN para parecer final.',
+        };
+        html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
       }
+      banner.className = 'alert alert-' + tipo;
+      banner.innerHTML = html;
+      banner.style.display = 'flex';
     }
 
-    function renderizarEstagiosConcluidos() {
-      var tbody = document.getElementById('tabela-estagios-concluidos');
-      tbody.innerHTML = estagiosConcluidos.map(function (e, idx) {
-        var periodo = (e.dataInicio || '—') + ' a ' + (e.dataFim || '—');
-        return '<tr>' +
-          '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-estagio" data-idx="' + idx + '" aria-label="Selecionar estágio em ' + escapeHtml(e.empresa) + '"></div></td>' +
-          '<td>' + escapeHtml(e.empresa) + '</td>' +
-          '<td>' + escapeHtml(periodo) + '</td>' +
-          '<td style="text-align:right;">' + escapeHtml(String(e.cargaHorariaTotal)) + 'h</td>' +
-        '</tr>';
-      }).join('');
-
-      tbody.querySelectorAll('.cb-estagio').forEach(function (cb) {
-        cb.addEventListener('change', atualizarTotalHorasSelecionadas);
+    function setFormEditavel(editavel) {
+      form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+        if (el.id === 'btn-salvar-contato') return; // contato pode sempre ser atualizado
+        el.disabled = !editavel;
       });
-      atualizarTotalHorasSelecionadas();
+      document.getElementById('bloco-acoes').style.display = editavel ? 'flex' : 'none';
     }
 
-    function atualizarTotalHorasSelecionadas() {
-      var selecionados = Array.from(document.querySelectorAll('.cb-estagio:checked')).map(function (cb) {
-        return estagiosConcluidos[+cb.dataset.idx];
-      });
-      var total = selecionados.reduce(function (soma, e) { return soma + (Number(e.cargaHorariaTotal) || 0); }, 0);
-      document.getElementById('total-horas-selecionadas').textContent = 'Carga horária total selecionada: ' + total + ' horas';
-      document.getElementById('estagios-selecionados-value').value = JSON.stringify(selecionados.map(function (e) { return e.id; }));
-      clearFieldError('estagios-selecionados');
+    function preencherFormularioExistente(s) {
+      if (s.semestreAtual) document.getElementById('semestre-atual').value = s.semestreAtual;
+      document.getElementById('formando').checked = s.formando === 'Sim';
+      document.getElementById('formando-label').textContent = s.formando === 'Sim' ? 'Sim' : 'Não';
+
+      (s.projetos || []).forEach(function (p) { criarCardProjeto(p); });
+      atualizarTotalHorasProjetos();
+
+      document.getElementById('declaracao-veracidade').checked = s.declaracaoVeracidade === true;
     }
 
     // ════════════════════════════════════════════════════════
-    // UPLOAD — validação de PDF (ver assets/js/utils.js)
+    // COLETA DE DADOS
     // ════════════════════════════════════════════════════════
-    validarPdf('doc-matricula', 'matricula-doc-name', 'doc-matricula-error');
+    function coletarDados() {
+      var projetos = coletarProjetos();
+      var totalHoras = projetos.reduce(function (soma, p) { return soma + (Number(p.horas) || 0); }, 0);
+      return {
+        curso: document.getElementById('vinculo-curso').value,
+        matricula: document.getElementById('matricula-projetos').value,
+        semestreAtual: document.getElementById('semestre-atual').value,
+        formando: document.getElementById('formando').checked ? 'Sim' : 'Não',
+        projetos: projetos,
+        cargaHorariaTotal: totalHoras,
+        declaracaoVeracidade: document.getElementById('declaracao-veracidade').checked,
+      };
+    }
 
     // ════════════════════════════════════════════════════════
-    // VALIDAÇÃO E ENVIO
+    // SALVAR RASCUNHO
     // ════════════════════════════════════════════════════════
-    function validarFormulario() {
+    btnRascunho.addEventListener('click', async function () {
+      if (_submitting) return;
+      _submitting = true;
+      btnRascunho.classList.add('is-loading');
+      btnRascunho.disabled = true;
+      hideFormFeedback('form-feedback');
+      try {
+        var dados = coletarDados();
+        delete dados.projetos; // projetos com arquivo são enviados só no envio final (ver Enviar Solicitação)
+        var res = await API.post('salvarRascunhoAproveitamentoProjetos', dados);
+        solicitacaoAtual = Object.assign({}, solicitacaoAtual, { id: res.id, status: 'Rascunho' });
+        showFormFeedback('form-feedback', 'success', 'Rascunho salvo', 'Suas informações foram salvas. Você pode continuar depois. Os documentos dos programas/projetos precisam ser reenviados ao concluir e enviar a solicitação.');
+      } catch (err) {
+        showFormFeedback('form-feedback', 'error', 'Erro ao salvar', err.message || 'Tente novamente.');
+      } finally {
+        btnRascunho.classList.remove('is-loading');
+        btnRascunho.disabled = false;
+        _submitting = false;
+      }
+    });
+
+    // ════════════════════════════════════════════════════════
+    // ENVIAR SOLICITAÇÃO
+    // ════════════════════════════════════════════════════════
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (_submitting) return;
+      hideFormFeedback('form-feedback');
+
+      var dados = coletarDados();
       var valido = true, primeiroInvalido = null;
       function fail(id, msg) { showFieldError(id, msg); if (!primeiroInvalido) primeiroInvalido = id; valido = false; }
 
       if (!document.getElementById('vinculo-curso').value) fail('vinculo-curso', 'Selecione o curso.');
-      if (!document.getElementById('semestre-atual').value) fail('semestre-atual', 'Selecione o período letivo.');
+      if (!dados.semestreAtual) fail('semestre-atual', 'Selecione o período letivo.');
 
-      var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
-      if (idsSelecionados.length === 0) fail('estagios-selecionados', 'Selecione ao menos um estágio não obrigatório concluído.');
+      if (dados.projetos.length === 0) {
+        fail('projetos', 'Adicione ao menos um programa/projeto.');
+      } else {
+        var incompleto = dados.projetos.some(function (p) {
+          return !p.nome || !p.tipo || !p.coordenador || !p.ano || !p.horas;
+        });
+        if (incompleto) fail('projetos', 'Preencha nome, tipo, coordenador(a), ano e carga horária de todos os programas/projetos.');
 
-      if (!document.getElementById('doc-matricula').files.length) fail('doc-matricula', 'Anexe o comprovante de matrícula.');
-      else if (_fileOk['doc-matricula'] === false) fail('doc-matricula', 'O arquivo não é um PDF válido.');
+        var semDocumento = dados.projetos.some(function (p) {
+          var input = document.getElementById(p.docInputId);
+          return !p.temDocSalvo && (!input || !input.files.length);
+        });
+        if (semDocumento) fail('projetos', 'Anexe o documento comprobatório de todos os programas/projetos.');
+      }
 
-      if (!document.getElementById('declaracao-veracidade').checked) fail('declaracao-veracidade', 'Aceite a declaração de veracidade para continuar.');
+      if (!dados.declaracaoVeracidade) fail('declaracao-veracidade', 'Você precisa confirmar a declaração de veracidade.');
 
-      if (primeiroInvalido) {
+      if (!valido) {
         var el = document.getElementById(primeiroInvalido);
         if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        return;
       }
-      return valido;
-    }
-
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      hideFormFeedback('form-feedback');
-      if (_submitting) return;
-      if (!validarFormulario()) return;
 
       _submitting = true;
       btnEnviar.classList.add('is-loading');
       btnEnviar.disabled = true;
 
-      var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
-      var totalHoras = Array.from(document.querySelectorAll('.cb-estagio:checked'))
-        .reduce(function (soma, cb) { return soma + (Number(estagiosConcluidos[+cb.dataset.idx].cargaHorariaTotal) || 0); }, 0);
-
-      var lerBase64 = function (file) {
-        return new Promise(function (resolve) {
-          if (!file) { resolve(null); return; }
-          var r = new FileReader();
-          r.onload = function () { resolve({ nome: file.name, base64: r.result.split(',')[1] }); };
-          r.onerror = function () { resolve(null); };
-          r.readAsDataURL(file);
-        });
-      };
-
       try {
-        var docMatricula = await lerBase64(document.getElementById('doc-matricula').files[0]);
-
-        var payload = {
-          cursoConversao: document.getElementById('vinculo-curso').value,
-          matriculaConversao: document.getElementById('matricula-conversao').value,
-          semestreAtual: document.getElementById('semestre-atual').value,
-          formando: document.getElementById('formando').checked ? 'Sim' : 'Não',
-          estagiosSelecionados: idsSelecionados,
-          cargaHorariaTotalConvertida: totalHoras,
-          declaracaoVeracidade: document.getElementById('declaracao-veracidade').checked,
-          docMatricula: docMatricula,
+        var lerBase64 = function (file) {
+          return new Promise(function (resolve) {
+            if (!file) { resolve(null); return; }
+            var r = new FileReader();
+            r.onload = function () { resolve({ nome: file.name, base64: r.result.split(',')[1] }); };
+            r.onerror = function () { resolve(null); };
+            r.readAsDataURL(file);
+          });
         };
+
+        var projetosComDocumento = await Promise.all(dados.projetos.map(async function (p) {
+          var input = document.getElementById(p.docInputId);
+          var file = input && input.files[0];
+          var documento = await lerBase64(file);
+          var copia = { nome: p.nome, tipo: p.tipo, coordenador: p.coordenador, ano: p.ano, horas: p.horas };
+          if (documento) copia.documento = documento;
+          return copia;
+        }));
+
+        var payload = Object.assign({}, dados, { projetos: projetosComDocumento });
 
         // Reforço não-bloqueante: mantém o contato sincronizado com o cadastro mestre.
         try {
@@ -752,11 +844,13 @@
           });
         } catch (e) { /* não bloqueia o envio */ }
 
-        var result = await API.post('enviarConversaoEstagio', payload);
-        showFormFeedback('form-feedback', 'success', 'Solicitação enviada!', result.mensagem || 'Sua solicitação de conversão foi enviada. Você receberá atualizações por e-mail.');
-        form.querySelectorAll('input, select, textarea, button').forEach(function (el) { el.disabled = true; });
+        await API.post('enviarAproveitamentoProjetos', payload);
+
+        showFormFeedback('form-feedback', 'success', 'Solicitação enviada!', 'Sua solicitação foi encaminhada ao coordenador do curso. Você receberá atualizações por e-mail.');
+        setFormEditavel(false);
+        solicitacaoAtual = Object.assign({}, solicitacaoAtual, { status: 'Aguardando Coordenador' });
+        renderizarStatusBanner('Aguardando Coordenador');
       } catch (err) {
-        btnEnviar.classList.remove('is-loading');
         if (err.code === 'TIMEOUT' || err.code === 'NETWORK') {
           showFormFeedback('form-feedback', 'warning', 'Tempo de resposta excedido', 'A solicitação pode já ter sido registrada. Aguarde alguns minutos e verifique seu e-mail de confirmação.');
         } else {
@@ -764,22 +858,9 @@
           btnEnviar.disabled = false;
           _submitting = false;
         }
+      } finally {
+        btnEnviar.classList.remove('is-loading');
       }
-    });
-
-    document.getElementById('btn-limpar').addEventListener('click', function () {
-      form.reset();
-      document.getElementById('matricula-conversao').value = '';
-      document.getElementById('semestre-atual').innerHTML = '<option value="">Selecione o curso primeiro...</option>';
-      document.getElementById('semestre-atual').disabled = true;
-      document.getElementById('conteudo-estagios').style.display = 'none';
-      document.getElementById('msg-sem-estagios').style.display = 'none';
-      document.getElementById('formando-label').textContent = 'Não';
-      document.getElementById('dados-whatsapp-label').textContent = 'Sim';
-      form.querySelectorAll('.form-control').forEach(function (el) { el.classList.remove('is-invalid', 'is-valid'); el.removeAttribute('aria-invalid'); });
-      form.querySelectorAll('.form-error').forEach(function (el) { el.textContent = ''; el.classList.add('hidden'); });
-      hideFormFeedback('form-feedback');
-      iniciar();
     });
   </script>
 </body>
