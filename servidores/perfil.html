@@ -234,6 +234,45 @@
                 <input type="text" id="srv-siape" class="form-control" placeholder="Ex: 1234567" inputmode="numeric" required aria-required="true">
               </div>
             </div>
+
+            <div class="form-group">
+              <label class="form-label required">Docente ou Técnico Administrativo</label>
+              <div class="radio-group" id="srv-categoria" role="radiogroup" aria-required="true">
+                <div class="radio-option">
+                  <input type="radio" id="srv-categoria-docente" name="srv-categoria" value="Docente">
+                  <label for="srv-categoria-docente">Docente</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="srv-categoria-tecnico" name="srv-categoria" value="Tecnico">
+                  <label for="srv-categoria-tecnico">Técnico Administrativo</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" id="srv-vinculo-wrap" hidden>
+              <label class="form-label required">Tipo de vínculo</label>
+              <div class="radio-group" id="srv-vinculo" role="radiogroup" aria-required="true">
+                <div class="radio-option">
+                  <input type="radio" id="srv-vinculo-efetivo" name="srv-vinculo" value="DocenteEfetivo">
+                  <label for="srv-vinculo-efetivo">Docente Efetivo</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="srv-vinculo-substituto" name="srv-vinculo" value="DocenteSubstituto">
+                  <label for="srv-vinculo-substituto">Docente Substituto/Temporário/Visitante</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" id="srv-contrato-datas" hidden>
+              <div class="form-group">
+                <label class="form-label" for="srv-inicio-contrato">Início do contrato</label>
+                <input type="date" id="srv-inicio-contrato" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="srv-fim-contrato">Fim do contrato</label>
+                <input type="date" id="srv-fim-contrato" class="form-control">
+              </div>
+            </div>
+
             <div class="form-row-3">
               <div class="form-group">
                 <label class="form-label required" for="srv-telefone">Telefone celular</label>
@@ -271,33 +310,11 @@
 
             <!-- ── Orientador ── -->
             <div class="form-check">
-              <input type="checkbox" id="papel-orientador" data-papel-toggle="bloco-orientador">
+              <input type="checkbox" id="papel-orientador" data-papel-toggle="bloco-orientador" disabled>
               <label class="form-check-label" for="papel-orientador">Sou Orientador</label>
             </div>
+            <p class="form-hint" style="margin:2px 0 0 26px;">Disponível apenas para docentes.</p>
             <div class="papel-bloco" id="bloco-orientador" hidden>
-              <div class="form-group">
-                <label class="form-label required">Tipo de vínculo</label>
-                <div class="radio-group" id="ori-vinculo" role="radiogroup" aria-required="true">
-                  <div class="radio-option">
-                    <input type="radio" id="ori-vinculo-efetivo" name="ori-vinculo" value="Efetivo">
-                    <label for="ori-vinculo-efetivo">Efetivo</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" id="ori-vinculo-substituto" name="ori-vinculo" value="Substituto">
-                    <label for="ori-vinculo-substituto">Substituto</label>
-                  </div>
-                </div>
-              </div>
-              <div class="form-row" id="ori-contrato-datas" hidden>
-                <div class="form-group">
-                  <label class="form-label" for="ori-inicio-contrato">Início do contrato</label>
-                  <input type="date" id="ori-inicio-contrato" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="ori-fim-contrato">Fim do contrato</label>
-                  <input type="date" id="ori-fim-contrato" class="form-control">
-                </div>
-              </div>
               <div class="form-row">
                 <div class="form-group">
                   <label class="form-label required" for="ori-titulacao">Titulação</label>
@@ -337,6 +354,7 @@
               <input type="checkbox" id="papel-coordenador" data-papel-toggle="bloco-coordenador">
               <label class="form-check-label" for="papel-coordenador">Sou Coordenador de Curso</label>
             </div>
+            <p class="form-hint" id="coord-hint-substituto" style="margin:2px 0 0 26px;" hidden>Não disponível para docentes substitutos/temporários/visitantes.</p>
             <div class="papel-bloco" id="bloco-coordenador" hidden>
               <div class="form-group">
                 <label class="form-label required">Curso(s) que coordena</label>
@@ -478,12 +496,50 @@
       });
     });
 
-    // Tipo de vínculo do orientador: mostra datas de contrato só se "Substituto"
-    document.querySelectorAll('input[name="ori-vinculo"]').forEach(function (radio) {
+    // Docente ou Técnico Administrativo: só docente vê a pergunta de tipo de vínculo
+    document.querySelectorAll('input[name="srv-categoria"]').forEach(function (radio) {
       radio.addEventListener('change', function () {
-        document.getElementById('ori-contrato-datas').hidden = (this.value !== 'Substituto');
+        var isDocente = this.value === 'Docente';
+        document.getElementById('srv-vinculo-wrap').hidden = !isDocente;
+        if (!isDocente) {
+          document.querySelectorAll('input[name="srv-vinculo"]').forEach(function (r) { r.checked = false; });
+          document.getElementById('srv-contrato-datas').hidden = true;
+        }
+        atualizarDisponibilidadePapeis();
       });
     });
+
+    // Tipo de vínculo: mostra datas de contrato só se substituto/temporário/visitante
+    document.querySelectorAll('input[name="srv-vinculo"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        document.getElementById('srv-contrato-datas').hidden = (this.value !== 'DocenteSubstituto');
+        atualizarDisponibilidadePapeis();
+      });
+    });
+
+    // Regras de elegibilidade dos papéis (Seção 2), conforme categoria/vínculo (Seção 1):
+    // Orientador exige ser docente; Coordenador de Curso não pode ser docente substituto/temporário/visitante.
+    function atualizarDisponibilidadePapeis() {
+      var categoria = (document.querySelector('input[name="srv-categoria"]:checked') || {}).value;
+      var vinculo = (document.querySelector('input[name="srv-vinculo"]:checked') || {}).value;
+
+      var chkOrientador = document.getElementById('papel-orientador');
+      var podeOrientador = categoria === 'Docente';
+      chkOrientador.disabled = !podeOrientador;
+      if (!podeOrientador && chkOrientador.checked) {
+        chkOrientador.checked = false;
+        document.getElementById('bloco-orientador').hidden = true;
+      }
+
+      var chkCoordenador = document.getElementById('papel-coordenador');
+      var podeCoordenador = !(categoria === 'Docente' && vinculo === 'DocenteSubstituto');
+      chkCoordenador.disabled = !podeCoordenador;
+      document.getElementById('coord-hint-substituto').hidden = podeCoordenador;
+      if (!podeCoordenador && chkCoordenador.checked) {
+        chkCoordenador.checked = false;
+        document.getElementById('bloco-coordenador').hidden = true;
+      }
+    }
 
     // Mega menu — abre/fecha o painel de Acompanhamento
     (function () {
