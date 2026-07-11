@@ -1697,3 +1697,110 @@ input[type="file"].form-control-file {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
 }
+
+/* ─────────────────────────────────────────
+   GRADE DE DETALHES (modais de visualização — cadastros de admin)
+   ───────────────────────────────────────── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-6);
+}
+
+@media (max-width: 560px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+.detail-item label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: 2px;
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-item p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  word-break: break-word;
+  margin: 0;
+}
+
+.detail-item--full {
+  grid-column: 1 / -1;
+}
+
+/* Badge clicável (atalho de filtro, ex.: contadores de status) */
+.badge-btn {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ─────────────────────────────────────────
+   PAGINAÇÃO
+   ───────────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  min-width: 36px;
+  font-family: inherit;
+}
+
+.pagination button:hover {
+  background: var(--color-bg);
+}
+
+.pagination button.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────
+   FLUXO DE ETAPAS (ex.: assinaturas de convênio/TCE)
+   ───────────────────────────────────────── */
+.etapa-linha {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.etapa-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.etapa-dot.is-concluido  { background: var(--color-success-light); color: var(--color-success); }
+.etapa-dot.is-aguardando { background: var(--color-warning-light); color: var(--color-warning); }
+.etapa-dot.is-pendente   { background: var(--color-bg); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+.etapa-dot.is-rejeitado  { background: var(--color-error-light); color: var(--color-error); }

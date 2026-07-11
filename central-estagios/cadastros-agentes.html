@@ -124,20 +124,72 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Cadastros — Agentes de Integração</h1>
-        <p class="page-hero-desc">Cadastros de agentes de integração.</p>
+        <p class="page-hero-desc">Gerencie convênios com agentes de integração parceiros do IFRS.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A validação e gestão de cadastros de agentes de integração será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div class="filters">
+        <div class="form-group" style="flex:2;min-width:220px;">
+          <label class="form-label" for="busca-agente">Buscar</label>
+          <input type="search" id="busca-agente" class="form-control" placeholder="Nome, sigla ou CNPJ…">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-status">Status</label>
+          <select id="filtro-status" class="form-control">
+            <option value="Ativo" selected>Ativo</option>
+            <option value="Inativo">Inativo</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Excluído">Excluído</option>
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:var(--space-2);align-self:flex-end;">
+          <button id="btn-atualizar" class="btn btn-secondary btn-sm">Atualizar</button>
+          <button id="btn-novo" class="btn btn-primary btn-sm">+ Novo Agente</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table" aria-label="Agentes de integração">
+          <thead>
+            <tr>
+              <th>Nome / Razão Social</th>
+              <th>Sigla</th>
+              <th>CNPJ</th>
+              <th>E-mail</th>
+              <th>Vigência</th>
+              <th>Status</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-agentes">
+            <tr>
+              <td colspan="7" style="text-align:center;padding:var(--space-12);">
+                <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                Carregando…
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </main>
+
+  <!-- Modal: detalhe / novo / editar / excluir agente -->
+  <div class="modal-backdrop" id="modal-agente">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-agente-titulo">Agente de Integração</h2>
+        <button type="button" class="modal-close" id="modal-agente-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-agente-body"></div>
+      <div class="modal-footer" id="modal-agente-footer"></div>
+    </div>
+  </div>
 
   <footer id="app-footer">
     <div class="container">
@@ -159,9 +211,269 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _dados = [], _filtrados = [], _atual = null;
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregar();
+      document.getElementById('btn-atualizar').addEventListener('click', carregar);
+      document.getElementById('btn-novo').addEventListener('click', function () { abrirFormNovo(); });
+      document.getElementById('modal-agente-fechar').addEventListener('click', fechar);
+      document.getElementById('modal-agente').addEventListener('click', function (e) { if (e.target === this) fechar(); });
+      document.getElementById('busca-agente').addEventListener('input', filtrar);
+      document.getElementById('filtro-status').addEventListener('change', filtrar);
     });
+
+    async function carregar() {
+      document.getElementById('tbody-agentes').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-12);"><div class="spinner" style="margin:0 auto var(--space-3);"></div>Carregando…</td></tr>';
+      try {
+        var data = await API.get('listarAgentesAdmin');
+        _dados = Array.isArray(data) ? data : (data.agentes || []);
+        filtrar();
+      } catch (err) {
+        document.getElementById('tbody-agentes').innerHTML =
+          '<tr><td colspan="7" style="text-align:center;padding:var(--space-12);color:var(--color-error);">Erro: ' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    function filtrar() {
+      var busca = document.getElementById('busca-agente').value.toLowerCase().trim();
+      var status = document.getElementById('filtro-status').value;
+      _filtrados = _dados.filter(function (a) {
+        if (status && a.status !== status) return false;
+        if (busca && [a.nomeAgente, a.sigla, a.cnpj].join(' ').toLowerCase().indexOf(busca) === -1) return false;
+        return true;
+      });
+      render();
+    }
+
+    function badgeAgente(status) {
+      var m = { 'Ativo': 'badge-success', 'Inativo': 'badge-neutral', 'Pendente': 'badge-warning', 'Excluído': 'badge-neutral' };
+      return '<span class="badge ' + (m[status] || 'badge-neutral') + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    function render() {
+      var tb = document.getElementById('tbody-agentes');
+      if (_filtrados.length === 0) {
+        tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Nenhum agente encontrado.</p></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = _filtrados.map(function (a, idx) {
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(a.nomeAgente || '—') + '</strong></td>' +
+          '<td>' + escapeHtml(a.sigla || '—') + '</td>' +
+          '<td>' + escapeHtml(formatCNPJ(a.cnpj) || '—') + '</td>' +
+          '<td>' + escapeHtml(a.email || '—') + '</td>' +
+          '<td>' + escapeHtml(a.periodo || '—') + '</td>' +
+          '<td>' + badgeAgente(a.status) + '</td>' +
+          '<td style="text-align:right;"><button class="btn btn-secondary btn-sm" data-ver="' + idx + '">Ver</button></td>' +
+        '</tr>';
+      }).join('');
+      tb.querySelectorAll('[data-ver]').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrir(_filtrados[+btn.dataset.ver]); });
+      });
+    }
+
+    function formatCNPJ(cnpj) {
+      var n = String(cnpj || '').replace(/\D/g, '');
+      if (n.length !== 14) return cnpj;
+      return n.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+    }
+
+    // ── Visualizar ──
+    function abrir(a) {
+      _atual = a;
+      renderVisualizacao();
+      document.getElementById('modal-agente').classList.add('is-open');
+    }
+
+    function renderVisualizacao() {
+      var a = _atual;
+      document.getElementById('modal-agente-titulo').textContent = a.nomeAgente || 'Agente';
+      document.getElementById('modal-agente-body').innerHTML = '<div class="detail-grid">' +
+        '<div class="detail-item"><label>Nome / Razão Social</label><p>' + escapeHtml(a.nomeAgente || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Sigla</label><p>' + escapeHtml(a.sigla || '—') + '</p></div>' +
+        '<div class="detail-item"><label>CNPJ</label><p>' + escapeHtml(formatCNPJ(a.cnpj) || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Telefone</label><p>' + escapeHtml(a.telefone || '—') + '</p></div>' +
+        '<div class="detail-item"><label>E-mail</label><p>' + escapeHtml(a.email || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Site</label><p>' + (a.site && safeUrl(a.site) ? '<a href="' + escapeHtml(safeUrl(a.site)) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(a.site) + '</a>' : escapeHtml(a.site || '—')) + '</p></div>' +
+        '<div class="detail-item"><label>Nº do Edital</label><p>' + escapeHtml(a.numEdital || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Vigência do Convênio</label><p>' + escapeHtml(a.periodo || '—') + '</p></div>' +
+        (a.linkEdital && safeUrl(a.linkEdital) ? '<div class="detail-item detail-item--full"><label>Link do Edital</label><p><a href="' + escapeHtml(safeUrl(a.linkEdital)) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(a.linkEdital) + '</a></p></div>' : '') +
+        (a.obs ? '<div class="detail-item detail-item--full"><label>Observações</label><p>' + escapeHtml(a.obs) + '</p></div>' : '') +
+        '<div class="detail-item"><label>Status</label><p>' + badgeAgente(a.status) + '</p></div>' +
+        '</div>';
+
+      var excluido = a.status === 'Excluído';
+      var footer = document.getElementById('modal-agente-footer');
+      var html = '<button type="button" class="btn btn-secondary" id="btn-fechar-vis">Fechar</button>';
+      if (!excluido) {
+        html += '<button type="button" class="btn btn-secondary btn-sm" id="btn-editar">Editar</button>';
+        if (a.status === 'Ativo') html += '<button type="button" class="btn btn-danger btn-sm" id="btn-status" data-acao="inativarAgente">Inativar</button>';
+        else if (a.status === 'Inativo' || a.status === 'Pendente') html += '<button type="button" class="btn btn-primary btn-sm" id="btn-status" data-acao="reativarAgente">Ativar</button>';
+        html += '<button type="button" class="btn btn-danger btn-sm" id="btn-excluir">Excluir</button>';
+      }
+      footer.innerHTML = html;
+      document.getElementById('btn-fechar-vis').addEventListener('click', fechar);
+      if (!excluido) {
+        document.getElementById('btn-editar').addEventListener('click', renderEdicao);
+        document.getElementById('btn-status').addEventListener('click', function () { alterarStatus(this.dataset.acao); });
+        document.getElementById('btn-excluir').addEventListener('click', renderExcluir);
+      }
+    }
+
+    // ── Editar ──
+    function renderEdicao() {
+      var a = _atual;
+      document.getElementById('modal-agente-titulo').textContent = 'Editar Agente';
+      document.getElementById('modal-agente-body').innerHTML =
+        '<div class="form-row">' +
+          '<div class="form-group" style="flex:2;"><label class="form-label required">Nome / Razão Social</label><input id="e-nome" class="form-control" value="' + escapeHtml(a.nomeAgente || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label required">Sigla</label><input id="e-sigla" class="form-control" value="' + escapeHtml(a.sigla || '') + '" maxlength="20" style="text-transform:uppercase;"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Telefone</label><input id="e-tel" class="form-control" value="' + escapeHtml(a.telefone || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">E-mail</label><input id="e-email" type="email" class="form-control" value="' + escapeHtml(a.email || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Nº do Edital</label><input id="e-edital" class="form-control" value="' + escapeHtml(a.numEdital || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Vigência do Convênio</label><input id="e-periodo" class="form-control" value="' + escapeHtml(a.periodo || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Site</label><input id="e-site" type="url" class="form-control" value="' + escapeHtml(a.site || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Link do Edital</label><input id="e-link-edital" type="url" class="form-control" value="' + escapeHtml(a.linkEdital || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-group"><label class="form-label">Observações</label><textarea id="e-obs" class="form-control" rows="3" maxlength="1000">' + escapeHtml(a.obs || '') + '</textarea></div>';
+      document.getElementById('modal-agente-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-edicao">Cancelar</button>' +
+        '<button type="button" class="btn btn-primary" id="btn-salvar-edicao">Salvar Alterações</button>';
+      document.getElementById('btn-cancelar-edicao').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-salvar-edicao').addEventListener('click', salvarEdicao);
+    }
+
+    async function salvarEdicao() {
+      var btn = document.getElementById('btn-salvar-edicao');
+      var nome = document.getElementById('e-nome').value.trim();
+      var sigla = document.getElementById('e-sigla').value.trim().toUpperCase();
+      if (!nome || !sigla) { showToast('Nome e sigla são obrigatórios.', 'error'); return; }
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('editarAgente', {
+          cnpj: _atual.cnpj, nomeAgente: nome, sigla: sigla,
+          telefone: document.getElementById('e-tel').value.trim(),
+          email: document.getElementById('e-email').value.trim(),
+          numEdital: document.getElementById('e-edital').value.trim(),
+          periodo: document.getElementById('e-periodo').value.trim(),
+          site: document.getElementById('e-site').value.trim(),
+          linkEdital: document.getElementById('e-link-edital').value.trim(),
+          obs: document.getElementById('e-obs').value.trim(),
+        });
+        showToast('Agente atualizado com sucesso!', 'success');
+        await carregar();
+        var novo = _dados.find(function (x) { return x.cnpj === _atual.cnpj; });
+        if (novo) { _atual = novo; renderVisualizacao(); } else fechar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    // ── Excluir ──
+    function renderExcluir() {
+      document.getElementById('modal-agente-titulo').textContent = 'Excluir Agente';
+      document.getElementById('modal-agente-body').innerHTML =
+        '<div class="alert alert-error" style="margin-bottom:var(--space-4);"><div class="alert-content"><strong>Atenção:</strong> esta ação irá marcar o agente como excluído. O registro será mantido na planilha, mas não aparecerá nas listagens ativas.</div></div>' +
+        '<p>Tem certeza que deseja excluir <strong>' + escapeHtml(_atual.nomeAgente || 'este agente') + '</strong>?</p>';
+      document.getElementById('modal-agente-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-excluir">Cancelar</button>' +
+        '<button type="button" class="btn btn-danger" id="btn-confirmar-excluir">Confirmar Exclusão</button>';
+      document.getElementById('btn-cancelar-excluir').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-confirmar-excluir').addEventListener('click', confirmarExcluir);
+    }
+
+    async function confirmarExcluir() {
+      var btn = document.getElementById('btn-confirmar-excluir');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('excluirAgente', { cnpj: _atual.cnpj });
+        showToast('Agente excluído.', 'success');
+        fechar(); carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    // ── Novo agente ──
+    function abrirFormNovo() {
+      _atual = null;
+      document.getElementById('modal-agente-titulo').textContent = 'Novo Agente de Integração';
+      document.getElementById('modal-agente-body').innerHTML =
+        '<div class="form-row">' +
+          '<div class="form-group" style="flex:2;"><label class="form-label required">Nome / Razão Social</label><input id="f-nome" class="form-control" placeholder="Centro de Integração Empresa-Escola…"></div>' +
+          '<div class="form-group"><label class="form-label required">Sigla</label><input id="f-sigla" class="form-control" placeholder="CIEE" maxlength="20" style="text-transform:uppercase;"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label required">CNPJ</label><input id="f-cnpj" class="form-control" placeholder="00.000.000/0000-00"></div>' +
+          '<div class="form-group"><label class="form-label required">Telefone</label><input id="f-tel" class="form-control" placeholder="(53) 99999-9999"></div>' +
+        '</div>' +
+        '<div class="form-group"><label class="form-label required">E-mail</label><input id="f-email" type="email" class="form-control"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label required">Nº do Edital</label><input id="f-edital" class="form-control" placeholder="Edital nº …/20XX"></div>' +
+          '<div class="form-group"><label class="form-label required">Vigência do Convênio</label><input id="f-periodo" class="form-control" placeholder="01/01/2024 – 31/12/2026"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Site</label><input id="f-site" type="url" class="form-control" placeholder="https://…"></div>' +
+          '<div class="form-group"><label class="form-label">Link do Edital</label><input id="f-link-edital" type="url" class="form-control" placeholder="https://…"></div>' +
+        '</div>' +
+        '<div class="form-group"><label class="form-label">Observações</label><textarea id="f-obs" class="form-control" rows="3" maxlength="500"></textarea></div>';
+      document.getElementById('modal-agente-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-novo">Cancelar</button>' +
+        '<button type="button" class="btn btn-primary" id="btn-salvar-agente">Cadastrar Agente</button>';
+      document.getElementById('btn-cancelar-novo').addEventListener('click', fechar);
+      document.getElementById('btn-salvar-agente').addEventListener('click', salvarAgente);
+      document.getElementById('modal-agente').classList.add('is-open');
+    }
+
+    async function salvarAgente() {
+      var btn = document.getElementById('btn-salvar-agente');
+      var nome = document.getElementById('f-nome').value.trim();
+      var sigla = document.getElementById('f-sigla').value.trim().toUpperCase();
+      var cnpj = document.getElementById('f-cnpj').value.trim();
+      var email = document.getElementById('f-email').value.trim();
+      var tel = document.getElementById('f-tel').value.trim();
+      var edital = document.getElementById('f-edital').value.trim();
+      var periodo = document.getElementById('f-periodo').value.trim();
+      if (!nome || !sigla || !cnpj || !email || !tel || !edital || !periodo) {
+        showToast('Preencha todos os campos obrigatórios.', 'error'); return;
+      }
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('cadastrarAgente', {
+          nomeAgente: nome, siglaAgente: sigla, cnpjAgente: cnpj, emailAgente: email, telAgente: tel,
+          numEdital: edital, periodoConvenio: periodo,
+          siteAgente: document.getElementById('f-site').value.trim(),
+          linkEdital: document.getElementById('f-link-edital').value.trim(),
+          obsAgente: document.getElementById('f-obs').value.trim(),
+        });
+        showToast('Agente cadastrado com sucesso!', 'success');
+        fechar(); carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    // ── Alterar status ──
+    async function alterarStatus(action) {
+      if (!_atual) return;
+      try {
+        await API.post(action, { cnpj: _atual.cnpj });
+        showToast(action.indexOf('inativar') !== -1 ? 'Convênio inativado.' : 'Convênio ativado.', 'success');
+        await carregar();
+        var novo = _dados.find(function (x) { return x.cnpj === _atual.cnpj; });
+        if (novo) { _atual = novo; renderVisualizacao(); } else fechar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+    }
+
+    function fechar() {
+      document.getElementById('modal-agente').classList.remove('is-open');
+      _atual = null;
+    }
 
     (function () {
       var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));

@@ -124,20 +124,264 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Cadastros — Concedentes</h1>
-        <p class="page-hero-desc">Cadastros de empresas concedentes de estágio.</p>
+        <p class="page-hero-desc">Valide e gerencie os cadastros de empresas concedentes de estágio.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A validação e gestão de cadastros de empresas concedentes será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div class="page-tabs" role="tablist">
+        <button class="page-tab is-active" role="tab" aria-selected="true" aria-controls="tab-empresas" id="btn-tab-empresas" type="button">Empresas</button>
+        <button class="page-tab" role="tab" aria-selected="false" aria-controls="tab-convenios" id="btn-tab-convenios" type="button">Convênios</button>
       </div>
+
+      <!-- ── Aba: Empresas ── -->
+      <div class="tab-panel is-active" id="tab-empresas" role="tabpanel" aria-labelledby="btn-tab-empresas">
+
+        <div class="filters">
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label class="form-label" for="busca-empresa">Buscar</label>
+            <input type="search" id="busca-empresa" class="form-control" placeholder="Razão social, CNPJ…">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="filtro-status">Status</label>
+            <select id="filtro-status" class="form-control">
+              <option value="">Todos</option>
+              <option value="Pendente" selected>Pendente</option>
+              <option value="Validada">Validada</option>
+              <option value="Recusada">Recusada</option>
+              <option value="Inativa">Inativa</option>
+              <option value="Excluída">Excluída</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:var(--space-2);align-self:flex-end;">
+            <button id="btn-atualizar" class="btn btn-secondary btn-sm">Atualizar</button>
+            <button id="btn-cadastrar-empresa" class="btn btn-primary btn-sm">+ Cadastrar empresa</button>
+            <button id="btn-convidar-empresa" class="btn btn-ghost btn-sm" title="Enviar convite de cadastro a uma empresa">Convidar empresa</button>
+          </div>
+        </div>
+
+        <div id="alerta-pendentes" class="alert alert-warning" style="display:none;margin-bottom:var(--space-4);">
+          <div class="alert-content" id="alerta-pendentes-texto"></div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table" aria-label="Empresas cadastradas">
+            <thead>
+              <tr>
+                <th>Razão Social</th>
+                <th>Nome Fantasia</th>
+                <th>CNPJ</th>
+                <th>Município/UF</th>
+                <th>Estágios Ativos</th>
+                <th>Status</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-empresas">
+              <tr>
+                <td colspan="7" style="text-align:center;padding:var(--space-12);">
+                  <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                  Carregando…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Aba: Convênios ── -->
+      <div class="tab-panel" id="tab-convenios" role="tabpanel" aria-labelledby="btn-tab-convenios">
+
+        <div class="filters">
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label class="form-label" for="busca-conv">Buscar</label>
+            <input type="search" id="busca-conv" class="form-control" placeholder="Razão social, CNPJ…">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="filtro-conv-status">Status do convênio</label>
+            <select id="filtro-conv-status" class="form-control">
+              <option value="">Todos os status</option>
+              <option value="sem">Sem convênio</option>
+              <option value="andamento">Em andamento</option>
+              <option value="aprovado">Aprovado</option>
+            </select>
+          </div>
+          <div style="align-self:flex-end;">
+            <button id="btn-atualizar-conv" class="btn btn-secondary btn-sm">Atualizar</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table" aria-label="Convênios">
+            <thead>
+              <tr>
+                <th>Razão Social</th>
+                <th>CNPJ</th>
+                <th>Município/UF</th>
+                <th>Representante</th>
+                <th>Nº Convênio</th>
+                <th>Status Convênio</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-conv">
+              <tr><td colspan="7" style="text-align:center;padding:var(--space-12);color:var(--color-text-muted);">Selecione a aba para carregar…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </main>
+
+  <!-- Modal principal: visualizar / editar / recusar / excluir empresa / gerar convênio / fluxo -->
+  <div class="modal-backdrop" id="modal-empresa">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-empresa-titulo">Dados da Empresa</h2>
+        <button type="button" class="modal-close" id="modal-empresa-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-empresa-body"></div>
+      <div class="modal-footer" id="modal-empresa-footer"></div>
+    </div>
+  </div>
+
+  <!-- Modal: cadastrar empresa diretamente -->
+  <div class="modal-backdrop" id="modal-cadastrar-empresa">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Cadastrar Empresa</h2>
+        <button type="button" class="modal-close" id="modal-cadastrar-empresa-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+        <p class="form-hint" style="margin-bottom:var(--space-5);">A empresa será cadastrada com status <strong>Validada</strong> diretamente.</p>
+        <div id="ce-feedback" class="alert" style="display:none;margin-bottom:var(--space-4);"></div>
+
+        <p style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-3);">Dados da Empresa</p>
+        <div class="form-row">
+          <div class="form-group" style="flex:2;">
+            <label class="form-label required" for="ce-razao">Razão Social</label>
+            <input id="ce-razao" class="form-control" maxlength="200">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-fantasia">Nome Fantasia</label>
+            <input id="ce-fantasia" class="form-control" maxlength="200">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required" for="ce-cnpj">CNPJ</label>
+            <input id="ce-cnpj" class="form-control" placeholder="00.000.000/0001-00" maxlength="18">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-ramo">Ramo de Atividade</label>
+            <input id="ce-ramo" class="form-control" placeholder="Ex.: Tecnologia, Saúde…" maxlength="100">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ce-tel">Telefone</label>
+            <input id="ce-tel" class="form-control" maxlength="30">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-email">E-mail</label>
+            <input id="ce-email" type="email" class="form-control" maxlength="200">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ce-end">Endereço</label>
+          <input id="ce-end" class="form-control" placeholder="Rua, número, complemento" maxlength="300">
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label" for="ce-bairro">Bairro</label>
+            <input id="ce-bairro" class="form-control" maxlength="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-mun">Município</label>
+            <input id="ce-mun" class="form-control" maxlength="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-uf">UF</label>
+            <input id="ce-uf" class="form-control" maxlength="2" placeholder="RS">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ce-cep">CEP</label>
+            <input id="ce-cep" class="form-control" placeholder="00000-000" maxlength="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-site">Site</label>
+            <input id="ce-site" class="form-control" placeholder="https://…" maxlength="300">
+          </div>
+        </div>
+
+        <p style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;margin:var(--space-5) 0 var(--space-3);border-top:1px solid var(--color-border);padding-top:var(--space-4);">Representante Legal</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ce-nome-rep">Nome</label>
+            <input id="ce-nome-rep" class="form-control" maxlength="150">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-cargo-rep">Cargo</label>
+            <input id="ce-cargo-rep" class="form-control" maxlength="100">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="ce-email-rep">E-mail</label>
+            <input id="ce-email-rep" type="email" class="form-control" maxlength="200">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ce-cpf-rep">CPF</label>
+            <input id="ce-cpf-rep" class="form-control" placeholder="000.000.000-00" maxlength="15">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar-cadastro-empresa">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-salvar-empresa">Cadastrar empresa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: convidar empresa -->
+  <div class="modal-backdrop" id="modal-convidar-empresa">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Convidar empresa para cadastro</h2>
+        <button type="button" class="modal-close" id="modal-convidar-empresa-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="form-hint" style="margin-bottom:var(--space-4);">Informe os dados da empresa. Será enviado um e-mail com o link para preenchimento do cadastro.</p>
+        <div class="form-group">
+          <label class="form-label required" for="convite-emp-email">E-mail da empresa</label>
+          <input type="email" id="convite-emp-email" class="form-control" placeholder="contato@empresa.com.br">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="convite-emp-cnpj">CNPJ <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+          <input type="text" id="convite-emp-cnpj" class="form-control" placeholder="00.000.000/0001-00" maxlength="18">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="convite-emp-nome">Nome do contato <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+          <input type="text" id="convite-emp-nome" class="form-control" placeholder="Nome do responsável">
+        </div>
+        <div id="convite-emp-feedback" class="alert" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar-convite-emp">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-enviar-convite-emp">Enviar convite</button>
+      </div>
+    </div>
+  </div>
 
   <footer id="app-footer">
     <div class="container">
@@ -159,9 +403,639 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _dados = [], _filtrados = [], _atual = null;
+    var _convDados = [], _convFiltrados = [], _convCarregado = false, _empParaConv = null;
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregar();
+
+      document.getElementById('btn-atualizar').addEventListener('click', carregar);
+      document.getElementById('modal-empresa-fechar').addEventListener('click', fechar);
+      document.getElementById('modal-empresa').addEventListener('click', function (e) { if (e.target === this) fechar(); });
+      document.getElementById('busca-empresa').addEventListener('input', filtrar);
+      document.getElementById('filtro-status').addEventListener('change', filtrar);
+
+      document.getElementById('btn-cadastrar-empresa').addEventListener('click', function () {
+        document.getElementById('modal-cadastrar-empresa').classList.add('is-open');
+      });
+      document.getElementById('modal-cadastrar-empresa-fechar').addEventListener('click', fecharCadastroEmp);
+      document.getElementById('btn-cancelar-cadastro-empresa').addEventListener('click', fecharCadastroEmp);
+      document.getElementById('modal-cadastrar-empresa').addEventListener('click', function (e) { if (e.target === this) fecharCadastroEmp(); });
+      document.getElementById('btn-salvar-empresa').addEventListener('click', salvarCadastroEmpresa);
+
+      document.getElementById('btn-convidar-empresa').addEventListener('click', function () {
+        document.getElementById('modal-convidar-empresa').classList.add('is-open');
+      });
+      document.getElementById('modal-convidar-empresa-fechar').addEventListener('click', fecharModalConviteEmp);
+      document.getElementById('btn-cancelar-convite-emp').addEventListener('click', fecharModalConviteEmp);
+      document.getElementById('modal-convidar-empresa').addEventListener('click', function (e) { if (e.target === this) fecharModalConviteEmp(); });
+      document.getElementById('btn-enviar-convite-emp').addEventListener('click', enviarConviteEmpresa);
+
+      document.getElementById('btn-tab-empresas').addEventListener('click', function () { mudarAba('empresas'); });
+      document.getElementById('btn-tab-convenios').addEventListener('click', function () { mudarAba('convenios'); });
+
+      document.getElementById('busca-conv').addEventListener('input', filtrarConv);
+      document.getElementById('filtro-conv-status').addEventListener('change', filtrarConv);
+      document.getElementById('btn-atualizar-conv').addEventListener('click', function () { _convCarregado = false; carregarConvenios(); });
     });
+
+    // ════════════════════════════════════════════════════════
+    // ABAS
+    // ════════════════════════════════════════════════════════
+    function mudarAba(aba) {
+      ['empresas', 'convenios'].forEach(function (id) {
+        document.getElementById('tab-' + id).classList.toggle('is-active', id === aba);
+        document.getElementById('btn-tab-' + id).classList.toggle('is-active', id === aba);
+        document.getElementById('btn-tab-' + id).setAttribute('aria-selected', id === aba ? 'true' : 'false');
+      });
+      if (aba === 'convenios' && !_convCarregado) carregarConvenios();
+    }
+
+    // ════════════════════════════════════════════════════════
+    // ABA: EMPRESAS
+    // ════════════════════════════════════════════════════════
+    async function carregar() {
+      document.getElementById('tbody-empresas').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-12);"><div class="spinner" style="margin:0 auto var(--space-3);"></div>Carregando…</td></tr>';
+      try {
+        var data = await API.get('listarEmpresasAdmin');
+        _dados = Array.isArray(data) ? data : (data.empresas || []);
+        var pendentes = _dados.filter(function (e) { return e.status === 'Pendente'; }).length;
+        var elP = document.getElementById('alerta-pendentes');
+        elP.style.display = pendentes > 0 ? 'flex' : 'none';
+        if (pendentes > 0) document.getElementById('alerta-pendentes-texto').textContent = 'Há ' + pendentes + ' empresa' + (pendentes > 1 ? 's' : '') + ' aguardando aprovação.';
+        filtrar();
+      } catch (err) {
+        document.getElementById('tbody-empresas').innerHTML =
+          '<tr><td colspan="7" style="text-align:center;padding:var(--space-12);color:var(--color-error);">Erro: ' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    function filtrar() {
+      var busca = document.getElementById('busca-empresa').value.toLowerCase().trim();
+      var status = document.getElementById('filtro-status').value;
+      _filtrados = _dados.filter(function (e) {
+        if (status && (e.status || '') !== status) return false;
+        if (busca) {
+          var t = [e.razaoSocial, e.nomeFantasia, e.cnpj].join(' ').toLowerCase();
+          if (t.indexOf(busca) === -1) return false;
+        }
+        return true;
+      });
+      render();
+    }
+
+    function badgeEmpresa(s) {
+      var m = { 'Validada': 'badge-success', 'Pendente': 'badge-warning', 'Recusada': 'badge-error', 'Inativa': 'badge-neutral', 'Excluída': 'badge-neutral' };
+      return '<span class="badge ' + (m[s] || 'badge-neutral') + '">' + escapeHtml(s || '—') + '</span>';
+    }
+
+    function render() {
+      var tb = document.getElementById('tbody-empresas');
+      if (_filtrados.length === 0) {
+        tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Nenhuma empresa encontrada.</p></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = _filtrados.map(function (e, idx) {
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(e.razaoSocial || '—') + '</strong></td>' +
+          '<td>' + escapeHtml(e.nomeFantasia || '—') + '</td>' +
+          '<td>' + escapeHtml(e.cnpj || '—') + '</td>' +
+          '<td>' + escapeHtml(e.municipio || '—') + '/' + escapeHtml(e.uf || '') + '</td>' +
+          '<td style="text-align:center;">' + (e.estagiosAtivos || 0) + '</td>' +
+          '<td>' + badgeEmpresa(e.status) + '</td>' +
+          '<td style="text-align:right;">' +
+            (e.driveDocs ? '<span title="Documentos enviados" style="color:var(--color-success);margin-right:6px;">📎</span>' : '') +
+            '<button class="btn btn-secondary btn-sm" data-ver="' + idx + '">Ver</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+      tb.querySelectorAll('[data-ver]').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrir(_filtrados[+btn.dataset.ver]); });
+      });
+    }
+
+    function abrir(e) {
+      _atual = e;
+      document.getElementById('modal-empresa-titulo').textContent = e.nomeFantasia || e.razaoSocial || 'Empresa';
+      renderVisualizacao();
+      document.getElementById('modal-empresa').classList.add('is-open');
+    }
+
+    function renderVisualizacao() {
+      var e = _atual;
+      var recusaHtml = (e.status === 'Recusada' && e.obs)
+        ? '<div class="alert alert-error" style="margin-bottom:var(--space-4);"><div class="alert-content"><strong>Motivo da recusa:</strong><p style="margin-top:4px;">' + escapeHtml(e.obs) + '</p></div></div>'
+        : '';
+      var convenioDocsHtml = (e.possuiConvenio || e.driveConvenio || e.driveCdnEmpresa || e.driveCdnSignatario || e.driveDocs) ? (
+        '<div class="detail-item detail-item--full"><label>Convênio e Documentos</label>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:4px;align-items:center;">' +
+          (e.possuiConvenio ? '<span class="badge badge-neutral">Convênio IFRS: ' + escapeHtml(e.possuiConvenio) + '</span>' : '') +
+          (e.driveConvenio ? '<a href="' + escapeHtml(e.driveConvenio) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 Convênio</a>' : '') +
+          (e.driveCdnEmpresa ? '<a href="' + escapeHtml(e.driveCdnEmpresa) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 CDN Empresa</a>' : '') +
+          (e.driveCdnSignatario ? '<a href="' + escapeHtml(e.driveCdnSignatario) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 CDN Signatário</a>' : '') +
+          (e.driveDocs ? '<a href="' + escapeHtml(e.driveDocs) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📁 Abrir pasta ↗</a>' : '') +
+        '</div></div>'
+      ) : '';
+
+      document.getElementById('modal-empresa-body').innerHTML = recusaHtml + '<div class="detail-grid">' +
+        '<div class="detail-item"><label>Razão Social</label><p>' + escapeHtml(e.razaoSocial || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Nome Fantasia</label><p>' + escapeHtml(e.nomeFantasia || '—') + '</p></div>' +
+        '<div class="detail-item"><label>CNPJ</label><p>' + escapeHtml(e.cnpj || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Tipo</label><p>' + escapeHtml(e.tipoEmpresa || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Ramo</label><p>' + escapeHtml(e.ramo || '—') + '</p></div>' +
+        '<div class="detail-item detail-item--full"><label>Endereço</label><p>' + escapeHtml(e.endereco || '—') + (e.bairro ? ', ' + escapeHtml(e.bairro) : '') + ' — ' + escapeHtml(e.municipio || '') + '/' + escapeHtml(e.uf || '') + ' ' + escapeHtml(e.cep || '') + '</p></div>' +
+        '<div class="detail-item"><label>Telefone</label><p>' + escapeHtml(e.telefone || '—') + '</p></div>' +
+        '<div class="detail-item"><label>E-mail</label><p>' + escapeHtml(e.email || '—') + '</p></div>' +
+        '<div class="detail-item detail-item--full"><label>Site</label><p>' + (e.site && safeUrl(e.site) ? '<a href="' + escapeHtml(safeUrl(e.site)) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(e.site) + '</a>' : escapeHtml(e.site || '—')) + '</p></div>' +
+        '<div class="detail-item"><label>Representante</label><p>' + escapeHtml(e.nomeRepresentante || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Cargo</label><p>' + escapeHtml(e.cargoRepresentante || '—') + '</p></div>' +
+        '<div class="detail-item"><label>E-mail Rep.</label><p>' + escapeHtml(e.emailRep || '—') + '</p></div>' +
+        '<div class="detail-item"><label>CPF Rep.</label><p>' + escapeHtml(e.cpfRep || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Status</label><p>' + badgeEmpresa(e.status) + '</p></div>' +
+        '<div class="detail-item"><label>Estágios Ativos</label><p>' + (e.estagiosAtivos || 0) + '</p></div>' +
+        convenioDocsHtml +
+        '</div>';
+
+      var footer = document.getElementById('modal-empresa-footer');
+      var s = e.status;
+      var btnFechar = '<button type="button" class="btn btn-secondary" id="btn-fechar-vis">Fechar</button>';
+      var btnReceita = '<button type="button" class="btn btn-secondary btn-sm" id="btn-receita" title="Consultar CNPJ na Receita Federal">Receita Federal ↗</button>';
+      var btnEditar = '<button type="button" class="btn btn-secondary btn-sm" id="btn-editar">Editar</button>';
+      var btnExcluir = '<button type="button" class="btn btn-danger btn-sm" id="btn-excluir">Excluir</button>';
+      var html = btnFechar + btnReceita;
+      if (s === 'Pendente') {
+        html += btnEditar + btnExcluir + '<button type="button" class="btn btn-danger btn-sm" id="btn-recusar">Recusar</button><button type="button" class="btn btn-primary btn-sm" id="btn-validar">Validar</button>';
+      } else if (s === 'Recusada') {
+        html += btnEditar + btnExcluir + '<button type="button" class="btn btn-primary btn-sm" id="btn-validar">Validar mesmo assim</button>';
+      } else if (s === 'Validada') {
+        html += btnEditar + '<button type="button" class="btn btn-danger btn-sm" id="btn-inativar">Inativar</button>';
+      } else if (s === 'Inativa') {
+        html += btnEditar + btnExcluir + '<button type="button" class="btn btn-primary btn-sm" id="btn-reativar">Reativar</button>';
+      }
+      footer.innerHTML = html;
+
+      document.getElementById('btn-fechar-vis').addEventListener('click', fechar);
+      document.getElementById('btn-receita').addEventListener('click', consultarReceita);
+      if (document.getElementById('btn-editar')) document.getElementById('btn-editar').addEventListener('click', abrirEdicao);
+      if (document.getElementById('btn-excluir')) document.getElementById('btn-excluir').addEventListener('click', confirmarExcluir);
+      if (document.getElementById('btn-recusar')) document.getElementById('btn-recusar').addEventListener('click', abrirRecusa);
+      if (document.getElementById('btn-validar')) document.getElementById('btn-validar').addEventListener('click', function () { acaoSimples('validarEmpresa', 'Empresa validada.'); });
+      if (document.getElementById('btn-inativar')) document.getElementById('btn-inativar').addEventListener('click', function () { acaoSimples('inativarEmpresa', 'Empresa inativada.'); });
+      if (document.getElementById('btn-reativar')) document.getElementById('btn-reativar').addEventListener('click', function () { acaoSimples('validarEmpresa', 'Empresa reativada.'); });
+    }
+
+    // ── Editar ──
+    function abrirEdicao() {
+      var e = _atual;
+      document.getElementById('modal-empresa-body').innerHTML =
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Razão Social</label><input id="fe-razao" class="form-control" value="' + escapeHtml(e.razaoSocial || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Nome Fantasia</label><input id="fe-fantasia" class="form-control" value="' + escapeHtml(e.nomeFantasia || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Ramo</label><input id="fe-ramo" class="form-control" value="' + escapeHtml(e.ramo || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Telefone</label><input id="fe-tel" class="form-control" value="' + escapeHtml(e.telefone || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">E-mail</label><input id="fe-email" type="email" class="form-control" value="' + escapeHtml(e.email || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Site</label><input id="fe-site" class="form-control" value="' + escapeHtml(e.site || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-group"><label class="form-label">Endereço</label><input id="fe-end" class="form-control" value="' + escapeHtml(e.endereco || '') + '"></div>' +
+        '<div class="form-row-3">' +
+          '<div class="form-group"><label class="form-label">Bairro</label><input id="fe-bairro" class="form-control" value="' + escapeHtml(e.bairro || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Município</label><input id="fe-mun" class="form-control" value="' + escapeHtml(e.municipio || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">UF</label><input id="fe-uf" class="form-control" maxlength="2" value="' + escapeHtml(e.uf || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">CEP</label><input id="fe-cep" class="form-control" value="' + escapeHtml(e.cep || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Representante</label><input id="fe-nome-rep" class="form-control" value="' + escapeHtml(e.nomeRepresentante || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Cargo Rep.</label><input id="fe-cargo-rep" class="form-control" value="' + escapeHtml(e.cargoRepresentante || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-group"><label class="form-label">E-mail Rep.</label><input id="fe-email-rep" type="email" class="form-control" value="' + escapeHtml(e.emailRep || '') + '"></div>' +
+        '<div style="border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4);">' +
+          '<p style="font-size:var(--font-size-xs);color:var(--color-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-3);">Convênio e Documentos</p>' +
+          '<div class="form-group">' +
+            '<label class="form-label">Possui Convênio com IFRS</label>' +
+            '<select id="fe-convenio" class="form-control">' +
+              '<option value="" ' + (!e.possuiConvenio ? 'selected' : '') + '>Não informado</option>' +
+              '<option value="Não" ' + (e.possuiConvenio === 'Não' ? 'selected' : '') + '>Não</option>' +
+              '<option value="Sim" ' + (e.possuiConvenio === 'Sim' ? 'selected' : '') + '>Sim</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-row-3">' +
+            '<div class="form-group"><label class="form-label">Convênio (PDF)</label><input type="file" id="fe-convenio-file" class="form-control-file" accept="application/pdf"><span class="form-hint">Vazio = mantém o atual.</span></div>' +
+            '<div class="form-group"><label class="form-label">CDN da Empresa (PDF)</label><input type="file" id="fe-cdn-empresa" class="form-control-file" accept="application/pdf"></div>' +
+            '<div class="form-group"><label class="form-label">CDN de Quem Assina (PDF)</label><input type="file" id="fe-cdn-signatario" class="form-control-file" accept="application/pdf"></div>' +
+          '</div>' +
+        '</div>';
+      document.getElementById('modal-empresa-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-edicao">Cancelar</button>' +
+        '<button type="button" class="btn btn-primary" id="btn-salvar-edicao">Salvar alterações</button>';
+      document.getElementById('btn-cancelar-edicao').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-salvar-edicao').addEventListener('click', salvarEdicaoAdmin);
+    }
+
+    function lerBase64Admin(file) {
+      return new Promise(function (resolve, reject) {
+        var r = new FileReader();
+        r.onload = function () { resolve(r.result.split(',')[1]); };
+        r.onerror = function () { reject(new Error('Falha ao ler "' + file.name + '"')); };
+        r.readAsDataURL(file);
+      });
+    }
+
+    async function salvarEdicaoAdmin() {
+      var btn = document.getElementById('btn-salvar-edicao');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('editarEmpresaAdmin', {
+          cnpj: _atual.cnpj,
+          razaoSocial: document.getElementById('fe-razao').value.trim(),
+          nomeFantasia: document.getElementById('fe-fantasia').value.trim(),
+          ramo: document.getElementById('fe-ramo').value.trim(),
+          telefone: document.getElementById('fe-tel').value.trim(),
+          email: document.getElementById('fe-email').value.trim(),
+          site: document.getElementById('fe-site').value.trim(),
+          endereco: document.getElementById('fe-end').value.trim(),
+          bairro: document.getElementById('fe-bairro').value.trim(),
+          municipio: document.getElementById('fe-mun').value.trim(),
+          uf: document.getElementById('fe-uf').value.trim(),
+          cep: document.getElementById('fe-cep').value.trim(),
+          nomeRep: document.getElementById('fe-nome-rep').value.trim(),
+          cargoRep: document.getElementById('fe-cargo-rep').value.trim(),
+          emailRep: document.getElementById('fe-email-rep').value.trim(),
+          possuiConvenio: document.getElementById('fe-convenio').value,
+        });
+
+        var MAX = 5 * 1024 * 1024;
+        var docs = [];
+        async function addDoc(inputId, tipo) {
+          var el = document.getElementById(inputId);
+          if (!el || !el.files || !el.files[0]) return;
+          var f = el.files[0];
+          if (f.size > MAX) throw new Error('Arquivo "' + f.name + '" excede 5 MB.');
+          docs.push({ tipo: tipo, nome: f.name, conteudo: await lerBase64Admin(f), mimeType: 'application/pdf' });
+        }
+        await addDoc('fe-convenio-file', 'convenio');
+        await addDoc('fe-cdn-empresa', 'cdnEmpresa');
+        await addDoc('fe-cdn-signatario', 'cdnSignatario');
+
+        if (docs.length > 0) {
+          await API.post('enviarDocumentosEmpresa', { cnpj: _atual.cnpj, razaoSocial: _atual.razaoSocial, documentos: docs });
+        }
+
+        showToast('Dados salvos.' + (docs.length > 0 ? ' ' + docs.length + ' documento(s) enviado(s).' : ''), 'success');
+        await carregar();
+        var novo = _dados.find(function (x) { return x.cnpj === _atual.cnpj; });
+        if (novo) { _atual = novo; renderVisualizacao(); } else fechar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    // ── Recusar ──
+    function abrirRecusa() {
+      document.getElementById('modal-empresa-body').innerHTML =
+        '<p class="form-hint" style="margin-bottom:var(--space-3);">Informe o motivo da recusa. Este texto será enviado por e-mail à empresa.</p>' +
+        '<div class="form-group"><label class="form-label" for="motivo-recusa">Observações <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>' +
+        '<textarea id="motivo-recusa" class="form-control" rows="4" maxlength="500" placeholder="Ex.: Documentação incompleta, CNPJ divergente, dados incorretos…"></textarea></div>';
+      document.getElementById('modal-empresa-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-recusa">Cancelar</button>' +
+        '<button type="button" class="btn btn-danger" id="btn-confirmar-recusa">Confirmar recusa</button>';
+      document.getElementById('btn-cancelar-recusa').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-confirmar-recusa').addEventListener('click', confirmarRecusa);
+      document.getElementById('motivo-recusa').focus();
+    }
+
+    async function confirmarRecusa() {
+      var btn = document.getElementById('btn-confirmar-recusa');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      var obs = document.getElementById('motivo-recusa').value.trim();
+      try {
+        await API.post('recusarEmpresa', { cnpj: _atual.cnpj, obs: obs });
+        _atual.status = 'Recusada';
+        _atual.obs = obs;
+        showToast('Empresa recusada. E-mail enviado.', 'success');
+        renderVisualizacao();
+        carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    // ── Excluir ──
+    function confirmarExcluir() {
+      document.getElementById('modal-empresa-body').innerHTML =
+        '<p>O cadastro de <strong>' + escapeHtml(_atual.razaoSocial || 'esta empresa') + '</strong> será marcado como excluído. Ele não aparecerá mais nas listagens normais, mas poderá ser visualizado pelo filtro "Excluída".</p>';
+      document.getElementById('modal-empresa-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-excluir">Cancelar</button>' +
+        '<button type="button" class="btn btn-danger" id="btn-conf-excluir">Sim, excluir</button>';
+      document.getElementById('btn-cancelar-excluir').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-conf-excluir').addEventListener('click', executarExcluir);
+    }
+
+    async function executarExcluir() {
+      var btn = document.getElementById('btn-conf-excluir');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('excluirEmpresa', { cnpj: _atual.cnpj });
+        showToast('Cadastro excluído.', 'success');
+        fechar();
+        carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    function consultarReceita() {
+      if (!_atual) return;
+      var cnpj = (_atual.cnpj || '').replace(/\D/g, '');
+      if (cnpj && navigator.clipboard) {
+        navigator.clipboard.writeText(cnpj).catch(function () {});
+        showToast('CNPJ copiado — cole no site da Receita Federal.', 'info');
+      }
+      window.open('https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/comprovante', '_blank', 'noopener');
+    }
+
+    async function acaoSimples(action, successMsg) {
+      if (!_atual) return;
+      try {
+        await API.post(action, { cnpj: _atual.cnpj });
+        showToast(successMsg, 'success');
+        fechar();
+        carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+    }
+
+    function fechar() {
+      document.getElementById('modal-empresa').classList.remove('is-open');
+      _atual = null;
+    }
+
+    // ── Cadastro direto de empresa ──
+    function fecharCadastroEmp() {
+      document.getElementById('modal-cadastrar-empresa').classList.remove('is-open');
+      ['ce-razao', 'ce-fantasia', 'ce-cnpj', 'ce-ramo', 'ce-tel', 'ce-email', 'ce-end', 'ce-bairro',
+       'ce-mun', 'ce-uf', 'ce-cep', 'ce-site', 'ce-nome-rep', 'ce-cargo-rep', 'ce-email-rep', 'ce-cpf-rep']
+        .forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      var fb = document.getElementById('ce-feedback');
+      fb.style.display = 'none'; fb.textContent = '';
+    }
+
+    async function salvarCadastroEmpresa() {
+      var btn = document.getElementById('btn-salvar-empresa');
+      var razao = document.getElementById('ce-razao').value.trim();
+      var cnpj = document.getElementById('ce-cnpj').value.trim();
+
+      if (!razao) { mostrarFeedbackCE('Informe a Razão Social.', 'error'); return; }
+      if (!cnpj) { mostrarFeedbackCE('Informe o CNPJ.', 'error'); return; }
+
+      btn.disabled = true; btn.classList.add('is-loading');
+      try {
+        await API.post('cadastrarEmpresaAdmin', {
+          razaoSocial: razao, cnpj: cnpj,
+          nomeFantasia: document.getElementById('ce-fantasia').value.trim(),
+          ramo: document.getElementById('ce-ramo').value.trim(),
+          telefone: document.getElementById('ce-tel').value.trim(),
+          email: document.getElementById('ce-email').value.trim(),
+          endereco: document.getElementById('ce-end').value.trim(),
+          bairro: document.getElementById('ce-bairro').value.trim(),
+          municipio: document.getElementById('ce-mun').value.trim(),
+          uf: document.getElementById('ce-uf').value.trim(),
+          cep: document.getElementById('ce-cep').value.trim(),
+          site: document.getElementById('ce-site').value.trim(),
+          nomeRep: document.getElementById('ce-nome-rep').value.trim(),
+          cargoRep: document.getElementById('ce-cargo-rep').value.trim(),
+          emailRep: document.getElementById('ce-email-rep').value.trim(),
+          cpfRep: document.getElementById('ce-cpf-rep').value.trim(),
+        });
+        showToast('Empresa cadastrada com sucesso.', 'success');
+        fecharCadastroEmp();
+        carregar();
+      } catch (err) {
+        mostrarFeedbackCE('Erro: ' + (err.message || 'Falha ao cadastrar.'), 'error');
+      } finally {
+        btn.disabled = false; btn.classList.remove('is-loading');
+      }
+    }
+
+    function mostrarFeedbackCE(msg, tipo) {
+      var fb = document.getElementById('ce-feedback');
+      fb.className = 'alert ' + (tipo === 'error' ? 'alert-error' : 'alert-success');
+      fb.style.display = 'flex';
+      fb.textContent = msg;
+    }
+
+    // ── Convite de cadastro ──
+    function fecharModalConviteEmp() {
+      document.getElementById('modal-convidar-empresa').classList.remove('is-open');
+      document.getElementById('convite-emp-email').value = '';
+      document.getElementById('convite-emp-cnpj').value = '';
+      document.getElementById('convite-emp-nome').value = '';
+      document.getElementById('convite-emp-feedback').style.display = 'none';
+    }
+
+    async function enviarConviteEmpresa() {
+      var email = document.getElementById('convite-emp-email').value.trim();
+      var cnpj = document.getElementById('convite-emp-cnpj').value.trim();
+      var nome = document.getElementById('convite-emp-nome').value.trim();
+      var fb = document.getElementById('convite-emp-feedback');
+      var btn = document.getElementById('btn-enviar-convite-emp');
+
+      if (!email) {
+        fb.className = 'alert alert-error'; fb.style.display = 'flex'; fb.textContent = 'Informe o e-mail da empresa.';
+        return;
+      }
+
+      btn.disabled = true;
+      fb.style.display = 'none';
+      try {
+        await API.post('enviarMagicLinkEmpresa', { email: email, cnpj: cnpj, nome: nome });
+        fb.className = 'alert alert-success'; fb.style.display = 'flex'; fb.textContent = 'Convite enviado para ' + email + '.';
+        setTimeout(fecharModalConviteEmp, 2500);
+      } catch (err) {
+        fb.className = 'alert alert-error'; fb.style.display = 'flex'; fb.textContent = 'Erro: ' + (err.message || 'Falha no envio.');
+        btn.disabled = false;
+      }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // ABA: CONVÊNIOS
+    // ════════════════════════════════════════════════════════
+    async function carregarConvenios() {
+      var tb = document.getElementById('tbody-conv');
+      tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-12);"><div class="spinner" style="margin:0 auto var(--space-3);"></div>Carregando…</td></tr>';
+      try {
+        var data = await API.get('listarEmpresasComConvenio');
+        _convDados = Array.isArray(data.empresas) ? data.empresas : [];
+        _convCarregado = true;
+        filtrarConv();
+      } catch (err) {
+        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-12);color:var(--color-error);">Erro: ' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    function filtrarConv() {
+      var busca = document.getElementById('busca-conv').value.toLowerCase().trim();
+      var status = document.getElementById('filtro-conv-status').value;
+      _convFiltrados = _convDados.filter(function (e) {
+        if (busca) {
+          var t = [e.razaoSocial, e.cnpj].join(' ').toLowerCase();
+          if (t.indexOf(busca) === -1) return false;
+        }
+        if (status) {
+          if (status === 'sem' && e.convenio) return false;
+          if (status === 'aprovado' && (!e.convenio || e.convenio.status !== 'Aprovado')) return false;
+          if (status === 'andamento' && (!e.convenio || e.convenio.status === 'Aprovado')) return false;
+        }
+        return true;
+      });
+      renderConv();
+    }
+
+    function renderConv() {
+      var tb = document.getElementById('tbody-conv');
+      if (_convFiltrados.length === 0) {
+        tb.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Nenhum resultado.</p></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = _convFiltrados.map(function (e, idx) {
+        var conv = e.convenio;
+        var statusBadge = conv
+          ? (conv.status === 'Aprovado' ? '<span class="badge badge-success">Aprovado · ' + escapeHtml(conv.numero) + '</span>' : '<span class="badge badge-warning">Em andamento · ' + escapeHtml(conv.numero) + '</span>')
+          : '<span class="badge badge-neutral">Sem convênio</span>';
+        var acao = conv
+          ? '<button class="btn btn-secondary btn-sm" data-fluxo="' + escapeHtml(conv.idConvenio) + '">Ver fluxo</button>'
+          : '<button class="btn btn-primary btn-sm" data-gerar="' + idx + '">Gerar convênio</button>';
+        var reenviar = conv ? '<button class="btn btn-ghost btn-sm" data-reenviar="' + escapeHtml(conv.idConvenio) + '">Reenviar</button>' : '';
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(e.razaoSocial || '—') + '</strong></td>' +
+          '<td>' + escapeHtml(e.cnpj || '—') + '</td>' +
+          '<td>' + escapeHtml(e.municipio || '—') + (e.uf ? '/' + escapeHtml(e.uf) : '') + '</td>' +
+          '<td>' + escapeHtml(e.nomeRep || '—') + '</td>' +
+          '<td>' + (conv ? escapeHtml(conv.numero || '—') : '—') + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td style="text-align:right;">' + acao + ' ' + reenviar + '</td>' +
+        '</tr>';
+      }).join('');
+      tb.querySelectorAll('[data-fluxo]').forEach(function (btn) { btn.addEventListener('click', function () { abrirConvenio(btn.dataset.fluxo); }); });
+      tb.querySelectorAll('[data-gerar]').forEach(function (btn) { btn.addEventListener('click', function () { confirmarGerarConvenio(_convFiltrados[+btn.dataset.gerar]); }); });
+      tb.querySelectorAll('[data-reenviar]').forEach(function (btn) { btn.addEventListener('click', function () { reenviarConvenio(btn.dataset.reenviar); }); });
+    }
+
+    function confirmarGerarConvenio(emp) {
+      _empParaConv = emp;
+      document.getElementById('modal-empresa-titulo').textContent = 'Gerar Convênio';
+      document.getElementById('modal-empresa-body').innerHTML =
+        '<p class="form-hint" style="margin-bottom:var(--space-4);">Será gerado um Convênio de Estágio para a empresa abaixo e enviado o link de assinatura para o representante via e-mail.</p>' +
+        '<div class="detail-grid">' +
+          '<div class="detail-item"><label>Razão Social</label><p>' + escapeHtml(emp.razaoSocial || '—') + '</p></div>' +
+          '<div class="detail-item"><label>CNPJ</label><p>' + escapeHtml(emp.cnpj || '—') + '</p></div>' +
+          '<div class="detail-item"><label>Representante</label><p>' + escapeHtml(emp.nomeRep || '—') + '</p></div>' +
+          '<div class="detail-item"><label>E-mail do rep.</label><p>' + escapeHtml(emp.emailRep || '—') + '</p></div>' +
+        '</div>' +
+        (!emp.emailRep ? '<div class="alert alert-error" style="margin-top:var(--space-3);"><div class="alert-content"><strong>Atenção:</strong> e-mail do representante não cadastrado. Edite a empresa antes de gerar o convênio.</div></div>' : '');
+      document.getElementById('modal-empresa-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-gerar-conv">Cancelar</button>' +
+        '<button type="button" class="btn btn-primary" id="btn-conf-gerar-conv" ' + (!emp.emailRep ? 'disabled' : '') + '>Gerar e enviar convênio</button>';
+      document.getElementById('btn-cancelar-gerar-conv').addEventListener('click', fechar);
+      document.getElementById('btn-conf-gerar-conv').addEventListener('click', executarGerarConvenio);
+      document.getElementById('modal-empresa').classList.add('is-open');
+    }
+
+    async function executarGerarConvenio() {
+      var btn = document.getElementById('btn-conf-gerar-conv');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        var res = await API.post('gerarConvenio', { cnpj: _empParaConv.cnpj });
+        showToast('Convênio ' + res.numero + ' gerado. E-mail enviado ao representante.', 'success');
+        fechar();
+        _convCarregado = false;
+        carregarConvenios();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+      }
+    }
+
+    async function abrirConvenio(idConvenio) {
+      document.getElementById('modal-empresa-titulo').textContent = 'Fluxo do Convênio';
+      document.getElementById('modal-empresa-body').innerHTML = '<div style="text-align:center;padding:var(--space-8);"><div class="spinner" style="margin:0 auto;"></div></div>';
+      document.getElementById('modal-empresa-footer').innerHTML = '<button type="button" class="btn btn-secondary" id="btn-fechar-fluxo">Fechar</button>';
+      document.getElementById('btn-fechar-fluxo').addEventListener('click', fechar);
+      document.getElementById('modal-empresa').classList.add('is-open');
+      try {
+        var fluxo = await API.get('obterFluxoConvenio', { id: idConvenio });
+        var statusGeral = fluxo.statusGeral === 'concluido' ? '<span class="badge badge-success">Aprovado</span>' : '<span class="badge badge-warning">Em andamento</span>';
+
+        var dotClass = { concluido: 'is-concluido', aguardando: 'is-aguardando', pendente: 'is-pendente', rejeitado: 'is-rejeitado' };
+        var dotIcon = { concluido: '✓', aguardando: '…', pendente: '○', rejeitado: '✕' };
+        var etapasHtml = (fluxo.etapas || []).map(function (et) {
+          return '<div class="etapa-linha">' +
+            '<div class="etapa-dot ' + (dotClass[et.status] || 'is-pendente') + '">' + (dotIcon[et.status] || et.numero) + '</div>' +
+            '<div style="flex:1;">' +
+              '<div style="font-size:var(--font-size-sm);font-weight:600;">' + escapeHtml(et.label) + ' <span style="font-size:11px;font-weight:400;color:var(--color-text-muted);">(' + (et.tipo === 'govbr' ? 'gov.br' : 'Interno') + ')</span></div>' +
+              (et.data ? '<div style="font-size:11px;color:var(--color-text-muted);margin-top:2px;">' + escapeHtml(formatarDataBr(et.data)) + '</div>' : '') +
+              (et.obs ? '<div style="font-size:11px;color:var(--color-error);margin-top:2px;">Rejeitado: ' + escapeHtml(et.obs) + '</div>' : '') +
+              (et.temPdf ? '<button type="button" class="btn btn-ghost btn-sm" data-baixar-etapa="' + et.numero + '" style="margin-top:4px;font-size:11px;">⬇ PDF desta etapa</button>' : '') +
+            '</div></div>';
+        }).join('');
+
+        document.getElementById('modal-empresa-body').innerHTML =
+          '<div class="detail-grid" style="margin-bottom:var(--space-4);">' +
+            '<div class="detail-item"><label>Nº Convênio</label><p>' + escapeHtml(fluxo.numero || '—') + '</p></div>' +
+            '<div class="detail-item"><label>Status</label><p>' + statusGeral + '</p></div>' +
+            '<div class="detail-item detail-item--full"><label>Empresa</label><p>' + escapeHtml(fluxo.razaoSocial || '—') + ' — CNPJ ' + escapeHtml(fluxo.cnpj || '—') + '</p></div>' +
+          '</div>' +
+          '<p style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-2);">Etapas de assinatura</p>' +
+          '<div style="border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);">' + etapasHtml + '</div>';
+
+        var footerHtml = '<button type="button" class="btn btn-secondary" id="btn-fechar-fluxo">Fechar</button>';
+        if (fluxo.statusGeral !== 'concluido') footerHtml += '<button type="button" class="btn btn-secondary btn-sm" id="btn-reenviar-fluxo">Reenviar notificação</button>';
+        else footerHtml += '<button type="button" class="btn btn-primary btn-sm" id="btn-baixar-final">⬇ Baixar PDF final</button>';
+        document.getElementById('modal-empresa-footer').innerHTML = footerHtml;
+        document.getElementById('btn-fechar-fluxo').addEventListener('click', fechar);
+        if (document.getElementById('btn-reenviar-fluxo')) document.getElementById('btn-reenviar-fluxo').addEventListener('click', function () { reenviarConvenio(idConvenio); });
+        if (document.getElementById('btn-baixar-final')) document.getElementById('btn-baixar-final').addEventListener('click', function () { baixarPdfConvenioEtapa(idConvenio, 0); });
+        document.querySelectorAll('[data-baixar-etapa]').forEach(function (btn) {
+          btn.addEventListener('click', function () { baixarPdfConvenioEtapa(idConvenio, +btn.dataset.baixarEtapa); });
+        });
+      } catch (err) {
+        document.getElementById('modal-empresa-body').innerHTML = '<p style="color:var(--color-error);">Erro: ' + escapeHtml(err.message) + '</p>';
+      }
+    }
+
+    async function baixarPdfConvenioEtapa(idConvenio, etapa) {
+      try {
+        var params = { id: idConvenio };
+        if (etapa > 0) params.etapa = etapa;
+        var res = await API.get('baixarPdfConvenio', params);
+        var link = document.createElement('a');
+        link.href = 'data:application/pdf;base64,' + res.base64;
+        link.download = res.nome || ('convenio_' + idConvenio + '.pdf');
+        link.click();
+      } catch (err) {
+        showToast('Erro ao baixar PDF: ' + err.message, 'error');
+      }
+    }
+
+    async function reenviarConvenio(idConvenio) {
+      try {
+        await API.post('reenviarNotificacaoConvenio', { idConvenio: idConvenio });
+        showToast('Notificação reenviada.', 'success');
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    function formatarDataBr(iso) {
+      if (!iso) return '';
+      try {
+        var d = new Date(iso);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch (e) { return iso; }
+    }
 
     (function () {
       var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));

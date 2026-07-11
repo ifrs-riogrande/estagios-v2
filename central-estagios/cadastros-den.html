@@ -128,13 +128,37 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">O cadastro da Diretoria de Ensino (DEN) será adicionado aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+      <div class="card" style="max-width:640px;">
+        <div class="card-body">
+          <div id="status-badge" style="margin-bottom:var(--space-5);"></div>
+
+          <div id="loading-papel" style="text-align:center;padding:var(--space-8);color:var(--color-text-muted);">
+            <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+            Carregando dados atuais...
+          </div>
+
+          <form id="form-papel" novalidate style="display:none;">
+            <div class="form-group">
+              <label class="form-label required" for="papel-nome">Nome completo</label>
+              <input type="text" id="papel-nome" class="form-control" required aria-required="true" placeholder="Ex.: Maria Silva" maxlength="120" aria-describedby="papel-nome-error">
+              <span id="papel-nome-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="papel-siape">SIAPE <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+              <input type="text" id="papel-siape" class="form-control" placeholder="Ex.: 1234567" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="papel-email">E-mail institucional</label>
+              <input type="email" id="papel-email" class="form-control" required aria-required="true" placeholder="Ex.: setor@riogrande.ifrs.edu.br" aria-describedby="papel-email-hint papel-email-error">
+              <span id="papel-email-hint" class="form-hint">E-mail de acesso ao módulo deste papel.</span>
+              <span id="papel-email-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btn-salvar-papel">Salvar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </main>
@@ -161,6 +185,56 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarDadosPapel();
+    });
+
+    async function carregarDadosPapel() {
+      var dados = {};
+      try { dados = await API.get('obterDiretoriaDEN'); } catch (err) { dados = {}; }
+      preencherFormulario(dados || {});
+      document.getElementById('loading-papel').style.display = 'none';
+      document.getElementById('form-papel').style.display = 'block';
+    }
+
+    function preencherFormulario(dados) {
+      document.getElementById('papel-nome').value = dados.nome || '';
+      document.getElementById('papel-siape').value = dados.siape || '';
+      document.getElementById('papel-email').value = dados.email || '';
+      atualizarStatusBadge(!!dados.email);
+    }
+
+    function atualizarStatusBadge(configurado) {
+      document.getElementById('status-badge').innerHTML = configurado
+        ? '<span class="badge badge-success">Configurado</span>'
+        : '<span class="badge badge-warning">Não configurado</span>';
+    }
+
+    document.getElementById('form-papel').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var nome = document.getElementById('papel-nome').value.trim();
+      var siape = document.getElementById('papel-siape').value.trim();
+      var email = document.getElementById('papel-email').value.trim();
+
+      clearFieldError('papel-nome');
+      clearFieldError('papel-email');
+      var ok = true;
+      if (!nome) { showFieldError('papel-nome', 'Informe o nome do responsável.'); ok = false; }
+      if (!email) { showFieldError('papel-email', 'Informe o e-mail institucional.'); ok = false; }
+      if (!ok) return;
+
+      var btn = document.getElementById('btn-salvar-papel');
+      btn.disabled = true;
+      btn.classList.add('is-loading');
+      try {
+        await API.post('salvarDiretoriaDEN', { nome: nome, siape: siape, email: email });
+        atualizarStatusBadge(true);
+        showToast('Dados salvos com sucesso.', 'success');
+      } catch (err) {
+        showToast('Erro ao salvar: ' + (err.message || 'tente novamente.'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('is-loading');
+      }
     });
 
     (function () {
