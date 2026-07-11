@@ -113,6 +113,29 @@ function hideFormFeedback(containerId) {
 }
 
 /**
+ * Formata uma data ISO (YYYY-MM-DD) para exibição em DD/MM/AAAA.
+ * Retorna a string original se não conseguir interpretar.
+ */
+function formatDateBR(value) {
+  if (!value) return '';
+  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : String(value);
+}
+
+/**
+ * Valida que uma URL é http(s) ou mailto antes de usá-la como href —
+ * evita injeção de esquemas perigosos (ex.: javascript:) em conteúdo
+ * vindo do backend/planilha.
+ */
+function safeUrl(url) {
+  if (!url) return '';
+  const s = String(url).trim().replace(/\s/g, '');
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^mailto:/i.test(s)) return s;
+  return '';
+}
+
+/**
  * Preenche um <select> a partir de uma lista de { value, label }.
  */
 function populateSelect(selectId, options, placeholder = 'Selecione...') {

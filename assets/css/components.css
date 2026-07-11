@@ -1066,6 +1066,31 @@ textarea.form-control {
   color: var(--color-text-muted);
 }
 
+.opp-card__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.opp-card__prazo--urgente {
+  color: var(--color-error);
+  font-weight: var(--font-weight-semibold);
+}
+
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 480px) {
+  .opp-grid { grid-template-columns: 1fr; }
+}
+
 /* ─────────────────────────────────────────
    BARRA DE PROGRESSO (steps do formulário)
    ───────────────────────────────────────── */

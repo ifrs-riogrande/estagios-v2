@@ -235,37 +235,99 @@
           <span class="mega-panel-item-title">Acompanhar Certificação de Conhecimento</span>
           <span class="mega-panel-item-desc">Status da sua solicitação de certificação de conhecimento</span>
         </a>
-        <span class="mega-panel-item is-disabled">
-          <span class="mega-panel-item-title">Acompanhar Conversão de Estágio Não Obrigatório <span class="mega-nav-badge">Em breve</span></span>
+        <a href="acompanhamento-conversao.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Conversão de Estágio Não Obrigatório</span>
           <span class="mega-panel-item-desc">Status da sua solicitação de conversão</span>
-        </span>
-        <span class="mega-panel-item is-disabled">
-          <span class="mega-panel-item-title">Acompanhar Aproveitamento de Programas/Projetos <span class="mega-nav-badge">Em breve</span></span>
+        </a>
+        <a href="acompanhamento-aproveitamento-projetos.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Aproveitamento de Programas/Projetos</span>
           <span class="mega-panel-item-desc">Status da sua solicitação de aproveitamento</span>
-        </span>
+        </a>
       </div>
     </div>
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO — em construção
+       CONTEÚDO — portal de oportunidades
        ═══════════════════════════════════════ -->
   <main id="main-content">
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Oportunidades</h1>
-        <p class="page-hero-desc">Vagas de estágio e emprego para estudantes.</p>
+        <p class="page-hero-desc">Vagas de estágio abertas em empresas conveniadas com o IFRS Campus Rio Grande. Candidate-se diretamente pela empresa.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
+    <div class="container" style="padding-top:var(--space-7);padding-bottom:var(--space-12);">
+
+      <!-- Filtros -->
+      <div class="filters" role="search" aria-label="Filtros de oportunidades">
+        <div class="form-group" style="flex:2;min-width:220px;">
+          <label class="form-label" for="filtro-busca">Buscar</label>
+          <input type="search" id="filtro-busca" class="form-control" placeholder="Título, concedente, área…" aria-label="Buscar oportunidades">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-curso">Curso</label>
+          <select id="filtro-curso" class="form-control" aria-label="Filtrar por curso" disabled>
+            <option value="">Carregando cursos…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-tipo">Tipo de vaga</label>
+          <select id="filtro-tipo" class="form-control" aria-label="Filtrar por tipo de vaga">
+            <option value="">Todos</option>
+            <option value="Estágio Obrigatório">Obrigatório</option>
+            <option value="Estágio Não Obrigatório">Não Obrigatório</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-modalidade">Modalidade</label>
+          <select id="filtro-modalidade" class="form-control" aria-label="Filtrar por modalidade">
+            <option value="">Todas</option>
+            <option value="Presencial">Presencial</option>
+            <option value="Remoto">Remoto</option>
+            <option value="Híbrido">Híbrido</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-cidade">Cidade</label>
+          <input type="text" id="filtro-cidade" class="form-control" placeholder="Ex.: Rio Grande" aria-label="Filtrar por cidade">
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-6);flex-wrap:wrap;gap:var(--space-2);">
+        <p id="contagem-oportunidades" style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin:0;" aria-live="polite"></p>
+        <button type="button" id="btn-limpar-filtros" class="btn btn-ghost btn-sm">Limpar filtros</button>
+      </div>
+
+      <!-- Estado de carregamento -->
+      <div id="loading-state" class="empty-state" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Buscando oportunidades…</p>
+      </div>
+
+      <!-- Estado de erro -->
+      <div id="error-state" class="hidden">
+        <div class="alert alert-error" role="alert">
+          <div class="alert-content">
+            <strong>Erro ao carregar oportunidades.</strong> Verifique sua conexão e tente novamente.
+            <div><button type="button" id="btn-retry" class="btn btn-secondary btn-sm" style="margin-top:var(--space-3);">Tentar novamente</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado vazio -->
+      <div id="empty-state" class="empty-state hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/>
         </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">O portal de vagas de estágio e emprego será adicionado aqui.</p>
+        <h3>Nenhuma oportunidade encontrada</h3>
+        <p id="empty-desc">Tente ajustar os filtros ou volte em breve.</p>
       </div>
+
+      <!-- Grid de cards -->
+      <div id="opp-grid" class="opp-grid hidden" aria-label="Lista de oportunidades de estágio"></div>
+
     </div>
   </main>
 
@@ -295,7 +357,154 @@
     // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+      carregarOportunidades();
+      preencherFiltroCursos();
     });
+
+    var todasOportunidades = [];
+
+    async function preencherFiltroCursos() {
+      var sel = document.getElementById('filtro-curso');
+      try {
+        var cursos = await API.get('listarCursos');
+        var nomes = Array.from(new Set((cursos || []).map(function (c) { return c.nome; }))).sort();
+        populateSelect('filtro-curso', nomes.map(function (n) { return { value: n, label: n }; }), 'Todos os cursos');
+        sel.disabled = false;
+      } catch (e) {
+        populateSelect('filtro-curso', [], 'Todos os cursos');
+        sel.disabled = false;
+      }
+    }
+
+    async function carregarOportunidades() {
+      mostrarEstado('loading');
+      try {
+        var lista = await API.get('listarOportunidades');
+        todasOportunidades = lista || [];
+        aplicarFiltros();
+      } catch (err) {
+        mostrarEstado('error');
+      }
+    }
+
+    function mostrarEstado(estado) {
+      document.getElementById('loading-state').classList.toggle('hidden', estado !== 'loading');
+      document.getElementById('error-state').classList.toggle('hidden', estado !== 'error');
+      document.getElementById('empty-state').classList.toggle('hidden', estado !== 'empty');
+      document.getElementById('opp-grid').classList.toggle('hidden', estado !== 'grid');
+    }
+
+    // ── Filtragem ──
+    function aplicarFiltros() {
+      var busca = document.getElementById('filtro-busca').value.trim().toLowerCase();
+      var curso = document.getElementById('filtro-curso').value;
+      var tipo = document.getElementById('filtro-tipo').value;
+      var modalidade = document.getElementById('filtro-modalidade').value;
+      var cidade = document.getElementById('filtro-cidade').value.trim().toLowerCase();
+
+      var filtradas = todasOportunidades.filter(function (o) {
+        var matchBusca = !busca
+          || (o.titulo && o.titulo.toLowerCase().includes(busca))
+          || (o.nomeEmpresa && o.nomeEmpresa.toLowerCase().includes(busca))
+          || (o.area && o.area.toLowerCase().includes(busca))
+          || (o.atividades && o.atividades.toLowerCase().includes(busca));
+        var matchCurso = !curso || (o.area && o.area.includes(curso));
+        var matchTipo = !tipo || o.tipoVaga === tipo;
+        var matchMod = !modalidade || o.modalidade === modalidade;
+        var matchCidade = !cidade || (o.cidade && o.cidade.toLowerCase().includes(cidade));
+        return matchBusca && matchCurso && matchTipo && matchMod && matchCidade;
+      });
+
+      renderizarOportunidades(filtradas);
+    }
+
+    // ── Render ──
+    function renderizarOportunidades(lista) {
+      var grid = document.getElementById('opp-grid');
+      var count = document.getElementById('contagem-oportunidades');
+
+      if (lista.length === 0) {
+        grid.innerHTML = '';
+        count.textContent = 'Nenhuma oportunidade encontrada.';
+        mostrarEstado('empty');
+        document.getElementById('empty-desc').textContent = todasOportunidades.length > 0
+          ? 'Nenhuma oportunidade corresponde aos filtros selecionados. Tente ampliar a busca.'
+          : 'Não há vagas publicadas no momento. Verifique novamente em breve.';
+        return;
+      }
+
+      mostrarEstado('grid');
+      count.textContent = lista.length === 1 ? '1 oportunidade encontrada' : lista.length + ' oportunidades encontradas';
+
+      grid.innerHTML = lista.map(function (o) {
+        var hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        var prazoDate = o.prazo ? new Date(o.prazo + 'T00:00:00') : null;
+        var diasRestantes = prazoDate ? Math.round((prazoDate - hoje) / 86400000) : null;
+        var prazoUrgente = diasRestantes !== null && diasRestantes <= 5;
+
+        var tipoClass = o.tipoVaga === 'Estágio Obrigatório' ? 'badge-info' : 'badge-neutral';
+        var modalClass = { 'Presencial': 'badge-success', 'Remoto': 'badge-warning', 'Híbrido': 'badge-info' }[o.modalidade] || 'badge-neutral';
+
+        var prazoTexto = '';
+        if (diasRestantes !== null) {
+          if (diasRestantes < 0) prazoTexto = 'Prazo encerrado';
+          else if (diasRestantes === 0) prazoTexto = 'Último dia!';
+          else if (diasRestantes === 1) prazoTexto = 'Amanhã é o último dia!';
+          else prazoTexto = 'Prazo: ' + formatDateBR(o.prazo) + ' (' + diasRestantes + ' dias)';
+        }
+
+        var candidaturaBtn = (o.linkCandidatura && safeUrl(o.linkCandidatura))
+          ? '<a href="' + escapeHtml(safeUrl(o.linkCandidatura)) + '" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Candidatar-se</a>'
+          : (o.contatoCandidatura
+              ? '<a href="mailto:' + escapeHtml(o.contatoCandidatura) + '" class="btn btn-primary btn-sm">Candidatar-se</a>'
+              : '');
+
+        return '<article class="opp-card">'
+          + '<div class="opp-card__header">'
+          + '<div>'
+          + '<h2 class="opp-card__title">' + escapeHtml(o.titulo || 'Vaga de Estágio') + '</h2>'
+          + '<p class="opp-card__company">' + escapeHtml(o.nomeEmpresa || '—') + (o.cidade ? ' · ' + escapeHtml(o.cidade) : '') + '</p>'
+          + '</div>'
+          + '<div style="display:flex;flex-wrap:wrap;gap:4px;flex-shrink:0;">'
+          + (o.tipoVaga ? '<span class="badge ' + tipoClass + '">' + escapeHtml(o.tipoVaga.replace('Estágio ', '')) + '</span>' : '')
+          + (o.modalidade ? '<span class="badge ' + modalClass + '">' + escapeHtml(o.modalidade) + '</span>' : '')
+          + '</div>'
+          + '</div>'
+          + (o.atividades ? '<p class="opp-card__desc">' + escapeHtml(o.atividades) + '</p>' : '')
+          + '<div class="opp-card__meta">'
+          + (o.area ? '<span class="badge badge-neutral">' + escapeHtml(o.area) + '</span>' : '')
+          + (o.cargaHoraria ? '<span class="badge badge-neutral">' + escapeHtml(o.cargaHoraria) + '</span>' : '')
+          + (o.numVagas ? '<span class="badge badge-neutral">' + escapeHtml(String(o.numVagas)) + (Number(o.numVagas) === 1 ? ' vaga' : ' vagas') + '</span>' : '')
+          + (o.remuneracao ? '<span class="badge badge-neutral">' + escapeHtml(o.remuneracao) + '</span>' : '')
+          + (o.beneficios ? '<span class="badge badge-neutral">' + escapeHtml(o.beneficios) + '</span>' : '')
+          + '</div>'
+          + '<div class="opp-card__footer">'
+          + (prazoTexto ? '<span class="' + (prazoUrgente ? 'opp-card__prazo--urgente' : '') + '">' + escapeHtml(prazoTexto) + '</span>' : '<span></span>')
+          + (candidaturaBtn || '')
+          + '</div>'
+          + '</article>';
+      }).join('');
+    }
+
+    // ── Listeners ──
+    ['filtro-busca', 'filtro-cidade'].forEach(function (id) {
+      document.getElementById(id).addEventListener('input', aplicarFiltros);
+    });
+    ['filtro-curso', 'filtro-tipo', 'filtro-modalidade'].forEach(function (id) {
+      document.getElementById(id).addEventListener('change', aplicarFiltros);
+    });
+
+    document.getElementById('btn-limpar-filtros').addEventListener('click', function () {
+      document.getElementById('filtro-busca').value = '';
+      document.getElementById('filtro-curso').value = '';
+      document.getElementById('filtro-tipo').value = '';
+      document.getElementById('filtro-modalidade').value = '';
+      document.getElementById('filtro-cidade').value = '';
+      aplicarFiltros();
+    });
+
+    document.getElementById('btn-retry').addEventListener('click', carregarOportunidades);
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
     (function () {

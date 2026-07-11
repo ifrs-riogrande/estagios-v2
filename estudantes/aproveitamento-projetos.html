@@ -233,14 +233,14 @@
           <span class="mega-panel-item-title">Acompanhar Certificação de Conhecimento</span>
           <span class="mega-panel-item-desc">Status da sua solicitação de certificação de conhecimento</span>
         </a>
-        <span class="mega-panel-item is-disabled">
-          <span class="mega-panel-item-title">Acompanhar Conversão de Estágio Não Obrigatório <span class="mega-nav-badge">Em breve</span></span>
+        <a href="acompanhamento-conversao.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Conversão de Estágio Não Obrigatório</span>
           <span class="mega-panel-item-desc">Status da sua solicitação de conversão</span>
-        </span>
-        <span class="mega-panel-item is-disabled">
-          <span class="mega-panel-item-title">Acompanhar Aproveitamento de Programas/Projetos <span class="mega-nav-badge">Em breve</span></span>
+        </a>
+        <a href="acompanhamento-aproveitamento-projetos.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Aproveitamento de Programas/Projetos</span>
           <span class="mega-panel-item-desc">Status da sua solicitação de aproveitamento</span>
-        </span>
+        </a>
       </div>
     </div>
   </header>
@@ -615,11 +615,11 @@
           '<div class="form-row">' +
             '<div class="form-group"><label class="form-label required">Ano de participação</label>' +
               '<input type="number" class="form-control proj-ano" value="' + escapeHtml(String(dados.ano || '')) + '" min="2000" max="' + anoMax + '" placeholder="Ex.: 2024"></div>' +
-            '<div class="form-group"><label class="form-label required">Carga horária (h)</label>' +
+            '<div class="form-group"><label class="form-label required">Carga horária total (h) como bolsista, voluntário ou membro</label>' +
               '<input type="number" class="form-control proj-horas" value="' + escapeHtml(String(dados.horas || '')) + '" min="1" max="9999" placeholder="Ex.: 120"></div>' +
           '</div>' +
           '<div class="form-group">' +
-            '<label class="form-label required" for="' + inputId + '">Documento comprobatório (declaração/certificado)</label>' +
+            '<label class="form-label required" for="' + inputId + '">Documento comprobatório (declaração assinada pela diretoria correspondente ao programa/projeto ou certificado)</label>' +
             '<div class="file-input-wrapper">' +
               '<label class="file-input-label" for="' + inputId + '">' +
                 '<svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>' +
