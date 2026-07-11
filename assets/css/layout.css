@@ -157,34 +157,6 @@ main {
   text-decoration: none;
 }
 
-/* ── Botão de voltar (pill, mesma família visual do badge) ── */
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  text-decoration: none;
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
-  background-color: var(--color-bg);
-  border-radius: 9999px;
-  transition: color var(--transition-fast), background-color var(--transition-fast);
-  white-space: nowrap;
-}
-
-.back-link:hover {
-  color: var(--color-primary);
-  background-color: var(--color-border);
-  text-decoration: none;
-}
-
-.back-link svg {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-
 /* ── Pill utilitário do header (Ajuda, sino de notificações) ──
    Mesmo fundo/contorno do chip de perfil (.header-user), padronizado
    pra todos os controles utilitários do header (não os de navegação). */
