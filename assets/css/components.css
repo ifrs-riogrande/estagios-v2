@@ -1508,6 +1508,14 @@ input[type="file"].form-control-file {
   color: var(--color-error);
 }
 
+/* Contador de caracteres (textareas longas) */
+.char-counter {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+  margin-top: var(--space-1);
+}
+
 /* ─────────────────────────────────────────
    ACCORDION DE SEÇÕES (formulários longos e sequenciais)
    ───────────────────────────────────────── */

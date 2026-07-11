@@ -127,6 +127,60 @@ function populateSelect(selectId, options, placeholder = 'Selecione...') {
   });
 }
 
+// ─────────────────────────────────────────
+//  VALIDAÇÃO DE UPLOAD DE PDF (magic bytes)
+// ─────────────────────────────────────────
+const PDF_MAGIC = [0x25, 0x50, 0x44, 0x46]; // %PDF
+const PDF_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+
+// Estado global: inputId -> true/false, consultado pelo accordion (secaoEstaCompleta)
+// e pela validação de envio de cada formulário.
+var _fileOk = {};
+
+/**
+ * Liga a validação de PDF (tamanho + magic bytes) a um <input type="file">
+ * dentro do padrão .file-input-wrapper/.file-input-label já usado no v2.
+ * @param {string} inputId
+ * @param {string} nameId - id do <span class="file-selected"> que mostra o nome do arquivo
+ * @param {string} errorId - id do <span class="form-error"> associado (fieldId + '-error')
+ */
+function validarPdf(inputId, nameId, errorId) {
+  const input = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+  const textEl = input.closest('.file-input-label') ? input.closest('.file-input-label').querySelector('.file-text') : null;
+
+  function setErro(msg) {
+    _fileOk[inputId] = false;
+    input.value = '';
+    if (nameEl) { nameEl.textContent = ''; nameEl.style.display = 'none'; }
+    if (textEl) textEl.style.display = '';
+    showFieldError(inputId, msg);
+  }
+  function setOk(nome) {
+    _fileOk[inputId] = true;
+    if (nameEl) { nameEl.textContent = nome; nameEl.style.display = 'block'; }
+    if (textEl) textEl.style.display = 'none';
+    clearFieldError(inputId);
+  }
+
+  input.addEventListener('change', function () {
+    const file = this.files && this.files[0];
+    if (!file) { _fileOk[inputId] = false; return; }
+    if (file.size > PDF_MAX_SIZE) { setErro('Arquivo muito grande. Limite: 5 MB.'); return; }
+
+    const slice = file.slice(0, 4);
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      const bytes = new Uint8Array(ev.target.result);
+      const isPdf = PDF_MAGIC.every(function (b, i) { return bytes[i] === b; });
+      if (!isPdf) setErro('O arquivo não é um PDF válido. Selecione um arquivo PDF.');
+      else setOk(file.name);
+    };
+    reader.onerror = function () { setErro('Não foi possível ler o arquivo. Tente novamente.'); };
+    reader.readAsArrayBuffer(slice);
+  });
+}
+
 /**
  * Exibe uma notificação toast no canto inferior direito.
  * @param {string} html - Conteúdo (aceita HTML, ex.: links) — só usar com conteúdo confiável/estático.

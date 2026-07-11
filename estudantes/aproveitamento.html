@@ -41,8 +41,6 @@
       transition: color .15s, border-color .15s;
     }
 
-    /* Seta decorativa nos links diretos (Perfil, Oportunidades) — só pra igualar
-       o peso visual dos gatilhos com painel. Não gira, não abre nada. */
     .mega-nav-link .mega-nav-chevron {
       opacity: .6;
     }
@@ -248,23 +246,343 @@
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO — em construção
+       CONTEÚDO — formulário de certificação de conhecimento
        ═══════════════════════════════════════ -->
-  <main id="main-content">
-    <section class="page-hero">
-      <div class="container">
-        <h1 class="page-hero-title">Certificação de Conhecimento</h1>
-        <p class="page-hero-desc">Substituição do estágio por experiência profissional já exercida.</p>
-      </div>
-    </section>
-
+  <main class="form-page" id="main-content">
     <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">O fluxo de certificação de conhecimento será adicionado aqui.</p>
+      <div class="form-wrapper">
+
+        <div class="form-page-header">
+          <h1>Certificação de Conhecimento</h1>
+          <p>Estudantes trabalhadores podem solicitar a substituição de parte ou de toda a carga horária do estágio obrigatório pela experiência profissional, quando as atividades exercidas são compatíveis com o curso e os requisitos do Projeto Pedagógico já foram cumpridos.</p>
+        </div>
+
+        <div id="status-banner" class="alert" style="display:none;margin-bottom:var(--space-6);"></div>
+        <div id="form-feedback" class="form-feedback" role="status" aria-live="polite"></div>
+
+        <form id="form-aproveitamento" novalidate>
+
+          <!-- ── Seção 1: Seus Dados ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              Seção 1 — Seus Dados
+            </h2>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label class="form-label">Nome completo</label>
+                <input type="text" id="dados-nome" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">CPF</label>
+                <input type="text" id="dados-cpf" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Data de nascimento</label>
+                <input type="text" id="dados-nascimento" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+            </div>
+            <p class="form-hint" style="margin-top:calc(var(--space-4) * -1);margin-bottom:var(--space-5);">Dados de identidade — para corrigir, contate o setor de estágios.</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="dados-telefone">Telefone celular</label>
+                <input type="tel" id="dados-telefone" class="form-control" placeholder="(53)999999999" required aria-required="true" inputmode="tel" aria-describedby="dados-telefone-error">
+                <span id="dados-telefone-error" class="form-error hidden" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dados-whatsapp">É WhatsApp?</label>
+                <div class="toggle-switch-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="dados-whatsapp" checked>
+                    <span class="toggle-track"></span>
+                  </label>
+                  <span id="dados-whatsapp-label" class="toggle-switch-label">Sim</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="dados-email-pessoal">E-mail pessoal</label>
+              <input type="email" id="dados-email-pessoal" class="form-control" required aria-required="true" aria-describedby="dados-email-pessoal-error">
+              <span id="dados-email-pessoal-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="dados-endereco">Endereço</label>
+              <input type="text" id="dados-endereco" class="form-control" placeholder="Rua ou avenida, número, bloco, apartamento" required aria-required="true" aria-describedby="dados-endereco-error">
+              <span id="dados-endereco-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="dados-cep">CEP</label>
+                <input type="text" id="dados-cep" class="form-control" placeholder="00000-000" inputmode="numeric" required aria-required="true">
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="dados-bairro">Bairro</label>
+                <input type="text" id="dados-bairro" class="form-control" required aria-required="true">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="dados-cidade">Cidade</label>
+                <input type="text" id="dados-cidade" class="form-control" required aria-required="true">
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="dados-uf">UF</label>
+                <select id="dados-uf" class="form-control" required aria-required="true">
+                  <option value="RS">RS</option>
+                  <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                  <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                  <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                  <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                  <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                  <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                  <option value="RJ">RJ</option><option value="RN">RN</option><option value="RO">RO</option>
+                  <option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option>
+                  <option value="SE">SE</option><option value="TO">TO</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-6);">
+              <button type="button" id="btn-salvar-contato" class="btn btn-secondary btn-sm">Salvar dados de contato</button>
+              <span class="form-hint">Telefone, e-mail pessoal e endereço são a mesma informação do seu Perfil — atualizar aqui também atualiza lá.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="vinculo-curso">Vínculo acadêmico para esta certificação <span class="tooltip-help" aria-label="Selecione o curso, matrícula e e-mail institucional que serão usados nesta solicitação.">?</span></label>
+              <select id="vinculo-curso" class="form-control" required aria-required="true" disabled aria-describedby="vinculo-curso-error">
+                <option value="">Selecione o vínculo...</option>
+              </select>
+              <span id="vinculo-curso-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div id="msg-curso-bloqueio" class="alert alert-error" style="display:none;margin-bottom:var(--space-4);" role="alert">
+              <div class="alert-content" id="msg-curso-bloqueio-texto"></div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Curso <span class="tooltip-help" aria-label="Preenchido automaticamente conforme o vínculo selecionado.">?</span></label>
+                <input type="text" id="curso-aproveitamento" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Matrícula <span class="tooltip-help" aria-label="Preenchida automaticamente conforme o vínculo selecionado.">?</span></label>
+                <input type="text" id="matricula-aproveitamento" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="semestre-atual">Período/Semestre atual que está cursando <span class="tooltip-help" aria-label="As opções dependem do curso selecionado.">?</span></label>
+              <select id="semestre-atual" class="form-control" required aria-required="true" disabled>
+                <option value="">Selecione o vínculo primeiro...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="formando">É formando(a) neste semestre/ano letivo? <span class="tooltip-help" aria-label="Formando: último semestre ou ano do curso.">?</span></label>
+              <div class="toggle-switch-group">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="formando">
+                  <span class="toggle-track"></span>
+                </label>
+                <span id="formando-label" class="toggle-switch-label">Não</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Seção 2: Experiência profissional ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 018.75 1h2.5A2.75 2.75 0 0114 3.75v.443c.572.055 1.14.122 1.706.2C17.053 4.582 18 5.75 18 7.07v3.469c0 1.126-.694 2.191-1.83 2.54-1.952.599-4.024.921-6.17.921s-4.218-.322-6.17-.921C2.694 12.73 2 11.665 2 10.539V7.07c0-1.321.947-2.489 2.294-2.676A41.047 41.047 0 016 4.193V3.75z" clip-rule="evenodd"/></svg>
+              Seção 2 — Experiência Profissional
+            </h2>
+
+            <div class="form-group">
+              <label class="form-label required" for="tipo-vinculo">Tipo de vínculo</label>
+              <select id="tipo-vinculo" class="form-control" required aria-required="true">
+                <option value="">Selecione...</option>
+                <option value="CLT">Empregado CLT / Carteira assinada</option>
+                <option value="Autonomo">Autônomo</option>
+                <option value="Empresario">Empresário / Sócio</option>
+              </select>
+            </div>
+
+            <p class="form-label" style="margin-bottom:var(--space-3);">
+              Empresas / Experiências
+              <span style="font-weight:400;color:var(--color-text-muted);"> — mínimo 6 meses ou 600 horas no total (pode ser em mais de uma empresa)</span>
+            </p>
+
+            <div id="lista-empresas" style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-3);"></div>
+
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-empresa">+ Adicionar empresa</button>
+            <span id="empresas-error" class="form-error hidden" role="alert" style="display:block;margin-top:var(--space-2);"></span>
+
+            <div class="form-group" style="margin-top:var(--space-5);max-width:320px;">
+              <label class="form-label required" for="total-horas">Carga horária total comprovada (horas)</label>
+              <input type="number" id="total-horas" class="form-control" min="1" max="9999" placeholder="Ex.: 600" required aria-required="true">
+              <span class="form-hint">Some as horas de todas as empresas listadas acima.</span>
+            </div>
+          </div>
+
+          <!-- ── Seção 3: Relatório ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4z" clip-rule="evenodd"/></svg>
+              Seção 3 — Relatório de Aproveitamento
+            </h2>
+            <p class="form-hint" style="margin-bottom:var(--space-5);">Preencha todas as seções abaixo, com linguagem formal.</p>
+
+            <div class="form-group">
+              <label class="form-label required" for="rel-introducao">1. Introdução</label>
+              <p class="form-hint" style="margin-bottom:var(--space-2);">Contextualize a importância da experiência profissional para sua formação técnica, o período e o local onde as atividades foram realizadas.</p>
+              <textarea id="rel-introducao" class="form-control" maxlength="5000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
+              <div class="char-counter"><span id="cnt-introducao">0</span>/5000 caracteres</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="rel-empresa">2. Apresentação da Empresa</label>
+              <p class="form-hint" style="margin-bottom:var(--space-2);">Breve histórico da empresa, descrição e principais áreas de atuação. Destaque o setor/departamento onde você desenvolveu seu trabalho.</p>
+              <textarea id="rel-empresa" class="form-control" maxlength="5000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
+              <div class="char-counter"><span id="cnt-empresa">0</span>/5000 caracteres</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="rel-atividades">3. Programação das Atividades</label>
+              <p class="form-hint" style="margin-bottom:var(--space-2);">Identifique e descreva as atividades desenvolvidas e o período em que foram realizadas. Inclua aspectos administrativos, relacionamento interpessoal e aspectos éticos.</p>
+              <textarea id="rel-atividades" class="form-control" maxlength="5000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
+              <div class="char-counter"><span id="cnt-atividades">0</span>/5000 caracteres</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="rel-conclusao">4. Comentários e Conclusão</label>
+              <p class="form-hint" style="margin-bottom:var(--space-2);">Comente experiências importantes, dificuldades encontradas, pontos positivos e negativos. Avalie o aproveitamento da experiência destacando conhecimentos que auxiliaram no desempenho.</p>
+              <textarea id="rel-conclusao" class="form-control" maxlength="5000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
+              <div class="char-counter"><span id="cnt-conclusao">0</span>/5000 caracteres</div>
+            </div>
+          </div>
+
+          <!-- ── Seção 4: Documentos ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+              Seção 4 — Documentos
+            </h2>
+            <p class="form-hint" style="margin-bottom:var(--space-5);">Envie apenas arquivos PDF. O sistema valida o formato antes de enviar.</p>
+
+            <div class="form-group">
+              <label class="form-label required" for="doc-matricula">Atestado de matrícula atualizado</label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-matricula">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar atestado de matrícula (PDF)</span>
+                  <span class="file-selected" id="matricula-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-matricula" accept=".pdf" required aria-required="true" aria-describedby="doc-matricula-error">
+              </div>
+              <span id="doc-matricula-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Emitido pela Secretaria, com assinatura.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="doc-ctps-id">Carteira de Trabalho — Identificação</label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-ctps-id">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar CTPS — identificação (PDF)</span>
+                  <span class="file-selected" id="ctps-id-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-ctps-id" accept=".pdf" required aria-required="true" aria-describedby="doc-ctps-id-error">
+              </div>
+              <span id="doc-ctps-id-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Páginas de foto, filiação e data de nascimento. Física ou digital.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label required" for="doc-ctps-reg">Carteira de Trabalho — Registros</label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-ctps-reg">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar CTPS — registros (PDF)</span>
+                  <span class="file-selected" id="ctps-reg-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-ctps-reg" accept=".pdf" required aria-required="true" aria-describedby="doc-ctps-reg-error">
+              </div>
+              <span id="doc-ctps-reg-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Páginas de registro da(s) empresa(s) e cargo(s) a comprovar.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="doc-declaracao">Declaração de atividades da empresa <span class="badge badge-warning">Se necessário</span></label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-declaracao">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar declaração de atividades (PDF)</span>
+                  <span class="file-selected" id="declaracao-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-declaracao" accept=".pdf">
+              </div>
+              <span id="doc-declaracao-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Necessário quando o cargo não indica compatibilidade com o curso. Em papel timbrado e carimbado pela empresa.</p>
+            </div>
+
+            <div class="form-group" id="bloco-autonomo" style="display:none;">
+              <label class="form-label" for="doc-autonomo">Documentos de Autônomo / Empresário <span class="badge badge-warning">Condicional</span></label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-autonomo">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar documentos de autônomo/empresário (PDF)</span>
+                  <span class="file-selected" id="autonomo-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-autonomo" accept=".pdf">
+              </div>
+              <span id="doc-autonomo-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Compile em um único PDF: comprovante de registro na prefeitura, ISSQN, INSS, contrato de prestação de serviço, recibo. Empresário: inclua cópia do Contrato Social.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="doc-extra">Demais documentos <span class="badge badge-neutral">Opcional</span></label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-extra">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar demais documentos (PDF)</span>
+                  <span class="file-selected" id="extra-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-extra" accept=".pdf">
+              </div>
+              <span id="doc-extra-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Qualquer outro documento relevante para a análise.</p>
+            </div>
+          </div>
+
+          <!-- ── Seção 5: Declaração de veracidade ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Seção 5 — Declaração de Veracidade
+            </h2>
+            <div class="declaration-box">
+              <div class="form-check">
+                <input type="checkbox" id="declaracao-veracidade" required aria-required="true" aria-describedby="declaracao-veracidade-error">
+                <label class="form-check-label required" for="declaracao-veracidade" style="font-weight:600;">
+                  Declaro, sob as penas da lei, que todas as informações e documentos fornecidos nesta solicitação são verdadeiros e autênticos, e estou ciente de que a prestação de informações falsas pode implicar em sanções disciplinares e legais.
+                </label>
+              </div>
+              <span id="declaracao-veracidade-error" class="form-error hidden" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-actions form-actions--between" id="bloco-acoes">
+            <button type="button" class="btn btn-ghost" id="btn-rascunho">Salvar rascunho</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-enviar">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+              Enviar Solicitação
+            </button>
+          </div>
+
+        </form>
       </div>
     </div>
   </main>
@@ -286,15 +604,29 @@
   </footer>
 
   <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/cursos-regras.js"></script>
+  <script src="../assets/js/accordion.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-    // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
+    var form = document.getElementById('form-aproveitamento');
+    var btnEnviar = document.getElementById('btn-enviar');
+    var btnRascunho = document.getElementById('btn-rascunho');
+    var _submitting = false;
+
+    var dadosEstudante = null;
+    var solicitacaoAtual = null;
+    var configCursos = null;
+    var cursosPorNome = {};
+    var empresasExperiencia = [];
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+      initAccordion(form);
+      iniciar();
     });
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
@@ -333,6 +665,468 @@
         if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
       });
     })();
+
+    // ════════════════════════════════════════════════════════
+    // CARREGAMENTO INICIAL
+    // ════════════════════════════════════════════════════════
+    async function iniciar() {
+      try {
+        var resultados = await Promise.all([
+          API.get('obterMeuCadastro'),
+          API.get('obterConfigCursos'),
+          API.get('listarCursos'),
+        ]);
+        dadosEstudante = resultados[0];
+        configCursos = resultados[1] || {};
+        (resultados[2] || []).forEach(function (c) { cursosPorNome[c.nome] = c; });
+
+        preencherSeusDados(dadosEstudante);
+
+        var cursos = dadosEstudante.cursos || [];
+        var selVinculo = document.getElementById('vinculo-curso');
+        if (cursos.length === 0) {
+          populateSelect('vinculo-curso', [], 'Nenhum curso cadastrado — contate o setor');
+        } else {
+          populateSelect('vinculo-curso',
+            cursos.map(function (c) { return { value: c.curso, label: c.curso + ' · Mat. ' + c.matricula }; }),
+            'Selecione o vínculo...'
+          );
+          selVinculo.disabled = false;
+          if (cursos.length === 1) {
+            selVinculo.value = cursos[0].curso;
+            selVinculo.dispatchEvent(new Event('change'));
+          }
+        }
+
+        // Carrega rascunho/solicitação existente, se houver, para o primeiro vínculo
+        try {
+          solicitacaoAtual = await API.get('obterMeuAproveitamento', { curso: selVinculo.value || '' });
+        } catch (e) { solicitacaoAtual = null; }
+        if (solicitacaoAtual) preencherFormularioExistente(solicitacaoAtual);
+
+        renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
+        var editavel = !solicitacaoAtual || !solicitacaoAtual.status || solicitacaoAtual.status === 'Rascunho' || solicitacaoAtual.status === 'Devolvido';
+        setFormEditavel(editavel);
+        // setFormEditavel reabilita todos os campos indiscriminadamente — reaplica o
+        // bloqueio por curso não habilitado, que tem prioridade sobre o status editável.
+        if (selVinculo.value) verificarCursoHabilitado(selVinculo.value);
+      } catch (err) {
+        showFormFeedback('form-feedback', 'error', 'Erro ao carregar', err.message || 'Não foi possível carregar seus dados. Recarregue a página.');
+      }
+    }
+
+    // ── Seção 1 — identidade + contato (mesmo padrão de estudantes/estagio.html) ──
+    function preencherSeusDados(dados) {
+      document.getElementById('dados-nome').value = dados.nome || '';
+      document.getElementById('dados-cpf').value = dados.cpf || '';
+      document.getElementById('dados-nascimento').value = dados.dataNasc || '';
+      document.getElementById('dados-telefone').value = dados.telefone || '';
+      document.getElementById('dados-whatsapp').checked = dados.whatsapp !== false;
+      document.getElementById('dados-whatsapp-label').textContent = dados.whatsapp !== false ? 'Sim' : 'Não';
+      document.getElementById('dados-email-pessoal').value = dados.emailPessoal || '';
+      document.getElementById('dados-endereco').value = dados.endereco || '';
+      document.getElementById('dados-cep').value = dados.cep || '';
+      document.getElementById('dados-bairro').value = dados.bairro || '';
+      document.getElementById('dados-cidade').value = dados.cidade || 'Rio Grande';
+      document.getElementById('dados-uf').value = dados.uf || 'RS';
+    }
+
+    document.getElementById('dados-whatsapp').addEventListener('change', function (e) {
+      document.getElementById('dados-whatsapp-label').textContent = e.target.checked ? 'Sim' : 'Não';
+    });
+    document.getElementById('formando').addEventListener('change', function (e) {
+      document.getElementById('formando-label').textContent = e.target.checked ? 'Sim' : 'Não';
+    });
+
+    document.getElementById('btn-salvar-contato').addEventListener('click', async function () {
+      var telefone = document.getElementById('dados-telefone').value.trim();
+      var emailPessoal = document.getElementById('dados-email-pessoal').value.trim();
+      var endereco = document.getElementById('dados-endereco').value.trim();
+
+      clearFieldError('dados-telefone');
+      clearFieldError('dados-email-pessoal');
+      clearFieldError('dados-endereco');
+      var ok = true;
+      if (!telefone) { showFieldError('dados-telefone', 'Informe o telefone celular.'); ok = false; }
+      if (!emailPessoal) { showFieldError('dados-email-pessoal', 'Informe o e-mail pessoal.'); ok = false; }
+      if (!endereco) { showFieldError('dados-endereco', 'Informe o endereço.'); ok = false; }
+      if (!ok) return;
+
+      var btn = this;
+      btn.disabled = true;
+      btn.classList.add('is-loading');
+      try {
+        await API.post('atualizarContatoEstudante', {
+          telefone: telefone, whatsapp: document.getElementById('dados-whatsapp').checked,
+          emailPessoal: emailPessoal, endereco: endereco,
+          cep: document.getElementById('dados-cep').value.trim(),
+          bairro: document.getElementById('dados-bairro').value.trim(),
+          cidade: document.getElementById('dados-cidade').value.trim(),
+          uf: document.getElementById('dados-uf').value,
+        });
+        showToast('Dados de contato atualizados no seu cadastro.', 'success');
+      } catch (err) {
+        showToast('Erro ao salvar dados de contato: ' + (err.message || 'tente novamente.'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('is-loading');
+      }
+    });
+
+    // ── Vínculo → curso, matrícula, semestre, habilitação para certificação ──
+    document.getElementById('vinculo-curso').addEventListener('change', function () {
+      var cursoNome = this.value;
+      var selSem = document.getElementById('semestre-atual');
+
+      if (!cursoNome) {
+        document.getElementById('curso-aproveitamento').value = '';
+        document.getElementById('matricula-aproveitamento').value = '';
+        selSem.innerHTML = '<option value="">Selecione o vínculo primeiro...</option>';
+        selSem.disabled = true;
+        document.getElementById('msg-curso-bloqueio').style.display = 'none';
+        return;
+      }
+
+      var entry = (dadosEstudante.cursos || []).find(function (c) { return c.curso === cursoNome; });
+      document.getElementById('curso-aproveitamento').value = cursoNome;
+      document.getElementById('matricula-aproveitamento').value = entry ? entry.matricula : '';
+
+      var grupo = (cursosPorNome[cursoNome] || {}).grupo || '';
+      var opcoes = opcoesSemestrePorGrupo(grupo);
+      selSem.innerHTML = '<option value="">Selecione...</option>' + opcoes.map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join('');
+      selSem.disabled = false;
+
+      verificarCursoHabilitado(cursoNome);
+      clearFieldError('vinculo-curso');
+    });
+
+    function verificarCursoHabilitado(curso) {
+      var msgEl = document.getElementById('msg-curso-bloqueio');
+      var textoEl = document.getElementById('msg-curso-bloqueio-texto');
+      var habilitado = true;
+      if (configCursos && Array.isArray(configCursos.certificacao)) {
+        habilitado = configCursos.certificacao.indexOf(curso) !== -1;
+      }
+      if (!habilitado) {
+        textoEl.innerHTML = '<strong>Curso não habilitado.</strong> O curso <em>' + escapeHtml(curso) + '</em> não está habilitado para Certificação de Conhecimento. Entre em contato com a coordenação do curso para mais informações.';
+        msgEl.style.display = 'block';
+        btnEnviar.disabled = true;
+        btnRascunho.disabled = true;
+      } else {
+        msgEl.style.display = 'none';
+        btnEnviar.disabled = false;
+        btnRascunho.disabled = false;
+      }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // SEÇÃO 2 — Empresas / Experiências (lista dinâmica de cards)
+    // ════════════════════════════════════════════════════════
+    function criarCardEmpresa(emp, idx) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML =
+        '<div class="card-body" style="position:relative;padding:var(--space-4);">' +
+          '<button type="button" class="btn btn-sm btn-danger" data-remover="' + idx + '" style="position:absolute;top:var(--space-4);right:var(--space-4);">Remover</button>' +
+          '<div class="form-row" style="padding-right:100px;">' +
+            '<div class="form-group"><label class="form-label required">Nome da empresa</label>' +
+              '<input type="text" class="form-control emp-nome" value="' + escapeHtml(emp.nome || '') + '" maxlength="200" placeholder="Razão social"></div>' +
+            '<div class="form-group"><label class="form-label">CNPJ / CPF</label>' +
+              '<input type="text" class="form-control emp-cnpj" value="' + escapeHtml(emp.cnpj || '') + '" maxlength="30" placeholder="00.000.000/0001-00"></div>' +
+          '</div>' +
+          '<div class="form-group"><label class="form-label required">Cargo / Função</label>' +
+            '<input type="text" class="form-control emp-cargo" value="' + escapeHtml(emp.cargo || '') + '" maxlength="200" placeholder="Ex.: Técnico em Informática"></div>' +
+          '<div class="form-row-3">' +
+            '<div class="form-group"><label class="form-label">Período — Início</label>' +
+              '<input type="date" class="form-control emp-inicio" value="' + escapeHtml(emp.periodoInicio || '') + '"></div>' +
+            '<div class="form-group"><label class="form-label">Período — Fim</label>' +
+              '<input type="date" class="form-control emp-fim" value="' + escapeHtml(emp.periodoFim || '') + '"></div>' +
+            '<div class="form-group"><label class="form-label">Carga horária (h)</label>' +
+              '<input type="number" class="form-control emp-horas" value="' + escapeHtml(String(emp.horas || '')) + '" min="1" max="9999" placeholder="Ex.: 440"></div>' +
+          '</div>' +
+        '</div>';
+      card.querySelector('[data-remover]').addEventListener('click', function () {
+        empresasExperiencia.splice(idx, 1);
+        renderizarEmpresas();
+      });
+      return card;
+    }
+
+    function renderizarEmpresas() {
+      var container = document.getElementById('lista-empresas');
+      container.innerHTML = '';
+      empresasExperiencia.forEach(function (emp, idx) { container.appendChild(criarCardEmpresa(emp, idx)); });
+    }
+
+    function coletarEmpresas() {
+      var cards = document.querySelectorAll('#lista-empresas .card');
+      var lista = [];
+      cards.forEach(function (card) {
+        lista.push({
+          nome: card.querySelector('.emp-nome').value.trim(),
+          cnpj: card.querySelector('.emp-cnpj').value.trim(),
+          cargo: card.querySelector('.emp-cargo').value.trim(),
+          periodoInicio: card.querySelector('.emp-inicio').value,
+          periodoFim: card.querySelector('.emp-fim').value,
+          horas: card.querySelector('.emp-horas').value,
+        });
+      });
+      return lista;
+    }
+
+    document.getElementById('btn-add-empresa').addEventListener('click', function () {
+      empresasExperiencia = coletarEmpresas();
+      empresasExperiencia.push({ nome: '', cnpj: '', cargo: '', periodoInicio: '', periodoFim: '', horas: '' });
+      renderizarEmpresas();
+      clearFieldError('empresas');
+    });
+
+    document.getElementById('tipo-vinculo').addEventListener('change', function () {
+      var bloco = document.getElementById('bloco-autonomo');
+      bloco.style.display = (this.value === 'Autonomo' || this.value === 'Empresario') ? 'block' : 'none';
+    });
+
+    // ════════════════════════════════════════════════════════
+    // SEÇÃO 3 — Contadores de caracteres do relatório
+    // ════════════════════════════════════════════════════════
+    ['introducao', 'empresa', 'atividades', 'conclusao'].forEach(function (campo) {
+      var el = document.getElementById('rel-' + campo);
+      el.addEventListener('input', function () {
+        document.getElementById('cnt-' + campo).textContent = el.value.length;
+      });
+    });
+
+    // ════════════════════════════════════════════════════════
+    // SEÇÃO 4 — Upload: validação de PDF (ver assets/js/utils.js)
+    // ════════════════════════════════════════════════════════
+    validarPdf('doc-matricula', 'matricula-doc-name', 'doc-matricula-error');
+    validarPdf('doc-ctps-id', 'ctps-id-doc-name', 'doc-ctps-id-error');
+    validarPdf('doc-ctps-reg', 'ctps-reg-doc-name', 'doc-ctps-reg-error');
+    validarPdf('doc-declaracao', 'declaracao-doc-name', 'doc-declaracao-error');
+    validarPdf('doc-autonomo', 'autonomo-doc-name', 'doc-autonomo-error');
+    validarPdf('doc-extra', 'extra-doc-name', 'doc-extra-error');
+
+    // ════════════════════════════════════════════════════════
+    // STATUS / MODO SOMENTE LEITURA (Rascunho, Devolvido, Aguardando..., Deferido, Indeferido)
+    // ════════════════════════════════════════════════════════
+    function renderizarStatusBanner(status) {
+      var banner = document.getElementById('status-banner');
+      if (!status || status === 'Rascunho') { banner.style.display = 'none'; return; }
+
+      var tipo = 'info';
+      var html = '';
+      if (status === 'Devolvido') {
+        tipo = 'warning';
+        var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
+        html = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
+          (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
+      } else if (status === 'Deferido') {
+        tipo = 'success';
+        var horas = (solicitacaoAtual && solicitacaoAtual.cargaHomologada) || '';
+        html = '<div class="alert-content"><strong>Solicitação deferida!</strong> Carga horária homologada: ' + escapeHtml(String(horas)) + ' horas. O aproveitamento foi registrado como estágio obrigatório cumprido.</div>';
+      } else if (status === 'Indeferido') {
+        tipo = 'error';
+        var just = (solicitacaoAtual && solicitacaoAtual.justificativa) || '';
+        html = '<div class="alert-content"><strong>Solicitação indeferida.</strong>' +
+          (just ? '<br>Justificativa: ' + escapeHtml(just) : '') + '<br>Entre em contato com o setor de estágios para mais informações.</div>';
+      } else {
+        var labels = {
+          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise do coordenador de curso.',
+          'Aguardando Admin': 'O coordenador emitiu o parecer. Aguardando verificação pelo setor de estágios.',
+          'Aguardando DEN': 'O setor de estágios encaminhou sua solicitação à DEN para parecer final.',
+        };
+        html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
+      }
+      banner.className = 'alert alert-' + tipo;
+      banner.innerHTML = html;
+      banner.style.display = 'flex';
+    }
+
+    function setFormEditavel(editavel) {
+      form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+        if (el.id === 'btn-salvar-contato') return; // contato pode sempre ser atualizado
+        el.disabled = !editavel;
+      });
+      document.getElementById('bloco-acoes').style.display = editavel ? 'flex' : 'none';
+    }
+
+    function preencherFormularioExistente(s) {
+      document.getElementById('tipo-vinculo').value = s.tipoVinculo || '';
+      document.getElementById('tipo-vinculo').dispatchEvent(new Event('change'));
+      document.getElementById('total-horas').value = s.totalHoras || '';
+
+      var rel = s.relatorio || {};
+      document.getElementById('rel-introducao').value = rel.introducao || '';
+      document.getElementById('rel-empresa').value = rel.empresa || '';
+      document.getElementById('rel-atividades').value = rel.atividades || '';
+      document.getElementById('rel-conclusao').value = rel.conclusao || '';
+      ['introducao', 'empresa', 'atividades', 'conclusao'].forEach(function (campo) {
+        document.getElementById('cnt-' + campo).textContent = document.getElementById('rel-' + campo).value.length;
+      });
+
+      empresasExperiencia = Array.isArray(s.empresas) ? s.empresas : [];
+      renderizarEmpresas();
+
+      if (s.semestreAtual) document.getElementById('semestre-atual').value = s.semestreAtual;
+      document.getElementById('formando').checked = s.formando === 'Sim';
+      document.getElementById('formando-label').textContent = s.formando === 'Sim' ? 'Sim' : 'Não';
+
+      ['docMatriculaUrl:matricula-doc-name', 'docCtpsIdUrl:ctps-id-doc-name', 'docCtpsRegUrl:ctps-reg-doc-name',
+       'docDeclaracaoUrl:declaracao-doc-name', 'docAutonomoUrl:autonomo-doc-name', 'docExtraUrl:extra-doc-name'].forEach(function (par) {
+        var partes = par.split(':');
+        if (s[partes[0]]) {
+          var el = document.getElementById(partes[1]);
+          if (el) { el.textContent = '✓ Documento já enviado'; el.style.display = 'block'; }
+        }
+      });
+
+      document.getElementById('declaracao-veracidade').checked = s.declaracaoVeracidade === true;
+    }
+
+    // ════════════════════════════════════════════════════════
+    // COLETA DE DADOS
+    // ════════════════════════════════════════════════════════
+    function coletarDados() {
+      return {
+        cursoAproveitamento: document.getElementById('curso-aproveitamento').value,
+        matriculaAproveitamento: document.getElementById('matricula-aproveitamento').value,
+        semestreAtual: document.getElementById('semestre-atual').value,
+        formando: document.getElementById('formando').checked ? 'Sim' : 'Não',
+        tipoVinculo: document.getElementById('tipo-vinculo').value,
+        empresas: coletarEmpresas(),
+        totalHoras: document.getElementById('total-horas').value,
+        relatorio: {
+          introducao: document.getElementById('rel-introducao').value.trim(),
+          empresa: document.getElementById('rel-empresa').value.trim(),
+          atividades: document.getElementById('rel-atividades').value.trim(),
+          conclusao: document.getElementById('rel-conclusao').value.trim(),
+        },
+        declaracaoVeracidade: document.getElementById('declaracao-veracidade').checked,
+      };
+    }
+
+    // ════════════════════════════════════════════════════════
+    // SALVAR RASCUNHO
+    // ════════════════════════════════════════════════════════
+    btnRascunho.addEventListener('click', async function () {
+      if (_submitting) return;
+      _submitting = true;
+      btnRascunho.classList.add('is-loading');
+      btnRascunho.disabled = true;
+      hideFormFeedback('form-feedback');
+      try {
+        var res = await API.post('salvarRascunhoAproveitamento', coletarDados());
+        solicitacaoAtual = Object.assign({}, solicitacaoAtual, { id: res.id, status: 'Rascunho' });
+        showFormFeedback('form-feedback', 'success', 'Rascunho salvo', 'Suas informações foram salvas. Você pode continuar depois.');
+      } catch (err) {
+        showFormFeedback('form-feedback', 'error', 'Erro ao salvar', err.message || 'Tente novamente.');
+      } finally {
+        btnRascunho.classList.remove('is-loading');
+        btnRascunho.disabled = false;
+        _submitting = false;
+      }
+    });
+
+    // ════════════════════════════════════════════════════════
+    // ENVIAR SOLICITAÇÃO
+    // ════════════════════════════════════════════════════════
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (_submitting) return;
+      hideFormFeedback('form-feedback');
+
+      var dados = coletarDados();
+      var valido = true, primeiroInvalido = null;
+      function fail(id, msg) { showFieldError(id, msg); if (!primeiroInvalido) primeiroInvalido = id; valido = false; }
+
+      if (!document.getElementById('vinculo-curso').value) fail('vinculo-curso', 'Selecione o vínculo acadêmico.');
+      if (!dados.semestreAtual) fail('semestre-atual', 'Selecione o período/semestre atual.');
+      if (!dados.tipoVinculo) fail('tipo-vinculo', 'Selecione o tipo de vínculo.');
+      if (dados.empresas.length === 0 || dados.empresas.some(function (e) { return !e.nome || !e.cargo; })) {
+        fail('empresas', 'Adicione ao menos uma empresa, com nome e cargo preenchidos.');
+      }
+      if (!dados.totalHoras) fail('total-horas', 'Informe a carga horária total.');
+      var rel = dados.relatorio;
+      if (!rel.introducao) fail('rel-introducao', 'Preencha a introdução.');
+      if (!rel.empresa) fail('rel-empresa', 'Preencha a apresentação da empresa.');
+      if (!rel.atividades) fail('rel-atividades', 'Preencha a programação das atividades.');
+      if (!rel.conclusao) fail('rel-conclusao', 'Preencha os comentários e conclusão.');
+
+      var temMatricula = document.getElementById('doc-matricula').files.length || (solicitacaoAtual && solicitacaoAtual.docMatriculaUrl);
+      var temCtpsId = document.getElementById('doc-ctps-id').files.length || (solicitacaoAtual && solicitacaoAtual.docCtpsIdUrl);
+      var temCtpsReg = document.getElementById('doc-ctps-reg').files.length || (solicitacaoAtual && solicitacaoAtual.docCtpsRegUrl);
+      if (!temMatricula) fail('doc-matricula', 'Envie o atestado de matrícula.');
+      if (!temCtpsId) fail('doc-ctps-id', 'Envie a carteira de trabalho (identificação).');
+      if (!temCtpsReg) fail('doc-ctps-reg', 'Envie a carteira de trabalho (registros).');
+
+      if (!dados.declaracaoVeracidade) fail('declaracao-veracidade', 'Você precisa confirmar a declaração de veracidade.');
+
+      if (!valido) {
+        var el = document.getElementById(primeiroInvalido);
+        if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        return;
+      }
+
+      _submitting = true;
+      btnEnviar.classList.add('is-loading');
+      btnEnviar.disabled = true;
+
+      try {
+        var lerBase64 = function (file) {
+          return new Promise(function (resolve) {
+            if (!file) { resolve(null); return; }
+            var r = new FileReader();
+            r.onload = function () { resolve({ nome: file.name, base64: r.result.split(',')[1] }); };
+            r.onerror = function () { resolve(null); };
+            r.readAsDataURL(file);
+          });
+        };
+        var arquivos = await Promise.all([
+          lerBase64(document.getElementById('doc-matricula').files[0]),
+          lerBase64(document.getElementById('doc-ctps-id').files[0]),
+          lerBase64(document.getElementById('doc-ctps-reg').files[0]),
+          lerBase64(document.getElementById('doc-declaracao').files[0]),
+          lerBase64(document.getElementById('doc-autonomo').files[0]),
+          lerBase64(document.getElementById('doc-extra').files[0]),
+        ]);
+
+        var payload = Object.assign({}, dados, {
+          docMatricula: arquivos[0], docCtpsId: arquivos[1], docCtpsReg: arquivos[2],
+          docDeclaracao: arquivos[3], docAutonomo: arquivos[4], docExtra: arquivos[5],
+        });
+
+        // Reforço não-bloqueante: mantém o contato sincronizado com o cadastro mestre.
+        try {
+          await API.post('atualizarContatoEstudante', {
+            telefone: document.getElementById('dados-telefone').value.trim(),
+            whatsapp: document.getElementById('dados-whatsapp').checked,
+            emailPessoal: document.getElementById('dados-email-pessoal').value.trim(),
+            endereco: document.getElementById('dados-endereco').value.trim(),
+            cep: document.getElementById('dados-cep').value.trim(),
+            bairro: document.getElementById('dados-bairro').value.trim(),
+            cidade: document.getElementById('dados-cidade').value.trim(),
+            uf: document.getElementById('dados-uf').value,
+          });
+        } catch (e) { /* não bloqueia o envio */ }
+
+        await API.post('enviarAproveitamento', payload);
+
+        showFormFeedback('form-feedback', 'success', 'Solicitação enviada!', 'Sua solicitação foi encaminhada ao coordenador do curso. Você receberá atualizações por e-mail.');
+        setFormEditavel(false);
+        solicitacaoAtual = Object.assign({}, solicitacaoAtual, { status: 'Aguardando Coordenador' });
+        renderizarStatusBanner('Aguardando Coordenador');
+      } catch (err) {
+        if (err.code === 'TIMEOUT' || err.code === 'NETWORK') {
+          showFormFeedback('form-feedback', 'warning', 'Tempo de resposta excedido', 'A solicitação pode já ter sido registrada. Aguarde alguns minutos e verifique seu e-mail de confirmação.');
+        } else {
+          showFormFeedback('form-feedback', 'error', 'Erro ao enviar', err.message || 'Tente novamente.');
+          btnEnviar.disabled = false;
+          _submitting = false;
+        }
+      } finally {
+        btnEnviar.classList.remove('is-loading');
+      }
+    });
   </script>
 </body>
 </html>
