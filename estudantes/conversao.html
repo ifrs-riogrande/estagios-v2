@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversão de Estágio Não Obrigatório — SGE IFRS Campus Rio Grande</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+
+  <!-- Google Identity Services (necessário para revogar o token no logout) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* Mega menu da área do estudante — teste, inspirado no padrão do Integra IFRS.
+       Vive dentro do próprio header (não é mais uma barra separada).
+       Estrutura: Perfil e Oportunidades são links diretos (um destino só);
+       Solicitações e Acompanhamentos são gatilhos com painel de opções. */
+    .header-brand-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+
+    .mega-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 2.5px solid transparent;
+      transition: color .15s, border-color .15s;
+    }
+
+    .mega-nav-link .mega-nav-chevron {
+      opacity: .6;
+    }
+
+    a.mega-nav-link:hover {
+      color: #2e7d32;
+    }
+
+    .mega-nav-link.is-current {
+      color: #2e7d32;
+      border-bottom-color: #2e7d32;
+    }
+
+    .mega-nav-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .mega-nav-trigger[aria-expanded="true"] {
+      color: #2e7d32;
+      border-bottom-color: #2e7d32;
+    }
+
+    .mega-nav-chevron {
+      width: 16px;
+      height: 16px;
+      transition: transform .15s;
+    }
+
+    .mega-nav-trigger[aria-expanded="true"] .mega-nav-chevron {
+      transform: rotate(180deg);
+    }
+
+    .mega-panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--color-border, #e5e7eb);
+      box-shadow: 0 12px 24px rgba(0,0,0,.08);
+      z-index: 50;
+    }
+
+    .mega-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-6);
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .mega-panel-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-decoration: none;
+      padding: var(--space-2);
+      border-radius: var(--radius-md, 8px);
+      transition: background .12s;
+    }
+
+    a.mega-panel-item:hover {
+      background: #f7faf7;
+    }
+
+    .mega-panel-item-title {
+      font-weight: 700;
+      color: #1565c0;
+      font-size: var(--font-size-md);
+    }
+
+    .mega-panel-item.is-current .mega-panel-item-title {
+      color: #2e7d32;
+    }
+
+    .mega-panel-item-desc {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+    }
+
+    .mega-panel-item.is-disabled {
+      opacity: .55;
+      cursor: default;
+    }
+
+    .mega-panel-item.is-disabled .mega-panel-item-title {
+      color: var(--color-text-muted);
+    }
+
+    .mega-nav-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      background: #f3f4f6;
+      color: #6b7280;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       HEADER — logo à esquerda; sino, perfil e voltar à direita (igual v1)
+       ═══════════════════════════════════════ -->
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="header-brand-group">
+          <a href="../index.html" class="header-brand">
+            <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+          </a>
+          <a href="perfil.html" class="mega-nav-link">
+            Perfil
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </a>
+          <button class="mega-nav-trigger" data-menu="solicitacoes" aria-expanded="false" aria-controls="painel-solicitacoes">
+            Solicitações
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <button class="mega-nav-trigger" data-menu="acompanhamentos" aria-expanded="false" aria-controls="painel-acompanhamentos">
+            Acompanhamentos
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          <a href="oportunidades.html" class="mega-nav-link">
+            Oportunidades
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </a>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div id="header-user-area"></div>
+          <a href="../index.html" class="back-link">
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+            </svg>
+            Início
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel: Solicitações -->
+    <div class="mega-panel" id="painel-solicitacoes" hidden>
+      <div class="container mega-panel-grid">
+        <a href="estagio.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Solicitar Estágio</span>
+          <span class="mega-panel-item-desc">Solicitação de estágio obrigatório ou não obrigatório</span>
+        </a>
+        <a href="aproveitamento.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Certificação de Conhecimento</span>
+          <span class="mega-panel-item-desc">Substituição do estágio por experiência profissional já exercida</span>
+        </a>
+        <a href="conversao.html" class="mega-panel-item is-current">
+          <span class="mega-panel-item-title">Conversão de Estágio Não Obrigatório</span>
+          <span class="mega-panel-item-desc">Reconhecimento de estágio não obrigatório como obrigatório</span>
+        </a>
+        <span class="mega-panel-item is-disabled">
+          <span class="mega-panel-item-title">Aproveitamento de Programas/Projetos <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-desc">Uso da experiência em programas/projetos de ensino, pesquisa, extensão ou indissociáveis como estágio obrigatório</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Painel: Acompanhamentos -->
+    <div class="mega-panel" id="painel-acompanhamentos" hidden>
+      <div class="container mega-panel-grid">
+        <a href="acompanhamento-estagio.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Estágio</span>
+          <span class="mega-panel-item-desc">Status, relatórios parciais e final do seu estágio</span>
+        </a>
+        <a href="acompanhamento-certificacao.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Acompanhar Certificação de Conhecimento</span>
+          <span class="mega-panel-item-desc">Status da sua solicitação de certificação de conhecimento</span>
+        </a>
+        <span class="mega-panel-item is-disabled">
+          <span class="mega-panel-item-title">Acompanhar Conversão de Estágio Não Obrigatório <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-desc">Status da sua solicitação de conversão</span>
+        </span>
+        <span class="mega-panel-item is-disabled">
+          <span class="mega-panel-item-title">Acompanhar Aproveitamento de Programas/Projetos <span class="mega-nav-badge">Em breve</span></span>
+          <span class="mega-panel-item-desc">Status da sua solicitação de aproveitamento</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       CONTEÚDO — formulário de conversão de estágio não obrigatório
+       ═══════════════════════════════════════ -->
+  <main class="form-page" id="main-content">
+    <div class="container">
+      <div class="form-wrapper">
+
+        <div class="form-page-header">
+          <h1>Conversão de Estágio Não Obrigatório</h1>
+          <p>Reconhecimento de estágio não obrigatório já concluído como cumprimento do estágio obrigatório. É possível somar a carga horária de mais de um estágio não obrigatório concluído.</p>
+        </div>
+
+        <div id="form-feedback" class="form-feedback" role="status" aria-live="polite"></div>
+
+        <form id="form-conversao" novalidate>
+
+          <!-- ── Seção 1: Seus Dados ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              Seção 1 — Seus Dados
+            </h2>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label class="form-label">Nome completo</label>
+                <input type="text" id="dados-nome" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">CPF</label>
+                <input type="text" id="dados-cpf" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">RG</label>
+                <input type="text" id="dados-rg" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Data de nascimento</label>
+              <input type="text" id="dados-nascimento" class="form-control" readonly style="background:var(--color-bg);cursor:not-allowed;max-width:220px;">
+            </div>
+            <p class="form-hint" style="margin-top:calc(var(--space-4) * -1);margin-bottom:var(--space-5);">Dados de identidade — para corrigir, contate o setor de estágios.</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="dados-telefone">Telefone celular</label>
+                <input type="tel" id="dados-telefone" class="form-control" placeholder="(53)999999999" required aria-required="true" inputmode="tel" aria-describedby="dados-telefone-error">
+                <span id="dados-telefone-error" class="form-error hidden" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dados-whatsapp">É WhatsApp?</label>
+                <div class="toggle-switch-group">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="dados-whatsapp" checked>
+                    <span class="toggle-track"></span>
+                  </label>
+                  <span id="dados-whatsapp-label" class="toggle-switch-label">Sim</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="dados-email-pessoal">E-mail</label>
+              <input type="email" id="dados-email-pessoal" class="form-control" required aria-required="true" aria-describedby="dados-email-pessoal-error">
+              <span id="dados-email-pessoal-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-6);">
+              <button type="button" id="btn-salvar-contato" class="btn btn-secondary btn-sm">Salvar dados de contato</button>
+              <span class="form-hint">Telefone, WhatsApp e e-mail são a mesma informação do seu Perfil — atualizar aqui também atualiza lá.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="formando">É formando(a) neste semestre/ano letivo? <span class="tooltip-help" aria-label="Formando: último semestre ou ano do curso.">?</span></label>
+              <div class="toggle-switch-group">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="formando">
+                  <span class="toggle-track"></span>
+                </label>
+                <span id="formando-label" class="toggle-switch-label">Não</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label required" for="vinculo-curso">Curso</label>
+                <select id="vinculo-curso" class="form-control" required aria-required="true" disabled aria-describedby="vinculo-curso-error">
+                  <option value="">Selecione o curso...</option>
+                </select>
+                <span id="vinculo-curso-error" class="form-error hidden" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Matrícula</label>
+                <input type="text" id="matricula-conversao" class="form-control" readonly placeholder="Preenchida automaticamente" style="background:var(--color-bg);cursor:not-allowed;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="semestre-atual">Período letivo que está cursando</label>
+              <select id="semestre-atual" class="form-control" required aria-required="true" disabled>
+                <option value="">Selecione o curso primeiro...</option>
+              </select>
+            </div>
+
+            <div id="msg-sem-estagios" class="alert alert-error" style="display:none;" role="alert">
+              <div class="alert-content" id="msg-sem-estagios-texto"></div>
+            </div>
+          </div>
+
+          <!-- ── Seção 2: Estágios não obrigatórios concluídos ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Seção 2 — Estágios Não Obrigatórios Concluídos
+            </h2>
+            <p class="form-hint" style="margin-bottom:var(--space-5);">Selecione o(s) estágio(s) não obrigatório(s) já concluído(s) que deseja usar nesta conversão. A carga horária de cada um selecionado é somada automaticamente.</p>
+
+            <div id="loading-estagios" style="text-align:center;padding:var(--space-8);color:var(--color-text-muted);">
+              <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+              Carregando seus estágios concluídos...
+            </div>
+
+            <div id="conteudo-estagios" style="display:none;">
+              <div class="table-wrapper">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th class="check-col" style="width:48px;"></th>
+                      <th>Concedente</th>
+                      <th>Período</th>
+                      <th style="text-align:right;">Carga Horária</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabela-estagios-concluidos"></tbody>
+                </table>
+              </div>
+              <p id="total-horas-selecionadas" style="margin-top:var(--space-3);font-size:var(--font-size-sm);font-weight:600;color:var(--color-text);">Carga horária total selecionada: 0 horas</p>
+              <input type="hidden" id="estagios-selecionados-value">
+              <span id="estagios-selecionados-error" class="form-error hidden" role="alert"></span>
+            </div>
+          </div>
+
+          <!-- ── Seção 3: Upload de documentos ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+              Seção 3 — Upload de Documentos
+            </h2>
+            <div class="form-group">
+              <label class="form-label required" for="doc-matricula">Comprovante de matrícula</label>
+              <div class="file-input-wrapper">
+                <label class="file-input-label" for="doc-matricula">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                  <span class="file-text">Selecionar comprovante de matrícula (PDF)</span>
+                  <span class="file-selected" id="matricula-doc-name"></span>
+                  <span class="file-types">PDF — máx. 5 MB</span>
+                </label>
+                <input type="file" class="form-control-file" id="doc-matricula" accept=".pdf" required aria-required="true" aria-describedby="doc-matricula-error">
+              </div>
+              <span id="doc-matricula-error" class="form-error hidden" role="alert"></span>
+              <p class="form-hint">Emitido pela Secretaria, com assinatura, do semestre vigente.</p>
+            </div>
+          </div>
+
+          <!-- ── Seção 4: Declaração de veracidade ── -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Seção 4 — Declaração de Veracidade
+            </h2>
+            <div class="declaration-box">
+              <div class="form-check">
+                <input type="checkbox" id="declaracao-veracidade" required aria-required="true" aria-describedby="declaracao-veracidade-error">
+                <label class="form-check-label required" for="declaracao-veracidade" style="font-weight:600;">
+                  Declaro, sob as penas da lei, que todas as informações e documentos fornecidos nesta solicitação são verdadeiros e autênticos, e estou ciente de que a prestação de informações falsas pode implicar em sanções disciplinares e legais.
+                </label>
+              </div>
+              <span id="declaracao-veracidade-error" class="form-error hidden" role="alert"></span>
+            </div>
+          </div>
+
+          <div class="form-actions form-actions--between">
+            <button type="button" id="btn-limpar" class="btn btn-ghost">Limpar</button>
+            <button type="submit" id="btn-enviar" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+              Enviar Solicitação
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════ -->
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/cursos-regras.js"></script>
+  <script src="../assets/js/accordion.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/notifications-bell.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    var form = document.getElementById('form-conversao');
+    var btnEnviar = document.getElementById('btn-enviar');
+    var _submitting = false;
+
+    var dadosEstudante = null;
+    var cursosPorNome = {};
+    var estagiosConcluidos = []; // [{ id, empresa, dataInicio, dataFim, cargaHorariaTotal }]
+
+    document.addEventListener('DOMContentLoaded', function () {
+      requireAreaAuth('estudante', '../index.html');
+      initAccordion(form);
+      iniciar();
+    });
+
+    // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
+    (function () {
+      var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));
+      if (!triggers.length) return;
+
+      function fecharTodos() {
+        triggers.forEach(function (t) {
+          t.setAttribute('aria-expanded', 'false');
+          var p = document.getElementById('painel-' + t.dataset.menu);
+          if (p) p.hidden = true;
+        });
+      }
+
+      triggers.forEach(function (trigger) {
+        var panel = document.getElementById('painel-' + trigger.dataset.menu);
+        if (!panel) return;
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+          fecharTodos();
+          if (!isOpen) {
+            trigger.setAttribute('aria-expanded', 'true');
+            panel.hidden = false;
+          }
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        var dentroDeAlgumPainel = Array.prototype.some.call(
+          document.querySelectorAll('.mega-panel'),
+          function (p) { return p.contains(e.target); }
+        );
+        var noGatilho = e.target.closest && e.target.closest('.mega-nav-trigger');
+        if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
+      });
+    })();
+
+    // ════════════════════════════════════════════════════════
+    // CARREGAMENTO INICIAL
+    // ════════════════════════════════════════════════════════
+    async function iniciar() {
+      try {
+        var resultados = await Promise.all([API.get('obterMeuCadastro'), API.get('listarCursos')]);
+        dadosEstudante = resultados[0];
+        (resultados[1] || []).forEach(function (c) { cursosPorNome[c.nome] = c; });
+
+        preencherSeusDados(dadosEstudante);
+
+        var cursos = dadosEstudante.cursos || [];
+        var selVinculo = document.getElementById('vinculo-curso');
+        if (cursos.length === 0) {
+          populateSelect('vinculo-curso', [], 'Nenhum curso cadastrado — contate o setor');
+        } else {
+          populateSelect('vinculo-curso',
+            cursos.map(function (c) { return { value: c.curso, label: c.curso + ' · Mat. ' + c.matricula }; }),
+            'Selecione o curso...'
+          );
+          selVinculo.disabled = false;
+          if (cursos.length === 1) {
+            selVinculo.value = cursos[0].curso;
+            selVinculo.dispatchEvent(new Event('change'));
+          }
+        }
+      } catch (err) {
+        showFormFeedback('form-feedback', 'error', 'Erro ao carregar', err.message || 'Não foi possível carregar seus dados. Recarregue a página.');
+      }
+    }
+
+    function preencherSeusDados(dados) {
+      document.getElementById('dados-nome').value = dados.nome || '';
+      document.getElementById('dados-cpf').value = dados.cpf || '';
+      document.getElementById('dados-rg').value = dados.rg || '';
+      document.getElementById('dados-nascimento').value = dados.dataNasc || '';
+      document.getElementById('dados-telefone').value = dados.telefone || '';
+      document.getElementById('dados-whatsapp').checked = dados.whatsapp !== false;
+      document.getElementById('dados-whatsapp-label').textContent = dados.whatsapp !== false ? 'Sim' : 'Não';
+      document.getElementById('dados-email-pessoal').value = dados.emailPessoal || '';
+    }
+
+    document.getElementById('dados-whatsapp').addEventListener('change', function (e) {
+      document.getElementById('dados-whatsapp-label').textContent = e.target.checked ? 'Sim' : 'Não';
+    });
+    document.getElementById('formando').addEventListener('change', function (e) {
+      document.getElementById('formando-label').textContent = e.target.checked ? 'Sim' : 'Não';
+    });
+
+    document.getElementById('btn-salvar-contato').addEventListener('click', async function () {
+      var telefone = document.getElementById('dados-telefone').value.trim();
+      var emailPessoal = document.getElementById('dados-email-pessoal').value.trim();
+
+      clearFieldError('dados-telefone');
+      clearFieldError('dados-email-pessoal');
+      var ok = true;
+      if (!telefone) { showFieldError('dados-telefone', 'Informe o telefone celular.'); ok = false; }
+      if (!emailPessoal) { showFieldError('dados-email-pessoal', 'Informe o e-mail.'); ok = false; }
+      if (!ok) return;
+
+      var btn = this;
+      btn.disabled = true;
+      btn.classList.add('is-loading');
+      try {
+        // Atualização parcial — só os campos exibidos nesta página; o backend
+        // deve mesclar com o restante do cadastro (endereço etc. não mudam aqui).
+        await API.post('atualizarContatoEstudante', {
+          telefone: telefone, whatsapp: document.getElementById('dados-whatsapp').checked, emailPessoal: emailPessoal,
+        });
+        showToast('Dados de contato atualizados no seu cadastro.', 'success');
+      } catch (err) {
+        showToast('Erro ao salvar dados de contato: ' + (err.message || 'tente novamente.'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('is-loading');
+      }
+    });
+
+    // ── Curso → matrícula, período letivo, estágios concluídos elegíveis ──
+    document.getElementById('vinculo-curso').addEventListener('change', function () {
+      var cursoNome = this.value;
+      var selSem = document.getElementById('semestre-atual');
+
+      if (!cursoNome) {
+        document.getElementById('matricula-conversao').value = '';
+        selSem.innerHTML = '<option value="">Selecione o curso primeiro...</option>';
+        selSem.disabled = true;
+        document.getElementById('conteudo-estagios').style.display = 'none';
+        document.getElementById('msg-sem-estagios').style.display = 'none';
+        return;
+      }
+
+      var entry = (dadosEstudante.cursos || []).find(function (c) { return c.curso === cursoNome; });
+      document.getElementById('matricula-conversao').value = entry ? entry.matricula : '';
+
+      var grupo = (cursosPorNome[cursoNome] || {}).grupo || '';
+      var opcoes = opcoesSemestrePorGrupo(grupo);
+      selSem.innerHTML = '<option value="">Selecione...</option>' + opcoes.map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join('');
+      selSem.disabled = false;
+
+      clearFieldError('vinculo-curso');
+      carregarEstagiosConcluidos(cursoNome);
+    });
+
+    // ════════════════════════════════════════════════════════
+    // SEÇÃO 2 — Estágios não obrigatórios concluídos (elegibilidade + soma de horas)
+    // ════════════════════════════════════════════════════════
+    async function carregarEstagiosConcluidos(curso) {
+      document.getElementById('loading-estagios').style.display = 'block';
+      document.getElementById('conteudo-estagios').style.display = 'none';
+      document.getElementById('msg-sem-estagios').style.display = 'none';
+      btnEnviar.disabled = true;
+
+      try {
+        var lista = await API.get('listarEstagiosNaoObrigatoriosConcluidos', { curso: curso });
+        estagiosConcluidos = lista || [];
+        document.getElementById('loading-estagios').style.display = 'none';
+
+        if (estagiosConcluidos.length === 0) {
+          document.getElementById('msg-sem-estagios-texto').innerHTML =
+            '<strong>Nenhum estágio não obrigatório concluído encontrado.</strong> Esta conversão exige pelo menos um estágio não obrigatório já concluído para o curso selecionado. Entre em contato com o setor de estágios se você acredita que isso é um erro.';
+          document.getElementById('msg-sem-estagios').style.display = 'block';
+          document.getElementById('conteudo-estagios').style.display = 'none';
+          return;
+        }
+
+        renderizarEstagiosConcluidos();
+        document.getElementById('conteudo-estagios').style.display = 'block';
+        btnEnviar.disabled = false;
+      } catch (err) {
+        document.getElementById('loading-estagios').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar seus estágios concluídos: ' + escapeHtml(err.message || 'tente recarregar') + '</div></div>';
+      }
+    }
+
+    function renderizarEstagiosConcluidos() {
+      var tbody = document.getElementById('tabela-estagios-concluidos');
+      tbody.innerHTML = estagiosConcluidos.map(function (e, idx) {
+        var periodo = (e.dataInicio || '—') + ' a ' + (e.dataFim || '—');
+        return '<tr>' +
+          '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-estagio" data-idx="' + idx + '" aria-label="Selecionar estágio em ' + escapeHtml(e.empresa) + '"></div></td>' +
+          '<td>' + escapeHtml(e.empresa) + '</td>' +
+          '<td>' + escapeHtml(periodo) + '</td>' +
+          '<td style="text-align:right;">' + escapeHtml(String(e.cargaHorariaTotal)) + 'h</td>' +
+        '</tr>';
+      }).join('');
+
+      tbody.querySelectorAll('.cb-estagio').forEach(function (cb) {
+        cb.addEventListener('change', atualizarTotalHorasSelecionadas);
+      });
+      atualizarTotalHorasSelecionadas();
+    }
+
+    function atualizarTotalHorasSelecionadas() {
+      var selecionados = Array.from(document.querySelectorAll('.cb-estagio:checked')).map(function (cb) {
+        return estagiosConcluidos[+cb.dataset.idx];
+      });
+      var total = selecionados.reduce(function (soma, e) { return soma + (Number(e.cargaHorariaTotal) || 0); }, 0);
+      document.getElementById('total-horas-selecionadas').textContent = 'Carga horária total selecionada: ' + total + ' horas';
+      document.getElementById('estagios-selecionados-value').value = JSON.stringify(selecionados.map(function (e) { return e.id; }));
+      clearFieldError('estagios-selecionados');
+    }
+
+    // ════════════════════════════════════════════════════════
+    // UPLOAD — validação de PDF (ver assets/js/utils.js)
+    // ════════════════════════════════════════════════════════
+    validarPdf('doc-matricula', 'matricula-doc-name', 'doc-matricula-error');
+
+    // ════════════════════════════════════════════════════════
+    // VALIDAÇÃO E ENVIO
+    // ════════════════════════════════════════════════════════
+    function validarFormulario() {
+      var valido = true, primeiroInvalido = null;
+      function fail(id, msg) { showFieldError(id, msg); if (!primeiroInvalido) primeiroInvalido = id; valido = false; }
+
+      if (!document.getElementById('vinculo-curso').value) fail('vinculo-curso', 'Selecione o curso.');
+      if (!document.getElementById('semestre-atual').value) fail('semestre-atual', 'Selecione o período letivo.');
+
+      var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
+      if (idsSelecionados.length === 0) fail('estagios-selecionados', 'Selecione ao menos um estágio não obrigatório concluído.');
+
+      if (!document.getElementById('doc-matricula').files.length) fail('doc-matricula', 'Anexe o comprovante de matrícula.');
+      else if (_fileOk['doc-matricula'] === false) fail('doc-matricula', 'O arquivo não é um PDF válido.');
+
+      if (!document.getElementById('declaracao-veracidade').checked) fail('declaracao-veracidade', 'Aceite a declaração de veracidade para continuar.');
+
+      if (primeiroInvalido) {
+        var el = document.getElementById(primeiroInvalido);
+        if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      }
+      return valido;
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      hideFormFeedback('form-feedback');
+      if (_submitting) return;
+      if (!validarFormulario()) return;
+
+      _submitting = true;
+      btnEnviar.classList.add('is-loading');
+      btnEnviar.disabled = true;
+
+      var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
+      var totalHoras = Array.from(document.querySelectorAll('.cb-estagio:checked'))
+        .reduce(function (soma, cb) { return soma + (Number(estagiosConcluidos[+cb.dataset.idx].cargaHorariaTotal) || 0); }, 0);
+
+      var lerBase64 = function (file) {
+        return new Promise(function (resolve) {
+          if (!file) { resolve(null); return; }
+          var r = new FileReader();
+          r.onload = function () { resolve({ nome: file.name, base64: r.result.split(',')[1] }); };
+          r.onerror = function () { resolve(null); };
+          r.readAsDataURL(file);
+        });
+      };
+
+      try {
+        var docMatricula = await lerBase64(document.getElementById('doc-matricula').files[0]);
+
+        var payload = {
+          cursoConversao: document.getElementById('vinculo-curso').value,
+          matriculaConversao: document.getElementById('matricula-conversao').value,
+          semestreAtual: document.getElementById('semestre-atual').value,
+          formando: document.getElementById('formando').checked ? 'Sim' : 'Não',
+          estagiosSelecionados: idsSelecionados,
+          cargaHorariaTotalConvertida: totalHoras,
+          declaracaoVeracidade: document.getElementById('declaracao-veracidade').checked,
+          docMatricula: docMatricula,
+        };
+
+        // Reforço não-bloqueante: mantém o contato sincronizado com o cadastro mestre.
+        try {
+          await API.post('atualizarContatoEstudante', {
+            telefone: document.getElementById('dados-telefone').value.trim(),
+            whatsapp: document.getElementById('dados-whatsapp').checked,
+            emailPessoal: document.getElementById('dados-email-pessoal').value.trim(),
+          });
+        } catch (e) { /* não bloqueia o envio */ }
+
+        var result = await API.post('enviarConversaoEstagio', payload);
+        showFormFeedback('form-feedback', 'success', 'Solicitação enviada!', result.mensagem || 'Sua solicitação de conversão foi enviada. Você receberá atualizações por e-mail.');
+        form.querySelectorAll('input, select, textarea, button').forEach(function (el) { el.disabled = true; });
+      } catch (err) {
+        btnEnviar.classList.remove('is-loading');
+        if (err.code === 'TIMEOUT' || err.code === 'NETWORK') {
+          showFormFeedback('form-feedback', 'warning', 'Tempo de resposta excedido', 'A solicitação pode já ter sido registrada. Aguarde alguns minutos e verifique seu e-mail de confirmação.');
+        } else {
+          showFormFeedback('form-feedback', 'error', 'Erro ao enviar', err.message || 'Tente novamente.');
+          btnEnviar.disabled = false;
+          _submitting = false;
+        }
+      }
+    });
+
+    document.getElementById('btn-limpar').addEventListener('click', function () {
+      form.reset();
+      document.getElementById('matricula-conversao').value = '';
+      document.getElementById('semestre-atual').innerHTML = '<option value="">Selecione o curso primeiro...</option>';
+      document.getElementById('semestre-atual').disabled = true;
+      document.getElementById('conteudo-estagios').style.display = 'none';
+      document.getElementById('msg-sem-estagios').style.display = 'none';
+      document.getElementById('formando-label').textContent = 'Não';
+      document.getElementById('dados-whatsapp-label').textContent = 'Sim';
+      form.querySelectorAll('.form-control').forEach(function (el) { el.classList.remove('is-invalid', 'is-valid'); el.removeAttribute('aria-invalid'); });
+      form.querySelectorAll('.form-error').forEach(function (el) { el.textContent = ''; el.classList.add('hidden'); });
+      hideFormFeedback('form-feedback');
+      iniciar();
+    });
+  </script>
+</body>
+</html>
