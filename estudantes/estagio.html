@@ -676,20 +676,6 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label required" for="doc-identidade">Documento de identidade (RG ou CNH) <span class="tooltip-help" aria-label="Envie RG ou CNH em PDF, legível, sem cortes, dentro da validade.">?</span></label>
-              <div class="file-input-wrapper">
-                <label class="file-input-label" for="doc-identidade">
-                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
-                  <span class="file-text">Selecionar documento de identidade (PDF)</span>
-                  <span class="file-selected" id="identidade-doc-name"></span>
-                  <span class="file-types">PDF — máx. 5 MB</span>
-                </label>
-                <input type="file" class="form-control-file" id="doc-identidade" accept=".pdf" required aria-required="true" aria-describedby="doc-identidade-error">
-              </div>
-              <span id="doc-identidade-error" class="form-error hidden" role="alert"></span>
-            </div>
-
-            <div class="form-group">
               <label class="form-label required" for="boletim">Boletim <span class="tooltip-help" aria-label="Envie o boletim mais recente em PDF, legível e com as notas visíveis.">?</span></label>
               <div class="file-input-wrapper">
                 <label class="file-input-label" for="boletim">
@@ -1351,7 +1337,6 @@
     // SEÇÃO 9 — Upload: validação de PDF (magic bytes, ver assets/js/utils.js)
     // ════════════════════════════════════════════════════════
     validarPdf('comprovante-matricula', 'matricula-doc-name', 'comprovante-matricula-error');
-    validarPdf('doc-identidade', 'identidade-doc-name', 'doc-identidade-error');
     validarPdf('boletim', 'boletim-doc-name', 'boletim-error');
 
     // ════════════════════════════════════════════════════════
@@ -1663,9 +1648,6 @@
       if (!document.getElementById('comprovante-matricula').files.length) fail('comprovante-matricula', 'Anexe o comprovante de matrícula.');
       else if (!_fileOk['comprovante-matricula']) fail('comprovante-matricula', 'O arquivo não é um PDF válido.');
 
-      if (!document.getElementById('doc-identidade').files.length) fail('doc-identidade', 'Anexe o documento de identidade.');
-      else if (!_fileOk['doc-identidade']) fail('doc-identidade', 'O arquivo não é um PDF válido.');
-
       if (!_fileOk['boletim']) fail('boletim', 'Selecione o boletim atualizado em PDF.');
 
       if (!document.getElementById('decl-unica').checked) fail('decl-unica', 'Aceite esta declaração para continuar.');
@@ -1747,12 +1729,10 @@
       };
       var arquivos = await Promise.all([
         lerArquivoBase64(document.getElementById('comprovante-matricula').files[0]),
-        lerArquivoBase64(document.getElementById('doc-identidade').files[0]),
         lerArquivoBase64(document.getElementById('boletim').files[0]),
       ]);
       if (arquivos[0]) dados.docMatricula = arquivos[0];
-      if (arquivos[1]) dados.docIdentidade = arquivos[1];
-      if (arquivos[2]) dados.docBoletim = arquivos[2];
+      if (arquivos[1]) dados.docBoletim = arquivos[1];
 
       // Garante a atualização do contato no cadastro mestre mesmo se o estudante
       // não clicou em "Salvar dados de contato" na Seção 1 — não bloqueia o envio.

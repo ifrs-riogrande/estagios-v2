@@ -218,9 +218,15 @@
               Seção 1 — Dados Pessoais
             </h2>
             <div class="form-group">
-              <label class="form-label required" for="srv-nome">Nome completo</label>
+              <label class="form-label required" for="srv-nome">Nome de registro <span class="tooltip-help" aria-label="Nome civil, conforme consta no RG e CPF. É o nome usado em documentos oficiais, como o TCE.">?</span></label>
               <input type="text" id="srv-nome" class="form-control" placeholder="Conforme consta no RG e CPF"
                 required aria-required="true" autocomplete="name">
+              <span class="form-hint">Usado em documentos oficiais (TCE, declarações). Para corrigir, contate o setor de estágios.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="srv-nome-social">Nome social <span class="tooltip-help" aria-label="Nome pelo qual travestis e pessoas transexuais preferem ser chamadas, reconhecido pelo Decreto Federal 8.727/2016. Se preenchido, é o nome usado na exibição do sistema.">?</span></label>
+              <input type="text" id="srv-nome-social" class="form-control" placeholder="Preencha somente se desejar usar um nome social" autocomplete="off">
+              <span class="form-hint">Se preenchido, é o nome exibido no sistema (perfil, listas, etc). Documentos oficiais continuam usando o nome de registro.</span>
             </div>
             <div class="form-row">
               <div class="form-group">
