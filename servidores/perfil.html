@@ -244,6 +244,51 @@
               </div>
             </div>
 
+            <p style="font-weight:600;margin-bottom:var(--space-1);">Supervisão de Estágio (concedente IFRS Campus Rio Grande)</p>
+            <p class="form-hint" style="margin-bottom:var(--space-3);">
+              Só para supervisão de estágios em que o próprio IFRS Campus Rio Grande é a concedente (estágio interno).
+              Supervisor de empresa externa continua no cadastro específico de empresas/supervisores.
+            </p>
+            <div class="form-group">
+              <label class="form-label required">Setor / departamento que supervisiono</label>
+              <div id="sup-setores-lista" style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-2);"></div>
+              <button type="button" id="btn-add-setor" class="btn btn-secondary btn-sm" style="width:fit-content">+ Adicionar setor</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="sup-cargo">Cargo</label>
+              <input type="text" id="sup-cargo" class="form-control" placeholder="Ex: Técnico de TI">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="sup-nivel-formacao">Nível de formação</label>
+                <select id="sup-nivel-formacao" class="form-control">
+                  <option value="">Selecione...</option>
+                  <option value="Ensino Médio">Ensino Médio</option>
+                  <option value="Graduação">Graduação</option>
+                  <option value="Especialização">Especialização</option>
+                  <option value="Mestrado">Mestrado</option>
+                  <option value="Doutorado">Doutorado</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="sup-area-formacao">Área de formação</label>
+                <input type="text" id="sup-area-formacao" class="form-control" placeholder="Ex: Administração">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="sup-experiencia">Experiência profissional na área do estágio</label>
+              <p class="form-hint" style="margin-bottom:var(--space-2);">Relate sua experiência profissional na área em que irá supervisionar o(a) estagiário(a).</p>
+              <textarea id="sup-experiencia" class="form-control" maxlength="3000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
+              <div class="char-counter"><span id="cnt-sup-experiencia">0</span>/3000 caracteres</div>
+            </div>
+            <div class="declaration-box">
+              <p>Declaro estar ciente das responsabilidades de supervisão de estágio previstas na Lei nº 11.788/2008.</p>
+              <div class="form-check">
+                <input type="checkbox" id="sup-declaracao">
+                <label class="form-check-label" for="sup-declaracao">Declaro estar ciente e concordo com as condições acima.</label>
+              </div>
+            </div>
+
             <div class="form-group">
               <label class="form-label required">Docente ou Técnico Administrativo</label>
               <div class="radio-group" id="srv-categoria" role="radiogroup" aria-required="true">
@@ -281,27 +326,9 @@
                 <input type="date" id="srv-fim-contrato" class="form-control">
               </div>
             </div>
-          </div>
 
-          <!-- ══════════════════════════════════
-               SEÇÃO 2 — MEUS PAPÉIS INSTITUCIONAIS
-          ══════════════════════════════════ -->
-          <div class="form-section">
-            <h2 class="form-section-title">
-              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
-              Seção 2 — Meus Papéis
-            </h2>
-            <p class="form-hint" style="margin-bottom:var(--space-4);">
-              Marque todos os papéis que você exerce hoje. Cada um vai para validação do setor de estágios separadamente.
-            </p>
-
-            <!-- ── Orientador ── -->
-            <div class="form-check">
-              <input type="checkbox" id="papel-orientador" data-papel-toggle="bloco-orientador" disabled>
-              <label class="form-check-label" for="papel-orientador">Sou Orientador</label>
-            </div>
-            <p class="form-hint" style="margin:2px 0 0 26px;">Disponível apenas para docentes.</p>
-            <div class="papel-bloco" id="bloco-orientador" hidden>
+            <div id="bloco-orientador" hidden>
+              <p style="font-weight:600;margin-bottom:var(--space-1);">Orientação de Estágio</p>
               <div class="form-group">
                 <label class="form-label required">Cursos que orienta</label>
                 <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;">
@@ -319,6 +346,16 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- ══════════════════════════════════
+               SEÇÃO 2 — MEUS PAPÉIS INSTITUCIONAIS
+          ══════════════════════════════════ -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+              Seção 2 — Meus Papéis
+            </h2>
 
             <!-- ── Coordenador ── -->
             <div class="form-check" style="margin-top:var(--space-5);">
@@ -341,57 +378,6 @@
                       Adicionar
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Supervisor ── -->
-            <div class="form-check" style="margin-top:var(--space-5);">
-              <input type="checkbox" id="papel-supervisor" data-papel-toggle="bloco-supervisor">
-              <label class="form-check-label" for="papel-supervisor">Sou Supervisor de Estágio (concedente IFRS Campus Rio Grande)</label>
-            </div>
-            <div class="papel-bloco" id="bloco-supervisor" hidden>
-              <p class="form-hint" style="margin-bottom:var(--space-3);">
-                Só para supervisão de estágios em que o próprio IFRS Campus Rio Grande é a concedente (estágio interno).
-                Supervisor de empresa externa continua no cadastro específico de empresas/supervisores.
-              </p>
-              <div class="form-group">
-                <label class="form-label required">Setor / departamento que supervisiono</label>
-                <div id="sup-setores-lista" style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-2);"></div>
-                <button type="button" id="btn-add-setor" class="btn btn-secondary btn-sm" style="width:fit-content">+ Adicionar setor</button>
-              </div>
-              <div class="form-group">
-                <label class="form-label required" for="sup-cargo">Cargo</label>
-                <input type="text" id="sup-cargo" class="form-control" placeholder="Ex: Técnico de TI">
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="sup-nivel-formacao">Nível de formação</label>
-                  <select id="sup-nivel-formacao" class="form-control">
-                    <option value="">Selecione...</option>
-                    <option value="Ensino Médio">Ensino Médio</option>
-                    <option value="Graduação">Graduação</option>
-                    <option value="Especialização">Especialização</option>
-                    <option value="Mestrado">Mestrado</option>
-                    <option value="Doutorado">Doutorado</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="sup-area-formacao">Área de formação</label>
-                  <input type="text" id="sup-area-formacao" class="form-control" placeholder="Ex: Administração">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label required" for="sup-experiencia">Experiência profissional na área do estágio</label>
-                <p class="form-hint" style="margin-bottom:var(--space-2);">Relate sua experiência profissional na área em que irá supervisionar o(a) estagiário(a).</p>
-                <textarea id="sup-experiencia" class="form-control" maxlength="3000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
-                <div class="char-counter"><span id="cnt-sup-experiencia">0</span>/3000 caracteres</div>
-              </div>
-              <div class="declaration-box">
-                <p>Declaro estar ciente das responsabilidades de supervisão de estágio previstas na Lei nº 11.788/2008.</p>
-                <div class="form-check">
-                  <input type="checkbox" id="sup-declaracao">
-                  <label class="form-check-label" for="sup-declaracao">Declaro estar ciente e concordo com as condições acima.</label>
                 </div>
               </div>
             </div>
@@ -505,11 +491,12 @@
       document.getElementById('cnt-sup-experiencia').textContent = this.value.length;
     });
 
-    // Docente ou Técnico Administrativo: só docente vê a pergunta de tipo de vínculo
+    // Docente ou Técnico Administrativo: só docente vê o vínculo e a orientação
     document.querySelectorAll('input[name="srv-categoria"]').forEach(function (radio) {
       radio.addEventListener('change', function () {
         var isDocente = this.value === 'Docente';
         document.getElementById('srv-vinculo-wrap').hidden = !isDocente;
+        document.getElementById('bloco-orientador').hidden = !isDocente;
         if (!isDocente) {
           document.querySelectorAll('input[name="srv-vinculo"]').forEach(function (r) { r.checked = false; });
           document.getElementById('srv-contrato-datas').hidden = true;
@@ -526,19 +513,11 @@
       });
     });
 
-    // Regras de elegibilidade dos papéis (Seção 2), conforme categoria/vínculo (Seção 1):
-    // Orientador exige ser docente; Coordenador de Curso não pode ser docente substituto/temporário/visitante.
+    // Regra de elegibilidade do Coordenador de Curso (Seção 2), conforme vínculo (Seção 1):
+    // não pode ser docente substituto/temporário/visitante.
     function atualizarDisponibilidadePapeis() {
       var categoria = (document.querySelector('input[name="srv-categoria"]:checked') || {}).value;
       var vinculo = (document.querySelector('input[name="srv-vinculo"]:checked') || {}).value;
-
-      var chkOrientador = document.getElementById('papel-orientador');
-      var podeOrientador = categoria === 'Docente';
-      chkOrientador.disabled = !podeOrientador;
-      if (!podeOrientador && chkOrientador.checked) {
-        chkOrientador.checked = false;
-        document.getElementById('bloco-orientador').hidden = true;
-      }
 
       var chkCoordenador = document.getElementById('papel-coordenador');
       var podeCoordenador = !(categoria === 'Docente' && vinculo === 'DocenteSubstituto');
