@@ -14,7 +14,9 @@
 
 'use strict';
 
-var _accCards = []; // [{ card, body, hdr }] — estado da página atual
+var _accCards = []; // [{ card, body, hdr, stepWrap, stepDot }] — estado da página atual
+
+var ACC_CHECK_SVG = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>';
 
 function initAccordion(formEl) {
   var secoes = Array.from(formEl.querySelectorAll(':scope > .form-section'));
@@ -22,13 +24,24 @@ function initAccordion(formEl) {
 
   var progWrap = document.createElement('div');
   progWrap.className = 'acc-progress-wrap';
+  var stepperHtml = secoes.map(function (_, i) {
+    var linha = i < secoes.length - 1 ? '<span class="acc-step-line"></span>' : '';
+    return '<div class="acc-step" data-idx="' + i + '">' +
+      '<span class="acc-step-dot">' + (i + 1) + '</span>' + linha +
+    '</div>';
+  }).join('');
   progWrap.innerHTML =
     '<div class="acc-progress-top">' +
       '<span>Progresso da solicitação</span>' +
       '<strong id="acc-prog-label">0 de ' + secoes.length + ' concluídas</strong>' +
     '</div>' +
-    '<div class="acc-progress-bar"><div class="acc-progress-fill" id="acc-prog-fill" style="width:0%"></div></div>';
+    '<div class="acc-stepper" id="acc-stepper">' + stepperHtml + '</div>';
   formEl.insertBefore(progWrap, formEl.firstChild);
+
+  var stepEls = Array.from(progWrap.querySelectorAll('.acc-step'));
+  stepEls.forEach(function (stepEl, i) {
+    stepEl.addEventListener('click', function () { abrirAccCard(i); });
+  });
 
   secoes.forEach(function (secao, i) {
     var h2 = secao.querySelector('.form-section-title');
@@ -79,7 +92,7 @@ function initAccordion(formEl) {
 
     hdr.addEventListener('click', function () { toggleAccCard(i); });
 
-    _accCards.push({ card: card, body: body, hdr: hdr });
+    _accCards.push({ card: card, body: body, hdr: hdr, stepWrap: stepEls[i], stepDot: stepEls[i].querySelector('.acc-step-dot') });
   });
 
   formEl.addEventListener('input', atualizarProgresso);
@@ -101,13 +114,30 @@ function abrirAccCard(idx) {
   if (idx >= 0 && idx < _accCards.length) {
     _accCards[idx].card.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  atualizarProgresso();
+}
+
+// Verifica se `el` está oculto por causa de algo DENTRO da própria seção
+// (ex.: subgrupo condicional tipo "Responsável legal", só visível se menor
+// de idade) — ignora se o próprio card do accordion é que está fechado,
+// já que isso não significa que o campo seja irrelevante, só que ainda
+// não foi aberto. Sem essa distinção, `offsetParent === null` (que reflete
+// os dois casos) faz qualquer seção fechada contar como "concluída" antes
+// mesmo de o usuário abri-la.
+function _ocultoDentroDaSecao(el, bodyEl) {
+  var node = el;
+  while (node && node !== bodyEl) {
+    if (node.hidden || getComputedStyle(node).display === 'none') return true;
+    node = node.parentElement;
+  }
+  return false;
 }
 
 function secaoEstaCompleta(bodyEl) {
   var campos = Array.from(bodyEl.querySelectorAll('[required]'));
   for (var i = 0; i < campos.length; i++) {
     var el = campos[i];
-    if (el.offsetParent === null) continue; // oculto/irrelevante no momento
+    if (_ocultoDentroDaSecao(el, bodyEl)) continue; // oculto/irrelevante no momento
     if (el.type === 'checkbox') { if (!el.checked) return false; continue; }
     if (el.type === 'file') { if (!el.files.length || (window._fileOk || {})[el.id] === false) return false; continue; }
     if (!el.value || !el.value.trim()) return false;
@@ -117,7 +147,7 @@ function secaoEstaCompleta(bodyEl) {
   }
   var grupos = Array.from(bodyEl.querySelectorAll('.radio-group[aria-required="true"]'));
   for (var g = 0; g < grupos.length; g++) {
-    if (grupos[g].offsetParent === null) continue;
+    if (_ocultoDentroDaSecao(grupos[g], bodyEl)) continue;
     if (!grupos[g].querySelector('input:checked')) return false;
   }
   return true;
@@ -126,14 +156,21 @@ function secaoEstaCompleta(bodyEl) {
 function atualizarProgresso() {
   if (!_accCards.length) return;
   var concluidas = 0;
-  _accCards.forEach(function (c) {
+  _accCards.forEach(function (c, i) {
     var done = secaoEstaCompleta(c.body);
     c.card.classList.toggle('acc-done', done);
     var statusEl = c.hdr.querySelector('.acc-status');
     statusEl.textContent = done ? 'Concluída' : 'Aguardando';
     if (done) concluidas++;
+
+    // Card escondido por completo (ex.: seção que só existe pra um tipo de
+    // resposta anterior) some do stepper também, não só do accordion.
+    if (c.stepWrap) c.stepWrap.hidden = c.card.hidden;
+    if (c.stepDot) {
+      c.stepDot.innerHTML = done ? ACC_CHECK_SVG : String(c.dispNum || (i + 1));
+      c.stepDot.classList.toggle('acc-step-done', done);
+      c.stepDot.classList.toggle('acc-step-current', !done && c.card.classList.contains('acc-open'));
+    }
   });
-  var pct = Math.round((concluidas / _accCards.length) * 100);
-  document.getElementById('acc-prog-fill').style.width = pct + '%';
   document.getElementById('acc-prog-label').textContent = concluidas + ' de ' + _accCards.length + ' concluídas';
 }

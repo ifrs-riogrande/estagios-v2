@@ -1562,18 +1562,67 @@ input[type="file"].form-control-file {
   font-weight: var(--font-weight-semibold);
 }
 
-.acc-progress-bar {
-  height: 6px;
-  background: var(--color-border);
-  border-radius: 3px;
-  overflow: hidden;
+.acc-stepper {
+  display: flex;
+  align-items: center;
 }
 
-.acc-progress-fill {
-  height: 100%;
+.acc-step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.acc-step:last-child {
+  flex: 0 0 auto;
+}
+
+.acc-step[hidden] {
+  display: none;
+}
+
+.acc-step-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+
+.acc-step-dot svg {
+  width: 14px;
+  height: 14px;
+}
+
+.acc-step-dot.acc-step-current {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.acc-step-dot.acc-step-done {
   background: var(--color-primary);
-  border-radius: 3px;
-  transition: width .3s ease;
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.acc-step-line {
+  flex: 1;
+  height: 2px;
+  margin: 0 2px;
+  background: var(--color-border);
+}
+
+.acc-step-dot.acc-step-done + .acc-step-line {
+  background: var(--color-primary);
 }
 
 .acc-card {

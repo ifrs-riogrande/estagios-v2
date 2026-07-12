@@ -474,6 +474,8 @@
       var titulo = _accCards[3].hdr.querySelector('.acc-title');
       badge.textContent = numero;
       titulo.textContent = titulo.textContent.replace(/^Seção \d+/, 'Seção ' + numero);
+      _accCards[3].dispNum = numero;
+      atualizarProgresso();
     }
 
     // Formulário ainda sem lógica (validação, envio) — só evita recarregar a página.
