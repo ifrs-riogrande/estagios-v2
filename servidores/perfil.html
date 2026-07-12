@@ -222,19 +222,6 @@
               <input type="text" id="srv-nome-social" class="form-control" placeholder="Preencha somente se desejar usar um nome social" autocomplete="off">
               <span class="form-hint">Se preenchido, é o nome exibido no sistema (perfil, listas, etc). Documentos oficiais continuam usando o nome de registro.</span>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label required" for="srv-cpf">CPF</label>
-                <input type="text" id="srv-cpf" class="form-control" placeholder="000.000.000-00"
-                  required aria-required="true" inputmode="numeric" aria-describedby="srv-cpf-hint">
-                <span id="srv-cpf-hint" class="form-hint">11 dígitos. Ex: 123.456.789-09</span>
-              </div>
-              <div class="form-group">
-                <label class="form-label required" for="srv-siape">Matrícula SIAPE</label>
-                <input type="text" id="srv-siape" class="form-control" placeholder="Ex: 1234567" inputmode="numeric" required aria-required="true">
-              </div>
-            </div>
-
             <div class="form-row-3">
               <div class="form-group">
                 <label class="form-label required" for="srv-telefone">Telefone celular</label>
@@ -356,11 +343,6 @@
                   </div>
                 </div>
               </div>
-              <div class="form-group">
-                <label class="form-label" for="coord-portaria">Portaria de designação</label>
-                <input type="text" id="coord-portaria" class="form-control" placeholder="Ex: Portaria nº 123/2026">
-                <span class="form-hint">Opcional — número do documento oficial de designação, se houver.</span>
-              </div>
             </div>
 
             <!-- ── Supervisor ── -->
@@ -373,15 +355,14 @@
                 Só para supervisão de estágios em que o próprio IFRS Campus Rio Grande é a concedente (estágio interno).
                 Supervisor de empresa externa continua no cadastro específico de empresas/supervisores.
               </p>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label required" for="sup-setor">Setor / Departamento</label>
-                  <input type="text" id="sup-setor" class="form-control" placeholder="Ex: Coordenadoria de TI">
-                </div>
-                <div class="form-group">
-                  <label class="form-label required" for="sup-cargo">Cargo</label>
-                  <input type="text" id="sup-cargo" class="form-control" placeholder="Ex: Técnico de TI">
-                </div>
+              <div class="form-group">
+                <label class="form-label required">Setor / departamento que supervisiono</label>
+                <div id="sup-setores-lista" style="display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-2);"></div>
+                <button type="button" id="btn-add-setor" class="btn btn-secondary btn-sm" style="width:fit-content">+ Adicionar setor</button>
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="sup-cargo">Cargo</label>
+                <input type="text" id="sup-cargo" class="form-control" placeholder="Ex: Técnico de TI">
               </div>
               <div class="form-row">
                 <div class="form-group">
@@ -399,6 +380,12 @@
                   <label class="form-label" for="sup-area-formacao">Área de formação</label>
                   <input type="text" id="sup-area-formacao" class="form-control" placeholder="Ex: Administração">
                 </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="sup-experiencia">Experiência profissional na área do estágio</label>
+                <p class="form-hint" style="margin-bottom:var(--space-2);">Relate sua experiência profissional na área em que irá supervisionar o(a) estagiário(a).</p>
+                <textarea id="sup-experiencia" class="form-control" maxlength="3000" rows="5" required aria-required="true" placeholder="Descreva aqui..."></textarea>
+                <div class="char-counter"><span id="cnt-sup-experiencia">0</span>/3000 caracteres</div>
               </div>
               <div class="declaration-box">
                 <p>Declaro estar ciente das responsabilidades de supervisão de estágio previstas na Lei nº 11.788/2008.</p>
@@ -478,6 +465,44 @@
         const bloco = document.getElementById(checkbox.dataset.papelToggle);
         if (bloco) bloco.hidden = !checkbox.checked;
       });
+    });
+
+    // Supervisor: setores que supervisiono (lista dinâmica)
+    function _addSetor(valor) {
+      var lista = document.getElementById('sup-setores-lista');
+      var idx = lista.children.length + 1;
+      var row = document.createElement('div');
+      row.className = 'item-lista-row';
+      var label = document.createElement('span');
+      label.className = 'item-lista-indice';
+      label.textContent = idx + '.';
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'form-control';
+      input.maxLength = 150;
+      input.value = valor || '';
+      input.placeholder = 'Ex: Coordenadoria de TI';
+      var btnRem = document.createElement('button');
+      btnRem.type = 'button';
+      btnRem.className = 'item-lista-remove';
+      btnRem.textContent = '×';
+      btnRem.title = 'Remover';
+      btnRem.addEventListener('click', function () {
+        lista.removeChild(row);
+        Array.from(lista.children).forEach(function (r, i) { r.querySelector('.item-lista-indice').textContent = (i + 1) + '.'; });
+      });
+      row.appendChild(label);
+      row.appendChild(input);
+      row.appendChild(btnRem);
+      lista.appendChild(row);
+      input.focus();
+    }
+    document.getElementById('btn-add-setor').addEventListener('click', function () { _addSetor(''); });
+    _addSetor('');
+
+    // Supervisor: contador de caracteres do relato de experiência profissional
+    document.getElementById('sup-experiencia').addEventListener('input', function () {
+      document.getElementById('cnt-sup-experiencia').textContent = this.value.length;
     });
 
     // Docente ou Técnico Administrativo: só docente vê a pergunta de tipo de vínculo
