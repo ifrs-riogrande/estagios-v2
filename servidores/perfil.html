@@ -244,7 +244,53 @@
               </div>
             </div>
 
-            <p style="font-weight:600;margin-bottom:var(--space-1);">Supervisão de Estágio (concedente IFRS Campus Rio Grande)</p>
+            <div class="form-group">
+              <label class="form-label required">Docente ou Técnico Administrativo</label>
+              <div class="radio-group" id="srv-categoria" role="radiogroup" aria-required="true">
+                <div class="radio-option">
+                  <input type="radio" id="srv-categoria-docente" name="srv-categoria" value="Docente">
+                  <label for="srv-categoria-docente">Docente</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="srv-categoria-tecnico" name="srv-categoria" value="Tecnico">
+                  <label for="srv-categoria-tecnico">Técnico Administrativo</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" id="srv-vinculo-wrap" hidden>
+              <label class="form-label required">Tipo de vínculo</label>
+              <div class="radio-group" id="srv-vinculo" role="radiogroup" aria-required="true">
+                <div class="radio-option">
+                  <input type="radio" id="srv-vinculo-efetivo" name="srv-vinculo" value="DocenteEfetivo">
+                  <label for="srv-vinculo-efetivo">Docente Efetivo</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="srv-vinculo-substituto" name="srv-vinculo" value="DocenteSubstituto">
+                  <label for="srv-vinculo-substituto">Docente Substituto/Temporário/Visitante</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" id="srv-contrato-datas" hidden>
+              <div class="form-group">
+                <label class="form-label" for="srv-inicio-contrato">Início do contrato</label>
+                <input type="date" id="srv-inicio-contrato" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="srv-fim-contrato">Fim do contrato</label>
+                <input type="date" id="srv-fim-contrato" class="form-control">
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════
+               SEÇÃO 2 — SUPERVISÃO DE ESTÁGIO
+          ══════════════════════════════════ -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+              Seção 2 — Supervisão de Estágio (concedente IFRS Campus Rio Grande)
+            </h2>
             <p class="form-hint" style="margin-bottom:var(--space-3);">
               Só para supervisão de estágios em que o próprio IFRS Campus Rio Grande é a concedente (estágio interno).
               Supervisor de empresa externa continua no cadastro específico de empresas/supervisores.
@@ -288,77 +334,46 @@
                 <label class="form-check-label" for="sup-declaracao">Declaro estar ciente e concordo com as condições acima.</label>
               </div>
             </div>
+          </div>
 
+          <!-- ══════════════════════════════════
+               SEÇÃO 3 — ORIENTAÇÃO DE ESTÁGIO
+               (só aparece se "Docente" na Seção 1)
+          ══════════════════════════════════ -->
+          <div class="form-section">
+            <h2 class="form-section-title">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+              Seção 3 — Orientação de Estágio
+            </h2>
             <div class="form-group">
-              <label class="form-label required">Docente ou Técnico Administrativo</label>
-              <div class="radio-group" id="srv-categoria" role="radiogroup" aria-required="true">
-                <div class="radio-option">
-                  <input type="radio" id="srv-categoria-docente" name="srv-categoria" value="Docente">
-                  <label for="srv-categoria-docente">Docente</label>
+              <label class="form-label required">Cursos que orienta</label>
+              <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;">
+                <div class="form-group" style="flex:2;min-width:220px;margin-bottom:0;">
+                  <select id="ori-curso-add" class="form-control" disabled>
+                    <option value="">Carregando cursos…</option>
+                  </select>
                 </div>
-                <div class="radio-option">
-                  <input type="radio" id="srv-categoria-tecnico" name="srv-categoria" value="Tecnico">
-                  <label for="srv-categoria-tecnico">Técnico Administrativo</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group" id="srv-vinculo-wrap" hidden>
-              <label class="form-label required">Tipo de vínculo</label>
-              <div class="radio-group" id="srv-vinculo" role="radiogroup" aria-required="true">
-                <div class="radio-option">
-                  <input type="radio" id="srv-vinculo-efetivo" name="srv-vinculo" value="DocenteEfetivo">
-                  <label for="srv-vinculo-efetivo">Docente Efetivo</label>
-                </div>
-                <div class="radio-option">
-                  <input type="radio" id="srv-vinculo-substituto" name="srv-vinculo" value="DocenteSubstituto">
-                  <label for="srv-vinculo-substituto">Docente Substituto/Temporário/Visitante</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-row" id="srv-contrato-datas" hidden>
-              <div class="form-group">
-                <label class="form-label" for="srv-inicio-contrato">Início do contrato</label>
-                <input type="date" id="srv-inicio-contrato" class="form-control">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="srv-fim-contrato">Fim do contrato</label>
-                <input type="date" id="srv-fim-contrato" class="form-control">
-              </div>
-            </div>
-
-            <div id="bloco-orientador" hidden>
-              <p style="font-weight:600;margin-bottom:var(--space-1);">Orientação de Estágio</p>
-              <div class="form-group">
-                <label class="form-label required">Cursos que orienta</label>
-                <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;">
-                  <div class="form-group" style="flex:2;min-width:220px;margin-bottom:0;">
-                    <select id="ori-curso-add" class="form-control" disabled>
-                      <option value="">Carregando cursos…</option>
-                    </select>
-                  </div>
-                  <div style="padding-bottom:2px;">
-                    <button type="button" class="btn btn-secondary">
-                      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="margin-right:4px"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-                      Adicionar
-                    </button>
-                  </div>
+                <div style="padding-bottom:2px;">
+                  <button type="button" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="margin-right:4px"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                    Adicionar
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- ══════════════════════════════════
-               SEÇÃO 2 — MEUS PAPÉIS INSTITUCIONAIS
+               SEÇÃO 4 — MEUS PAPÉIS
           ══════════════════════════════════ -->
           <div class="form-section">
             <h2 class="form-section-title">
-              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
-              Seção 2 — Meus Papéis
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+              Seção 4 — Meus Papéis
             </h2>
 
             <!-- ── Coordenador ── -->
-            <div class="form-check" style="margin-top:var(--space-5);">
+            <div class="form-check">
               <input type="checkbox" id="papel-coordenador" data-papel-toggle="bloco-coordenador">
               <label class="form-check-label" for="papel-coordenador">Sou Coordenador de Curso</label>
             </div>
@@ -414,6 +429,7 @@
   </footer>
 
   <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/accordion.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
@@ -433,6 +449,19 @@
         + 'Dúvidas: <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>',
         'info'
       );
+
+      initAccordion(document.getElementById('form-perfil-servidor'));
+
+      // Seção 3 (Orientação) só existe pra docentes — some por completo até
+      // a Seção 1 responder isso, e o botão "Confirmar e avançar" da Seção 2
+      // pula direto pra Seção 4 quando ela está escondida.
+      _accCards[2].card.hidden = true;
+      var btnAvancarSupervisao = _accCards[1].body.querySelector('.acc-btn-adv');
+      if (btnAvancarSupervisao) {
+        btnAvancarSupervisao.addEventListener('click', function () {
+          if (_accCards[2].card.hidden) abrirAccCard(3);
+        });
+      }
     });
 
     // Formulário ainda sem lógica (validação, envio) — só evita recarregar a página.
@@ -491,12 +520,12 @@
       document.getElementById('cnt-sup-experiencia').textContent = this.value.length;
     });
 
-    // Docente ou Técnico Administrativo: só docente vê o vínculo e a orientação
+    // Docente ou Técnico Administrativo: só docente vê o vínculo e a Seção 3 (Orientação)
     document.querySelectorAll('input[name="srv-categoria"]').forEach(function (radio) {
       radio.addEventListener('change', function () {
         var isDocente = this.value === 'Docente';
         document.getElementById('srv-vinculo-wrap').hidden = !isDocente;
-        document.getElementById('bloco-orientador').hidden = !isDocente;
+        _accCards[2].card.hidden = !isDocente;
         if (!isDocente) {
           document.querySelectorAll('input[name="srv-vinculo"]').forEach(function (r) { r.checked = false; });
           document.getElementById('srv-contrato-datas').hidden = true;
