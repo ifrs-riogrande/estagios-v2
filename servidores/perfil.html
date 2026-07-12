@@ -454,8 +454,10 @@
 
       // Seção 3 (Orientação) só existe pra docentes — some por completo até
       // a Seção 1 responder isso, e o botão "Confirmar e avançar" da Seção 2
-      // pula direto pra Seção 4 quando ela está escondida.
+      // pula direto pra Meus Papéis quando ela está escondida. Quando isso
+      // acontece, Meus Papéis passa a se chamar "Seção 3" (renumeração).
       _accCards[2].card.hidden = true;
+      atualizarNumeracaoSecoes();
       var btnAvancarSupervisao = _accCards[1].body.querySelector('.acc-btn-adv');
       if (btnAvancarSupervisao) {
         btnAvancarSupervisao.addEventListener('click', function () {
@@ -463,6 +465,16 @@
         });
       }
     });
+
+    // Renumera "Meus Papéis" pra Seção 3 quando a Seção 3 (Orientação) está
+    // escondida (Técnico Administrativo), e de volta pra Seção 4 quando não.
+    function atualizarNumeracaoSecoes() {
+      var numero = _accCards[2].card.hidden ? 3 : 4;
+      var badge = _accCards[3].hdr.querySelector('.acc-badge');
+      var titulo = _accCards[3].hdr.querySelector('.acc-title');
+      badge.textContent = numero;
+      titulo.textContent = titulo.textContent.replace(/^Seção \d+/, 'Seção ' + numero);
+    }
 
     // Formulário ainda sem lógica (validação, envio) — só evita recarregar a página.
     document.getElementById('form-perfil-servidor').addEventListener('submit', function (e) {
@@ -526,6 +538,7 @@
         var isDocente = this.value === 'Docente';
         document.getElementById('srv-vinculo-wrap').hidden = !isDocente;
         _accCards[2].card.hidden = !isDocente;
+        atualizarNumeracaoSecoes();
         if (!isDocente) {
           document.querySelectorAll('input[name="srv-vinculo"]').forEach(function (r) { r.checked = false; });
           document.getElementById('srv-contrato-datas').hidden = true;

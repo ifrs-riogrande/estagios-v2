@@ -482,6 +482,7 @@
   </footer>
 
   <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/accordion.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
@@ -491,6 +492,8 @@
     // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+
+      initAccordion(document.getElementById('form-cadastro'));
 
       showToast(
         '<strong>Primeiro acesso.</strong> Preencha seus dados para se cadastrar. '
