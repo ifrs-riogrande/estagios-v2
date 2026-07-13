@@ -1705,6 +1705,20 @@ input[type="file"].form-control-file {
   color: var(--color-success);
 }
 
+.acc-card.acc-optional:not(.acc-open) {
+  border-color: var(--color-border);
+}
+
+.acc-card.acc-optional .acc-status {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.acc-card.acc-optional .acc-badge {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
 .acc-chevron {
   width: 18px;
   height: 18px;

@@ -156,7 +156,7 @@ function populateSelect(selectId, options, placeholder = 'Selecione...') {
 const PDF_MAGIC = [0x25, 0x50, 0x44, 0x46]; // %PDF
 const PDF_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-// Estado global: inputId -> true/false, consultado pelo accordion (secaoEstaCompleta)
+// Estado global: inputId -> true/false, consultado pelo accordion (secaoStatus)
 // e pela validação de envio de cada formulário.
 var _fileOk = {};
 

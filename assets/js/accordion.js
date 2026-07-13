@@ -133,35 +133,52 @@ function _ocultoDentroDaSecao(el, bodyEl) {
   return false;
 }
 
-function secaoEstaCompleta(bodyEl) {
-  var campos = Array.from(bodyEl.querySelectorAll('[required]'));
+// Retorna 'concluida' | 'pendente' | 'opcional'. 'opcional' é o caso de uma
+// seção sem nenhum campo [required] aplicável no momento (ex.: um papel
+// autodeclarado que pode legitimamente ficar desmarcado, ou um widget de
+// lista cuja validação real ainda não foi implementada) — sem essa
+// distinção, uma seção vazia sem nada obrigatório aparecia como "Concluída"
+// só por vacuidade, o que é enganoso pro usuário.
+function secaoStatus(bodyEl) {
+  var campos = Array.from(bodyEl.querySelectorAll('[required]')).filter(function (el) {
+    return !_ocultoDentroDaSecao(el, bodyEl);
+  });
+  var grupos = Array.from(bodyEl.querySelectorAll('.radio-group[aria-required="true"]')).filter(function (el) {
+    return !_ocultoDentroDaSecao(el, bodyEl);
+  });
+  if (!campos.length && !grupos.length) return 'opcional';
+
   for (var i = 0; i < campos.length; i++) {
     var el = campos[i];
-    if (_ocultoDentroDaSecao(el, bodyEl)) continue; // oculto/irrelevante no momento
-    if (el.type === 'checkbox') { if (!el.checked) return false; continue; }
-    if (el.type === 'file') { if (!el.files.length || (window._fileOk || {})[el.id] === false) return false; continue; }
-    if (!el.value || !el.value.trim()) return false;
+    if (el.type === 'checkbox') { if (!el.checked) return 'pendente'; continue; }
+    if (el.type === 'file') { if (!el.files.length || (window._fileOk || {})[el.id] === false) return 'pendente'; continue; }
+    if (!el.value || !el.value.trim()) return 'pendente';
     // Selects de busca (Empresa, Supervisor etc.) têm uma opção de escape
     // "__NAO__" ("não encontrei...") — não conta como resposta válida.
-    if (el.tagName === 'SELECT' && el.value === '__NAO__') return false;
+    if (el.tagName === 'SELECT' && el.value === '__NAO__') return 'pendente';
   }
-  var grupos = Array.from(bodyEl.querySelectorAll('.radio-group[aria-required="true"]'));
   for (var g = 0; g < grupos.length; g++) {
-    if (_ocultoDentroDaSecao(grupos[g], bodyEl)) continue;
-    if (!grupos[g].querySelector('input:checked')) return false;
+    if (!grupos[g].querySelector('input:checked')) return 'pendente';
   }
-  return true;
+  return 'concluida';
 }
+
+var ACC_STATUS_LABEL = { concluida: 'Concluída', pendente: 'Aguardando', opcional: 'Opcional' };
 
 function atualizarProgresso() {
   if (!_accCards.length) return;
-  var concluidas = 0;
+  var concluidas = 0, aplicaveis = 0;
   _accCards.forEach(function (c, i) {
-    var done = secaoEstaCompleta(c.body);
+    var status = secaoStatus(c.body);
+    var done = status === 'concluida';
     c.card.classList.toggle('acc-done', done);
+    c.card.classList.toggle('acc-optional', status === 'opcional');
     var statusEl = c.hdr.querySelector('.acc-status');
-    statusEl.textContent = done ? 'Concluída' : 'Aguardando';
-    if (done) concluidas++;
+    statusEl.textContent = ACC_STATUS_LABEL[status];
+    if (status !== 'opcional') {
+      aplicaveis++;
+      if (done) concluidas++;
+    }
 
     // Card escondido por completo (ex.: seção que só existe pra um tipo de
     // resposta anterior) some do stepper também, não só do accordion.
@@ -172,5 +189,5 @@ function atualizarProgresso() {
       c.stepDot.classList.toggle('acc-step-current', !done && c.card.classList.contains('acc-open'));
     }
   });
-  document.getElementById('acc-prog-label').textContent = concluidas + ' de ' + _accCards.length + ' concluídas';
+  document.getElementById('acc-prog-label').textContent = concluidas + ' de ' + aplicaveis + ' concluídas';
 }
