@@ -110,6 +110,14 @@
           <span class="mega-panel-item-title">Agentes de Integração</span>
           <span class="mega-panel-item-desc">Cadastros de agentes de integração</span>
         </a>
+        <a href="cadastros-napne.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">NAPNE</span>
+          <span class="mega-panel-item-desc">Cadastro do NAPNE</span>
+        </a>
+        <a href="cadastros-registro-academico.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Registro Acadêmico</span>
+          <span class="mega-panel-item-desc">Cadastro do Registro Acadêmico</span>
+        </a>
       </div>
     </div>
   </header>
@@ -139,6 +147,12 @@
               <span id="papel-nome-error" class="form-error hidden" role="alert"></span>
             </div>
             <div class="form-group">
+              <label class="form-label required" for="papel-cpf">CPF</label>
+              <input type="text" id="papel-cpf" class="form-control" required aria-required="true" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" aria-describedby="papel-cpf-hint papel-cpf-error">
+              <span id="papel-cpf-hint" class="form-hint">11 dígitos. Ex: 123.456.789-09</span>
+              <span id="papel-cpf-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div class="form-group">
               <label class="form-label" for="papel-siape">SIAPE <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
               <input type="text" id="papel-siape" class="form-control" placeholder="Ex.: 1234567" maxlength="20">
             </div>
@@ -147,6 +161,10 @@
               <input type="email" id="papel-email" class="form-control" required aria-required="true" placeholder="Ex.: setor@riogrande.ifrs.edu.br" aria-describedby="papel-email-hint papel-email-error">
               <span id="papel-email-hint" class="form-hint">E-mail de acesso ao módulo deste papel.</span>
               <span id="papel-email-error" class="form-error hidden" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="papel-portaria">Número da portaria <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+              <input type="text" id="papel-portaria" class="form-control" placeholder="Ex.: Portaria nº 123/2026" maxlength="60">
             </div>
             <div class="form-actions">
               <button type="submit" class="btn btn-primary" id="btn-salvar-papel">Salvar</button>
@@ -192,8 +210,10 @@
 
     function preencherFormulario(dados) {
       document.getElementById('papel-nome').value = dados.nome || '';
+      document.getElementById('papel-cpf').value = dados.cpf || '';
       document.getElementById('papel-siape').value = dados.siape || '';
       document.getElementById('papel-email').value = dados.email || '';
+      document.getElementById('papel-portaria').value = dados.portaria || '';
       atualizarStatusBadge(!!dados.email);
     }
 
@@ -206,13 +226,17 @@
     document.getElementById('form-papel').addEventListener('submit', async function (e) {
       e.preventDefault();
       var nome = document.getElementById('papel-nome').value.trim();
+      var cpf = document.getElementById('papel-cpf').value.trim();
       var siape = document.getElementById('papel-siape').value.trim();
       var email = document.getElementById('papel-email').value.trim();
+      var portaria = document.getElementById('papel-portaria').value.trim();
 
       clearFieldError('papel-nome');
+      clearFieldError('papel-cpf');
       clearFieldError('papel-email');
       var ok = true;
       if (!nome) { showFieldError('papel-nome', 'Informe o nome do responsável.'); ok = false; }
+      if (!cpf) { showFieldError('papel-cpf', 'Informe o CPF.'); ok = false; }
       if (!email) { showFieldError('papel-email', 'Informe o e-mail institucional.'); ok = false; }
       if (!ok) return;
 
@@ -220,7 +244,7 @@
       btn.disabled = true;
       btn.classList.add('is-loading');
       try {
-        await API.post('salvarDiretorGeral', { nome: nome, siape: siape, email: email });
+        await API.post('salvarDiretorGeral', { nome: nome, cpf: cpf, siape: siape, email: email, portaria: portaria });
         atualizarStatusBadge(true);
         showToast('Dados salvos com sucesso.', 'success');
       } catch (err) {
