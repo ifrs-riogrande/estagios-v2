@@ -146,6 +146,7 @@
               <option value="Recusada">Recusada</option>
               <option value="Inativa">Inativa</option>
               <option value="Excluída">Excluída</option>
+              <option value="Instituicao">Instituição</option>
             </select>
           </div>
           <div style="display:flex;gap:var(--space-2);align-self:flex-end;">
@@ -255,6 +256,11 @@
       <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
         <p class="form-hint" style="margin-bottom:var(--space-5);">A empresa será cadastrada com status <strong>Validada</strong> diretamente.</p>
         <div id="ce-feedback" class="alert" style="display:none;margin-bottom:var(--space-4);"></div>
+
+        <div class="form-check" style="margin-bottom:var(--space-5);">
+          <input type="checkbox" id="ce-instituicao">
+          <label class="form-check-label" for="ce-instituicao">Este cadastro é a própria instituição (IFRS Campus Rio Grande)</label>
+        </div>
 
         <p style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-3);">Dados da Empresa</p>
         <div class="form-row">
@@ -469,7 +475,8 @@
       var busca = document.getElementById('busca-empresa').value.toLowerCase().trim();
       var status = document.getElementById('filtro-status').value;
       _filtrados = _dados.filter(function (e) {
-        if (status && (e.status || '') !== status) return false;
+        if (status === 'Instituicao') { if (!e.ehInstituicao) return false; }
+        else if (status && (e.status || '') !== status) return false;
         if (busca) {
           var t = [e.razaoSocial, e.nomeFantasia, e.cnpj].join(' ').toLowerCase();
           if (t.indexOf(busca) === -1) return false;
@@ -479,7 +486,13 @@
       render();
     }
 
-    function badgeEmpresa(s) {
+    // Recebe o registro inteiro (não só o status) porque o cadastro que
+    // representa a própria instituição (IFRS Campus Rio Grande) tem um
+    // badge fixo, independente do status — não passa pelo fluxo de
+    // validação/recusa que se aplica a empresas externas.
+    function badgeEmpresa(e) {
+      if (e.ehInstituicao) return '<span class="badge badge-info">Instituição</span>';
+      var s = e.status;
       var m = { 'Validada': 'badge-success', 'Pendente': 'badge-warning', 'Recusada': 'badge-error', 'Inativa': 'badge-neutral', 'Excluída': 'badge-neutral' };
       return '<span class="badge ' + (m[s] || 'badge-neutral') + '">' + escapeHtml(s || '—') + '</span>';
     }
@@ -497,7 +510,7 @@
           '<td>' + escapeHtml(e.cnpj || '—') + '</td>' +
           '<td>' + escapeHtml(e.municipio || '—') + '/' + escapeHtml(e.uf || '') + '</td>' +
           '<td style="text-align:center;">' + (e.estagiosAtivos || 0) + '</td>' +
-          '<td>' + badgeEmpresa(e.status) + '</td>' +
+          '<td>' + badgeEmpresa(e) + '</td>' +
           '<td style="text-align:right;">' +
             (e.driveDocs ? '<span title="Documentos enviados" style="color:var(--color-success);margin-right:6px;">📎</span>' : '') +
             '<button class="btn btn-secondary btn-sm" data-ver="' + idx + '">Ver</button>' +
@@ -518,10 +531,13 @@
 
     function renderVisualizacao() {
       var e = _atual;
+      var instituicaoHtml = e.ehInstituicao
+        ? '<div class="alert alert-info" style="margin-bottom:var(--space-4);"><div class="alert-content">Este cadastro representa a própria instituição (IFRS Campus Rio Grande) — não passa por validação, recusa nem convênio, que só se aplicam a empresas externas.</div></div>'
+        : '';
       var recusaHtml = (e.status === 'Recusada' && e.obs)
         ? '<div class="alert alert-error" style="margin-bottom:var(--space-4);"><div class="alert-content"><strong>Motivo da recusa:</strong><p style="margin-top:4px;">' + escapeHtml(e.obs) + '</p></div></div>'
         : '';
-      var convenioDocsHtml = (e.possuiConvenio || e.driveConvenio || e.driveCdnEmpresa || e.driveCdnSignatario || e.driveDocs) ? (
+      var convenioDocsHtml = (!e.ehInstituicao && (e.possuiConvenio || e.driveConvenio || e.driveCdnEmpresa || e.driveCdnSignatario || e.driveDocs)) ? (
         '<div class="detail-item detail-item--full"><label>Convênio e Documentos</label>' +
         '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:4px;align-items:center;">' +
           (e.possuiConvenio ? '<span class="badge badge-neutral">Convênio IFRS: ' + escapeHtml(e.possuiConvenio) + '</span>' : '') +
@@ -532,7 +548,7 @@
         '</div></div>'
       ) : '';
 
-      document.getElementById('modal-empresa-body').innerHTML = recusaHtml + '<div class="detail-grid">' +
+      document.getElementById('modal-empresa-body').innerHTML = instituicaoHtml + recusaHtml + '<div class="detail-grid">' +
         '<div class="detail-item"><label>Razão Social</label><p>' + escapeHtml(e.razaoSocial || '—') + '</p></div>' +
         '<div class="detail-item"><label>Nome Fantasia</label><p>' + escapeHtml(e.nomeFantasia || '—') + '</p></div>' +
         '<div class="detail-item"><label>CNPJ</label><p>' + escapeHtml(e.cnpj || '—') + '</p></div>' +
@@ -546,7 +562,7 @@
         '<div class="detail-item"><label>Cargo</label><p>' + escapeHtml(e.cargoRepresentante || '—') + '</p></div>' +
         '<div class="detail-item"><label>E-mail Rep.</label><p>' + escapeHtml(e.emailRep || '—') + '</p></div>' +
         '<div class="detail-item"><label>CPF Rep.</label><p>' + escapeHtml(e.cpfRep || '—') + '</p></div>' +
-        '<div class="detail-item"><label>Status</label><p>' + badgeEmpresa(e.status) + '</p></div>' +
+        '<div class="detail-item"><label>Status</label><p>' + badgeEmpresa(e) + '</p></div>' +
         '<div class="detail-item"><label>Estágios Ativos</label><p>' + (e.estagiosAtivos || 0) + '</p></div>' +
         convenioDocsHtml +
         '</div>';
@@ -557,20 +573,27 @@
       var btnReceita = '<button type="button" class="btn btn-secondary btn-sm" id="btn-receita" title="Consultar CNPJ na Receita Federal">Receita Federal ↗</button>';
       var btnEditar = '<button type="button" class="btn btn-secondary btn-sm" id="btn-editar">Editar</button>';
       var btnExcluir = '<button type="button" class="btn btn-danger btn-sm" id="btn-excluir">Excluir</button>';
-      var html = btnFechar + btnReceita;
-      if (s === 'Pendente') {
-        html += btnEditar + btnExcluir + '<button type="button" class="btn btn-danger btn-sm" id="btn-recusar">Recusar</button><button type="button" class="btn btn-primary btn-sm" id="btn-validar">Validar</button>';
-      } else if (s === 'Recusada') {
-        html += btnEditar + btnExcluir + '<button type="button" class="btn btn-primary btn-sm" id="btn-validar">Validar mesmo assim</button>';
-      } else if (s === 'Validada') {
-        html += btnEditar + '<button type="button" class="btn btn-danger btn-sm" id="btn-inativar">Inativar</button>';
-      } else if (s === 'Inativa') {
-        html += btnEditar + btnExcluir + '<button type="button" class="btn btn-primary btn-sm" id="btn-reativar">Reativar</button>';
+      var html;
+      if (e.ehInstituicao) {
+        // Sem Receita Federal, validação, recusa ou convênio — nada disso
+        // se aplica ao cadastro que representa a própria instituição.
+        html = btnFechar + btnEditar;
+      } else {
+        html = btnFechar + btnReceita;
+        if (s === 'Pendente') {
+          html += btnEditar + btnExcluir + '<button type="button" class="btn btn-danger btn-sm" id="btn-recusar">Recusar</button><button type="button" class="btn btn-primary btn-sm" id="btn-validar">Validar</button>';
+        } else if (s === 'Recusada') {
+          html += btnEditar + btnExcluir + '<button type="button" class="btn btn-primary btn-sm" id="btn-validar">Validar mesmo assim</button>';
+        } else if (s === 'Validada') {
+          html += btnEditar + '<button type="button" class="btn btn-danger btn-sm" id="btn-inativar">Inativar</button>';
+        } else if (s === 'Inativa') {
+          html += btnEditar + btnExcluir + '<button type="button" class="btn btn-primary btn-sm" id="btn-reativar">Reativar</button>';
+        }
       }
       footer.innerHTML = html;
 
       document.getElementById('btn-fechar-vis').addEventListener('click', fechar);
-      document.getElementById('btn-receita').addEventListener('click', consultarReceita);
+      if (document.getElementById('btn-receita')) document.getElementById('btn-receita').addEventListener('click', consultarReceita);
       if (document.getElementById('btn-editar')) document.getElementById('btn-editar').addEventListener('click', abrirEdicao);
       if (document.getElementById('btn-excluir')) document.getElementById('btn-excluir').addEventListener('click', confirmarExcluir);
       if (document.getElementById('btn-recusar')) document.getElementById('btn-recusar').addEventListener('click', abrirRecusa);
@@ -582,6 +605,25 @@
     // ── Editar ──
     function abrirEdicao() {
       var e = _atual;
+      // Convênio e Documentos não se aplicam ao cadastro que representa a
+      // própria instituição (ela não firma convênio consigo mesma).
+      var convenioSecaoHtml = e.ehInstituicao ? '' :
+        '<div style="border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4);">' +
+          '<p style="font-size:var(--font-size-xs);color:var(--color-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-3);">Convênio e Documentos</p>' +
+          '<div class="form-group">' +
+            '<label class="form-label">Possui Convênio com IFRS</label>' +
+            '<select id="fe-convenio" class="form-control">' +
+              '<option value="" ' + (!e.possuiConvenio ? 'selected' : '') + '>Não informado</option>' +
+              '<option value="Não" ' + (e.possuiConvenio === 'Não' ? 'selected' : '') + '>Não</option>' +
+              '<option value="Sim" ' + (e.possuiConvenio === 'Sim' ? 'selected' : '') + '>Sim</option>' +
+            '</select>' +
+          '</div>' +
+          '<div class="form-row-3">' +
+            '<div class="form-group"><label class="form-label">Convênio (PDF)</label><input type="file" id="fe-convenio-file" class="form-control-file" accept="application/pdf"><span class="form-hint">Vazio = mantém o atual.</span></div>' +
+            '<div class="form-group"><label class="form-label">CDN da Empresa (PDF)</label><input type="file" id="fe-cdn-empresa" class="form-control-file" accept="application/pdf"></div>' +
+            '<div class="form-group"><label class="form-label">CDN de Quem Assina (PDF)</label><input type="file" id="fe-cdn-signatario" class="form-control-file" accept="application/pdf"></div>' +
+          '</div>' +
+        '</div>';
       document.getElementById('modal-empresa-body').innerHTML =
         '<div class="form-row">' +
           '<div class="form-group"><label class="form-label">Razão Social</label><input id="fe-razao" class="form-control" value="' + escapeHtml(e.razaoSocial || '') + '"></div>' +
@@ -609,22 +651,7 @@
           '<div class="form-group"><label class="form-label">Cargo Rep.</label><input id="fe-cargo-rep" class="form-control" value="' + escapeHtml(e.cargoRepresentante || '') + '"></div>' +
         '</div>' +
         '<div class="form-group"><label class="form-label">E-mail Rep.</label><input id="fe-email-rep" type="email" class="form-control" value="' + escapeHtml(e.emailRep || '') + '"></div>' +
-        '<div style="border-top:1px solid var(--color-border);padding-top:var(--space-4);margin-top:var(--space-4);">' +
-          '<p style="font-size:var(--font-size-xs);color:var(--color-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-3);">Convênio e Documentos</p>' +
-          '<div class="form-group">' +
-            '<label class="form-label">Possui Convênio com IFRS</label>' +
-            '<select id="fe-convenio" class="form-control">' +
-              '<option value="" ' + (!e.possuiConvenio ? 'selected' : '') + '>Não informado</option>' +
-              '<option value="Não" ' + (e.possuiConvenio === 'Não' ? 'selected' : '') + '>Não</option>' +
-              '<option value="Sim" ' + (e.possuiConvenio === 'Sim' ? 'selected' : '') + '>Sim</option>' +
-            '</select>' +
-          '</div>' +
-          '<div class="form-row-3">' +
-            '<div class="form-group"><label class="form-label">Convênio (PDF)</label><input type="file" id="fe-convenio-file" class="form-control-file" accept="application/pdf"><span class="form-hint">Vazio = mantém o atual.</span></div>' +
-            '<div class="form-group"><label class="form-label">CDN da Empresa (PDF)</label><input type="file" id="fe-cdn-empresa" class="form-control-file" accept="application/pdf"></div>' +
-            '<div class="form-group"><label class="form-label">CDN de Quem Assina (PDF)</label><input type="file" id="fe-cdn-signatario" class="form-control-file" accept="application/pdf"></div>' +
-          '</div>' +
-        '</div>';
+        convenioSecaoHtml;
       document.getElementById('modal-empresa-footer').innerHTML =
         '<button type="button" class="btn btn-secondary" id="btn-cancelar-edicao">Cancelar</button>' +
         '<button type="button" class="btn btn-primary" id="btn-salvar-edicao">Salvar alterações</button>';
@@ -661,7 +688,7 @@
           nomeRep: document.getElementById('fe-nome-rep').value.trim(),
           cargoRep: document.getElementById('fe-cargo-rep').value.trim(),
           emailRep: document.getElementById('fe-email-rep').value.trim(),
-          possuiConvenio: document.getElementById('fe-convenio').value,
+          possuiConvenio: (document.getElementById('fe-convenio') || {}).value || '',
         });
 
         var MAX = 5 * 1024 * 1024;
@@ -772,6 +799,7 @@
       ['ce-razao', 'ce-fantasia', 'ce-cnpj', 'ce-ramo', 'ce-tel', 'ce-email', 'ce-end', 'ce-bairro',
        'ce-mun', 'ce-uf', 'ce-cep', 'ce-site', 'ce-nome-rep', 'ce-cargo-rep', 'ce-email-rep', 'ce-cpf-rep']
         .forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      document.getElementById('ce-instituicao').checked = false;
       var fb = document.getElementById('ce-feedback');
       fb.style.display = 'none'; fb.textContent = '';
     }
@@ -802,6 +830,7 @@
           cargoRep: document.getElementById('ce-cargo-rep').value.trim(),
           emailRep: document.getElementById('ce-email-rep').value.trim(),
           cpfRep: document.getElementById('ce-cpf-rep').value.trim(),
+          ehInstituicao: document.getElementById('ce-instituicao').checked,
         });
         showToast('Empresa cadastrada com sucesso.', 'success');
         fecharCadastroEmp();
