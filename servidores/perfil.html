@@ -245,14 +245,14 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label required">Docente ou Técnico Administrativo</label>
-              <div class="radio-group" id="srv-categoria" role="radiogroup" aria-required="true">
+              <label class="form-label required">Docente ou Técnico Administrativo <span class="tooltip-help" aria-label="Marque os dois se acumular os dois cargos (ex.: professor sem Dedicação Exclusiva que também é técnico administrativo, ou técnico que também é professor substituto/temporário/visitante).">?</span></label>
+              <div class="radio-group" id="srv-categoria" aria-required="true">
                 <div class="radio-option">
-                  <input type="radio" id="srv-categoria-docente" name="srv-categoria" value="Docente">
+                  <input type="checkbox" id="srv-categoria-docente" name="srv-categoria" value="Docente">
                   <label for="srv-categoria-docente">Docente</label>
                 </div>
                 <div class="radio-option">
-                  <input type="radio" id="srv-categoria-tecnico" name="srv-categoria" value="Tecnico">
+                  <input type="checkbox" id="srv-categoria-tecnico" name="srv-categoria" value="Tecnico">
                   <label for="srv-categoria-tecnico">Técnico Administrativo</label>
                 </div>
               </div>
@@ -534,10 +534,12 @@
       document.getElementById('cnt-sup-experiencia').textContent = this.value.length;
     });
 
-    // Docente ou Técnico Administrativo: só docente vê o vínculo e a Seção 3 (Orientação)
-    document.querySelectorAll('input[name="srv-categoria"]').forEach(function (radio) {
-      radio.addEventListener('change', function () {
-        var isDocente = this.value === 'Docente';
+    // Docente ou Técnico Administrativo: os dois podem ser marcados ao mesmo
+    // tempo (professor sem DE pode acumular cargo de técnico, e vice-versa).
+    // Só a marcação de Docente controla o vínculo e a Seção 3 (Orientação).
+    document.querySelectorAll('input[name="srv-categoria"]').forEach(function (chk) {
+      chk.addEventListener('change', function () {
+        var isDocente = document.getElementById('srv-categoria-docente').checked;
         document.getElementById('srv-vinculo-wrap').hidden = !isDocente;
         _accCards[2].card.hidden = !isDocente;
         atualizarNumeracaoSecoes();
@@ -560,11 +562,11 @@
     // Regra de elegibilidade do Coordenador de Curso (Seção 2), conforme vínculo (Seção 1):
     // não pode ser docente substituto/temporário/visitante.
     function atualizarDisponibilidadePapeis() {
-      var categoria = (document.querySelector('input[name="srv-categoria"]:checked') || {}).value;
+      var isDocente = document.getElementById('srv-categoria-docente').checked;
       var vinculo = (document.querySelector('input[name="srv-vinculo"]:checked') || {}).value;
 
       var chkCoordenador = document.getElementById('papel-coordenador');
-      var podeCoordenador = !(categoria === 'Docente' && vinculo === 'DocenteSubstituto');
+      var podeCoordenador = !(isDocente && vinculo === 'DocenteSubstituto');
       chkCoordenador.disabled = !podeCoordenador;
       document.getElementById('coord-hint-substituto').hidden = podeCoordenador;
       if (!podeCoordenador && chkCoordenador.checked) {

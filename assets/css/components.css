@@ -497,7 +497,12 @@ textarea.form-control {
   gap: var(--space-2);
 }
 
-.radio-option input[type="radio"] {
+/* Mesmo visual de pill pra radio (escolha única) e checkbox (múltipla
+   escolha) dentro de .radio-group/.radio-option — ex.: "Docente ou Técnico
+   Administrativo" precisa aceitar os dois marcados ao mesmo tempo
+   (professor sem DE pode acumular cargo de técnico, e vice-versa). */
+.radio-option input[type="radio"],
+.radio-option input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   width: 0;
@@ -505,7 +510,8 @@ textarea.form-control {
   pointer-events: none;
 }
 
-.radio-option input[type="radio"] + label {
+.radio-option input[type="radio"] + label,
+.radio-option input[type="checkbox"] + label {
   display: inline-flex;
   align-items: center;
   padding: var(--space-2) var(--space-4);
@@ -521,24 +527,29 @@ textarea.form-control {
   white-space: nowrap;
 }
 
-.radio-option input[type="radio"]:checked + label {
+.radio-option input[type="radio"]:checked + label,
+.radio-option input[type="checkbox"]:checked + label {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #fff;
 }
 
-.radio-option input[type="radio"]:focus-visible + label {
+.radio-option input[type="radio"]:focus-visible + label,
+.radio-option input[type="checkbox"]:focus-visible + label {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.radio-option input[type="radio"]:disabled + label {
+.radio-option input[type="radio"]:disabled + label,
+.radio-option input[type="checkbox"]:disabled + label {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
 .radio-group.is-invalid .radio-option input[type="radio"] + label,
-.radio-group[aria-invalid="true"] .radio-option input[type="radio"] + label {
+.radio-group[aria-invalid="true"] .radio-option input[type="radio"] + label,
+.radio-group.is-invalid .radio-option input[type="checkbox"] + label,
+.radio-group[aria-invalid="true"] .radio-option input[type="checkbox"] + label {
   border-color: var(--color-error);
 }
 
