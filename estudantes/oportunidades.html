@@ -477,7 +477,12 @@
               ? '<a href="mailto:' + escapeHtml(o.contatoCandidatura) + '" class="btn btn-primary btn-sm">Candidatar-se</a>'
               : '');
 
+        var imagemHtml = (o.imagemUrl && safeUrl(o.imagemUrl))
+          ? '<img class="opp-card__image" src="' + escapeHtml(safeUrl(o.imagemUrl)) + '" alt="" loading="lazy">'
+          : '';
+
         return '<article class="opp-card">'
+          + imagemHtml
           + '<div class="opp-card__header">'
           + '<div>'
           + '<h2 class="opp-card__title">' + escapeHtml(o.titulo || 'Vaga de Estágio') + '</h2>'

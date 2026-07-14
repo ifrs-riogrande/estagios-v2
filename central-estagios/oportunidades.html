@@ -125,20 +125,239 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Oportunidades</h1>
-        <p class="page-hero-desc">Validação das vagas de estágio e emprego publicadas.</p>
+        <p class="page-hero-desc">Gerencie vagas de estágio e emprego cadastradas pelas concedentes.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-6);">
+        <button type="button" class="btn btn-primary" id="btn-nova-opp">+ Nova Oportunidade</button>
+        <button type="button" class="btn btn-secondary" id="btn-magic-link">✉️ Enviar link para empresa</button>
+      </div>
+
+      <div class="filters">
+        <div class="form-group" style="flex:2;min-width:220px;">
+          <label class="form-label" for="filtro-busca">Buscar</label>
+          <input type="search" id="filtro-busca" class="form-control" placeholder="Concedente ou título…">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-status">Status</label>
+          <select id="filtro-status" class="form-control">
+            <option value="">Todos os status</option>
+            <option value="Pendente" selected>Pendentes</option>
+            <option value="Aprovada">Aprovadas</option>
+            <option value="Reprovada">Reprovadas</option>
+            <option value="Encerrada">Encerradas</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="estado-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando oportunidades…</p>
+      </div>
+
+      <div id="estado-vazio" class="empty-state hidden">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/>
         </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A fila de validação das oportunidades publicadas pelas empresas será adicionada aqui.</p>
+        <p>Nenhuma oportunidade encontrada com os filtros aplicados.</p>
       </div>
+
+      <div id="lista-oportunidades" class="hidden"></div>
+
     </div>
   </main>
+
+  <!-- Modal: Nova Oportunidade -->
+  <div class="modal-backdrop" id="modal-nova-opp">
+    <div class="modal" style="max-width:700px;">
+      <div class="modal-header">
+        <h2 class="modal-title">+ Nova Oportunidade</h2>
+        <button type="button" class="modal-close" id="modal-nova-opp-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-4);">
+          Oportunidade cadastrada pelo admin será <strong>aprovada automaticamente</strong>.
+        </p>
+        <div id="fb-nova-opp"></div>
+
+        <div class="form-group">
+          <label class="form-label required" for="opp-empresa">Concedente</label>
+          <select id="opp-empresa" class="form-control" required aria-required="true" aria-describedby="opp-empresa-error" disabled>
+            <option value="">Carregando concedentes...</option>
+          </select>
+          <span id="opp-empresa-error" class="form-error hidden" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="opp-imagem">Imagem de divulgação <span class="tooltip-help" aria-label="Imagem usada no card da vaga no portal de oportunidades. Opcional. Formatos aceitos: JPG ou PNG, até 5 MB.">?</span></label>
+          <div class="file-input-wrapper">
+            <label class="file-input-label" for="opp-imagem">
+              <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+              <span class="file-text">Selecionar imagem (JPG ou PNG)</span>
+              <span class="file-selected" id="opp-imagem-name"></span>
+              <span class="file-types">JPG/PNG — máx. 5 MB</span>
+            </label>
+            <input type="file" class="form-control-file" id="opp-imagem" accept=".jpg,.jpeg,.png" aria-describedby="opp-imagem-error">
+          </div>
+          <img id="opp-imagem-preview" class="hidden" alt="Pré-visualização da imagem" style="margin-top:var(--space-3);max-width:200px;border-radius:var(--radius-md);border:1px solid var(--color-border);">
+          <span id="opp-imagem-error" class="form-error hidden" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label required" for="opp-responsavel">Responsável</label>
+          <input type="text" id="opp-responsavel" class="form-control" placeholder="Nome do responsável">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required" for="opp-email">E-mail de contato</label>
+            <input type="email" id="opp-email" class="form-control" placeholder="rh@empresa.com.br">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="opp-telefone">Telefone</label>
+            <input type="text" id="opp-telefone" class="form-control" placeholder="(53) 99999-9999">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required" for="opp-tipo">Tipo de vaga</label>
+            <select id="opp-tipo" class="form-control">
+              <option value="">Selecione…</option>
+              <option value="Estágio Obrigatório">Estágio Obrigatório</option>
+              <option value="Estágio Não Obrigatório">Estágio Não Obrigatório</option>
+              <option value="Emprego">Emprego (CLT/Contrato)</option>
+              <option value="Jovem Aprendiz">Jovem Aprendiz</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="opp-num-vagas">Nº de vagas</label>
+            <input type="number" id="opp-num-vagas" class="form-control" placeholder="1" min="1" value="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label required" for="opp-titulo">Título da vaga</label>
+          <input type="text" id="opp-titulo" class="form-control" placeholder="Ex.: Estagiário de Desenvolvimento">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required" for="opp-area">Área / Curso</label>
+            <input type="text" id="opp-area" class="form-control" placeholder="Ex.: Análise e Desenvolvimento de Sistemas">
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="opp-modalidade">Modalidade</label>
+            <select id="opp-modalidade" class="form-control">
+              <option value="">Selecione…</option>
+              <option value="Presencial">Presencial</option>
+              <option value="Híbrido">Híbrido</option>
+              <option value="Remoto">Remoto</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required" for="opp-cidade">Cidade</label>
+            <input type="text" id="opp-cidade" class="form-control" value="Rio Grande">
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="opp-carga">Carga horária</label>
+            <input type="text" id="opp-carga" class="form-control" placeholder="Ex.: 20h semanais">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label required" for="opp-atividades">Atividades</label>
+          <textarea id="opp-atividades" class="form-control" rows="3" placeholder="Descreva as atividades…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label required" for="opp-requisitos">Requisitos</label>
+          <textarea id="opp-requisitos" class="form-control" rows="2" placeholder="Requisitos básicos…"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label required" for="opp-remuneracao">Remuneração</label>
+            <input type="text" id="opp-remuneracao" class="form-control" placeholder="R$ 800,00 ou Não se aplica">
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="opp-prazo">Prazo para candidatura</label>
+            <input type="date" id="opp-prazo" class="form-control">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="opp-como">Como se candidatar</label>
+            <select id="opp-como" class="form-control">
+              <option value="E-mail">E-mail</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Link (site/formulário)">Link</option>
+              <option value="Presencialmente">Presencialmente</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="opp-contato-cand">Contato para candidatura</label>
+            <input type="text" id="opp-contato-cand" class="form-control" placeholder="E-mail ou link">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-nova-opp-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-cadastrar-opp">✓ Cadastrar e Aprovar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Enviar Link para Concedente -->
+  <div class="modal-backdrop" id="modal-magic-link">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">✉️ Enviar Link para Concedente</h2>
+        <button type="button" class="modal-close" id="modal-magic-link-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-5);">
+          A empresa receberá um e-mail com o link para preencher o formulário de oportunidade.
+          A vaga ficará com status <strong>Pendente</strong> até sua aprovação.
+        </p>
+        <div id="fb-magic-link"></div>
+        <div class="form-group">
+          <label class="form-label required" for="ml-email">E-mail da concedente</label>
+          <input type="email" id="ml-email" class="form-control" placeholder="rh@empresa.com.br">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-magic-link-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-enviar-magic-link">Enviar Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reprovar Oportunidade -->
+  <div class="modal-backdrop" id="modal-reprovar">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Reprovar Oportunidade</h2>
+        <button type="button" class="modal-close" id="modal-reprovar-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="fb-reprovar"></div>
+        <div class="form-group">
+          <label class="form-label required" for="motivo-reprovacao">Motivo da reprovação</label>
+          <textarea id="motivo-reprovacao" class="form-control" rows="3" placeholder="Explique o motivo para que a concedente possa corrigir e reenviar…"></textarea>
+        </div>
+        <input type="hidden" id="reprovar-opp-id">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-reprovar-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btn-confirmar-reprovacao">Reprovar</button>
+      </div>
+    </div>
+  </div>
 
   <footer id="app-footer">
     <div class="container">
@@ -160,8 +379,291 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _lista = [];
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      var prazoEl = document.getElementById('opp-prazo');
+      if (prazoEl) prazoEl.min = getMinDateString(1);
+      carregarConcedentes();
+      validarImagem('opp-imagem', 'opp-imagem-name', 'opp-imagem-error', 'opp-imagem-preview');
+      carregar();
+    });
+
+    async function carregar() {
+      document.getElementById('estado-carregando').classList.remove('hidden');
+      document.getElementById('estado-vazio').classList.add('hidden');
+      document.getElementById('lista-oportunidades').classList.add('hidden');
+      try {
+        _lista = await API.get('listarOportunidadesAdmin');
+        renderLista();
+      } catch (err) {
+        document.getElementById('estado-carregando').innerHTML =
+          '<p style="color:var(--color-error);">Erro ao carregar: ' + escapeHtml(err.message) + '</p>';
+      }
+    }
+
+    function renderLista() {
+      var filtroStatus = document.getElementById('filtro-status').value;
+      var filtroBusca = (document.getElementById('filtro-busca').value || '').toLowerCase();
+
+      var filtrada = (_lista || []).filter(function (o) {
+        if (filtroStatus && o.status !== filtroStatus) return false;
+        if (filtroBusca && !(o.titulo || '').toLowerCase().includes(filtroBusca)
+                        && !(o.nomeEmpresa || '').toLowerCase().includes(filtroBusca)) return false;
+        return true;
+      });
+
+      document.getElementById('estado-carregando').classList.add('hidden');
+      var lista = document.getElementById('lista-oportunidades');
+
+      if (!filtrada.length) {
+        lista.classList.add('hidden');
+        document.getElementById('estado-vazio').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('estado-vazio').classList.add('hidden');
+      lista.classList.remove('hidden');
+
+      var STATUS_BADGE = { 'Pendente': 'badge-warning', 'Aprovada': 'badge-success', 'Reprovada': 'badge-error', 'Encerrada': 'badge-neutral' };
+
+      lista.innerHTML = filtrada.map(function (o) {
+        var badgeCls = STATUS_BADGE[o.status] || 'badge-warning';
+        var dataStr = o.timestamp ? new Date(o.timestamp).toLocaleDateString('pt-BR') : '—';
+        var prazoStr = o.prazo ? formatDateBR(o.prazo) : '—';
+
+        var acoes = '';
+        if (o.status === 'Pendente') {
+          acoes += '<button type="button" class="btn btn-primary btn-sm" data-acao="aprovar" data-id="' + escapeHtml(String(o.oppId)) + '">✓ Aprovar</button>';
+          acoes += '<button type="button" class="btn btn-secondary btn-sm" data-acao="reprovar" data-id="' + escapeHtml(String(o.oppId)) + '">✗ Reprovar</button>';
+        }
+        if (o.status === 'Aprovada') {
+          acoes += '<button type="button" class="btn btn-secondary btn-sm" data-acao="encerrar" data-id="' + escapeHtml(String(o.oppId)) + '">Encerrar</button>';
+        }
+        if (o.status === 'Reprovada') {
+          acoes += '<button type="button" class="btn btn-primary btn-sm" data-acao="aprovar" data-id="' + escapeHtml(String(o.oppId)) + '">✓ Aprovar mesmo assim</button>';
+        }
+
+        var imagemHtml = (o.imagemUrl && safeUrl(o.imagemUrl))
+          ? '<img class="opp-admin-card__image" src="' + escapeHtml(safeUrl(o.imagemUrl)) + '" alt="">'
+          : '';
+
+        return '<div class="opp-admin-card">'
+          + imagemHtml
+          + '<div class="opp-admin-card__body">'
+          + '<div class="opp-admin-card__header">'
+          + '<div>'
+          + '<div class="opp-admin-card__title">' + escapeHtml(o.titulo || '—') + '</div>'
+          + '<div class="opp-admin-card__meta">'
+          + escapeHtml(o.nomeEmpresa || '—') + ' · ' + escapeHtml(o.tipoVaga || '—') + ' · '
+          + escapeHtml(o.cidade || '—') + ' · ' + escapeHtml(o.modalidade || '—') + ' · '
+          + 'Prazo: ' + escapeHtml(prazoStr) + ' · Cadastrado: ' + escapeHtml(dataStr)
+          + '</div>'
+          + '</div>'
+          + '<span class="badge ' + badgeCls + '">' + escapeHtml(o.status || '—') + '</span>'
+          + '</div>'
+          + '<div class="opp-admin-card__desc">'
+          + '<strong>Área:</strong> ' + escapeHtml(o.area || '—') + ' · '
+          + '<strong>Vagas:</strong> ' + escapeHtml(String(o.numVagas || '1')) + ' · '
+          + '<strong>Remuneração:</strong> ' + escapeHtml(o.remuneracao || '—') + ' · '
+          + '<strong>Contato:</strong> ' + escapeHtml(o.emailContato || '—')
+          + '</div>'
+          + '<div class="opp-admin-card__actions">' + acoes + '</div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    document.getElementById('filtro-status').addEventListener('change', renderLista);
+    document.getElementById('filtro-busca').addEventListener('input', renderLista);
+
+    document.getElementById('lista-oportunidades').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-acao]');
+      if (!btn) return;
+      var acao = btn.dataset.acao;
+      var oppId = btn.dataset.id;
+      if (acao === 'aprovar') aprovar(oppId, btn);
+      else if (acao === 'reprovar') abrirModalReprovar(oppId);
+      else if (acao === 'encerrar') encerrar(oppId, btn);
+    });
+
+    /* ── Ações ── */
+    async function aprovar(oppId, btn) {
+      if (!confirm('Aprovar esta oportunidade? Ela ficará visível no portal.')) return;
+      var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Aprovando…';
+      try {
+        await API.post('aprovarOportunidade', { oppId: oppId, authToken: getAccessToken() });
+        showToast('✅ Oportunidade aprovada!', 'success');
+        await carregar();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function abrirModalReprovar(oppId) {
+      document.getElementById('reprovar-opp-id').value = oppId;
+      document.getElementById('motivo-reprovacao').value = '';
+      hideFormFeedback('fb-reprovar');
+      document.getElementById('modal-reprovar').classList.add('is-open');
+    }
+
+    async function confirmarReprovacao(btn) {
+      var oppId = document.getElementById('reprovar-opp-id').value;
+      var motivo = document.getElementById('motivo-reprovacao').value.trim();
+      if (!motivo) {
+        showFormFeedback('fb-reprovar', 'error', '', 'Informe o motivo da reprovação.');
+        return;
+      }
+      var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Reprovando…';
+      try {
+        await API.post('reprovarOportunidade', { oppId: oppId, motivo: motivo, authToken: getAccessToken() });
+        fecharModais();
+        showToast('Oportunidade reprovada.', 'success');
+        await carregar();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+    document.getElementById('btn-confirmar-reprovacao').addEventListener('click', function () { confirmarReprovacao(this); });
+
+    async function encerrar(oppId, btn) {
+      if (!confirm('Encerrar esta oportunidade? Ela deixará de aparecer no portal.')) return;
+      var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Encerrando…';
+      try {
+        await API.post('encerrarOportunidade', { oppId: oppId, authToken: getAccessToken() });
+        showToast('Oportunidade encerrada.', 'success');
+        await carregar();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    /* ── Enviar link (magic link) ── */
+    document.getElementById('btn-magic-link').addEventListener('click', function () {
+      document.getElementById('ml-email').value = '';
+      hideFormFeedback('fb-magic-link');
+      document.getElementById('modal-magic-link').classList.add('is-open');
+    });
+
+    document.getElementById('btn-enviar-magic-link').addEventListener('click', async function () {
+      var btn = this;
+      var email = document.getElementById('ml-email').value.trim();
+      hideFormFeedback('fb-magic-link');
+      if (!email || !email.includes('@')) {
+        showFormFeedback('fb-magic-link', 'error', '', 'Informe um e-mail válido.');
+        return;
+      }
+      var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('enviarMagicLinkOportunidade', { email: email, authToken: getAccessToken() });
+        fecharModais();
+        showToast('✅ Link enviado para ' + escapeHtml(email) + '!', 'success');
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
+    });
+
+    /* ── Nova Oportunidade ── */
+    async function carregarConcedentes() {
+      var sel = document.getElementById('opp-empresa');
+      try {
+        var lista = await API.get('listarEmpresasAdmin');
+        var validas = (lista || []).filter(function (e) { return e.ehInstituicao || e.status === 'Validada'; });
+        sel.innerHTML = '<option value="">Selecione a concedente...</option>';
+        validas.forEach(function (e) {
+          var opt = document.createElement('option');
+          opt.value = e.cnpj;
+          opt.dataset.nome = e.razaoSocial;
+          opt.textContent = (e.nomeFantasia || e.razaoSocial) + ' — ' + e.cnpj;
+          sel.appendChild(opt);
+        });
+        sel.disabled = false;
+        makeSearchable('opp-empresa', 'Digite o nome da concedente…');
+      } catch (e) {
+        sel.innerHTML = '<option value="">Erro ao carregar — recarregue a página</option>';
+      }
+    }
+
+    document.getElementById('btn-nova-opp').addEventListener('click', function () {
+      hideFormFeedback('fb-nova-opp');
+      document.getElementById('modal-nova-opp').classList.add('is-open');
+    });
+
+    document.getElementById('btn-cadastrar-opp').addEventListener('click', async function () {
+      var btn = this;
+      hideFormFeedback('fb-nova-opp');
+
+      var campos = {
+        cnpjEmpresa:        document.getElementById('opp-empresa').value,
+        responsavelVaga:    document.getElementById('opp-responsavel').value.trim(),
+        emailContato:       document.getElementById('opp-email').value.trim(),
+        telContato:         document.getElementById('opp-telefone').value.trim(),
+        tipoVaga:           document.getElementById('opp-tipo').value,
+        numVagas:           document.getElementById('opp-num-vagas').value || '1',
+        tituloVaga:         document.getElementById('opp-titulo').value.trim(),
+        areaCurso:          document.getElementById('opp-area').value.trim(),
+        atividades:         document.getElementById('opp-atividades').value.trim(),
+        requisitos:         document.getElementById('opp-requisitos').value.trim(),
+        cidadeVaga:         document.getElementById('opp-cidade').value.trim(),
+        modalidade:         document.getElementById('opp-modalidade').value,
+        cargaHoraria:       document.getElementById('opp-carga').value.trim(),
+        remuneracao:        document.getElementById('opp-remuneracao').value.trim(),
+        prazoCandidatura:   document.getElementById('opp-prazo').value,
+        comoCandidatar:     document.getElementById('opp-como').value,
+        contatoCandidatura: document.getElementById('opp-contato-cand').value.trim(),
+        declaracao:         'Sim',
+      };
+
+      var obrigatorios = ['cnpjEmpresa', 'responsavelVaga', 'emailContato', 'tipoVaga', 'tituloVaga', 'areaCurso', 'atividades', 'requisitos', 'cidadeVaga', 'modalidade', 'cargaHoraria', 'remuneracao', 'prazoCandidatura'];
+      var vazio = obrigatorios.find(function (k) { return !campos[k]; });
+      if (vazio) {
+        showFormFeedback('fb-nova-opp', 'error', '', 'Preencha todos os campos obrigatórios.');
+        return;
+      }
+      if (_fileOk['opp-imagem'] === false) {
+        showFormFeedback('fb-nova-opp', 'error', '', 'Corrija ou remova a imagem de divulgação antes de continuar.');
+        return;
+      }
+
+      var imagemFile = document.getElementById('opp-imagem').files[0];
+      var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Cadastrando…';
+      try {
+        var payload = { dados: campos, authToken: getAccessToken() };
+        if (imagemFile) {
+          payload.imagemNome = imagemFile.name;
+          payload.imagemBase64 = await new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function () { resolve(reader.result.split(',')[1]); };
+            reader.onerror = reject;
+            reader.readAsDataURL(imagemFile);
+          });
+        }
+        await API.post('cadastrarOportunidadeAdmin', payload);
+        fecharModais();
+        showToast('✅ Oportunidade cadastrada e aprovada!', 'success');
+        document.getElementById('filtro-status').value = 'Aprovada';
+        await carregar();
+      } catch (err) {
+        showFormFeedback('fb-nova-opp', 'error', '', err.message);
+        btn.disabled = false; btn.textContent = orig;
+      }
+    });
+
+    /* ── Helpers de modal ── */
+    function fecharModais() {
+      document.querySelectorAll('.modal-backdrop').forEach(function (m) { m.classList.remove('is-open'); });
+    }
+    document.querySelectorAll('.modal-backdrop').forEach(function (m) {
+      m.addEventListener('click', function (e) { if (e.target === m) fecharModais(); });
+    });
+    ['modal-nova-opp-fechar', 'modal-nova-opp-cancelar', 'modal-magic-link-fechar', 'modal-magic-link-cancelar', 'modal-reprovar-fechar', 'modal-reprovar-cancelar'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('click', fecharModais);
     });
 
     (function () {

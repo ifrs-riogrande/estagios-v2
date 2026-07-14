@@ -204,6 +204,69 @@ function validarPdf(inputId, nameId, errorId) {
   });
 }
 
+// ─────────────────────────────────────────
+//  VALIDAÇÃO DE UPLOAD DE IMAGEM (magic bytes) — JPG/PNG
+// ─────────────────────────────────────────
+const IMG_MAGIC = {
+  jpeg: [0xFF, 0xD8, 0xFF],
+  png:  [0x89, 0x50, 0x4E, 0x47],
+};
+const IMG_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+
+/**
+ * Liga a validação de imagem (tamanho + magic bytes JPG/PNG) a um
+ * <input type="file"> no mesmo padrão .file-input-wrapper de validarPdf,
+ * com pré-visualização opcional num <img>.
+ * @param {string} inputId
+ * @param {string} nameId - id do <span class="file-selected">
+ * @param {string} errorId - id do <span class="form-error"> associado (fieldId + '-error')
+ * @param {string} [previewId] - id de um <img> pra mostrar a pré-visualização
+ */
+function validarImagem(inputId, nameId, errorId, previewId) {
+  const input = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+  const previewEl = previewId ? document.getElementById(previewId) : null;
+  const textEl = input.closest('.file-input-label') ? input.closest('.file-input-label').querySelector('.file-text') : null;
+
+  function setErro(msg) {
+    _fileOk[inputId] = false;
+    input.value = '';
+    if (nameEl) { nameEl.textContent = ''; nameEl.style.display = 'none'; }
+    if (textEl) textEl.style.display = '';
+    if (previewEl) { previewEl.src = ''; previewEl.classList.add('hidden'); }
+    showFieldError(inputId, msg);
+  }
+  function setOk(file) {
+    _fileOk[inputId] = true;
+    if (nameEl) { nameEl.textContent = file.name; nameEl.style.display = 'block'; }
+    if (textEl) textEl.style.display = 'none';
+    clearFieldError(inputId);
+    if (previewEl) {
+      const reader = new FileReader();
+      reader.onload = function (ev) { previewEl.src = ev.target.result; previewEl.classList.remove('hidden'); };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  input.addEventListener('change', function () {
+    const file = this.files && this.files[0];
+    if (!file) { _fileOk[inputId] = false; return; }
+    if (file.size > IMG_MAX_SIZE) { setErro('Arquivo muito grande. Limite: 5 MB.'); return; }
+
+    const slice = file.slice(0, 4);
+    const reader = new FileReader();
+    reader.onload = function (ev) {
+      const bytes = new Uint8Array(ev.target.result);
+      const isJpeg = IMG_MAGIC.jpeg.every(function (b, i) { return bytes[i] === b; });
+      const isPng = IMG_MAGIC.png.every(function (b, i) { return bytes[i] === b; });
+      if (!isJpeg && !isPng) setErro('O arquivo não é uma imagem JPG ou PNG válida.');
+      else setOk(file);
+    };
+    reader.onerror = function () { setErro('Não foi possível ler o arquivo. Tente novamente.'); };
+    reader.readAsArrayBuffer(slice);
+  });
+}
+
 /**
  * Exibe uma notificação toast no canto inferior direito.
  * @param {string} html - Conteúdo (aceita HTML, ex.: links) — só usar com conteúdo confiável/estático.
