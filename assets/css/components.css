@@ -303,6 +303,13 @@ textarea.form-control {
   cursor: pointer;
 }
 
+/* Checkbox de benefício + campo de complemento indentado (Nova Oportunidade) */
+.beneficio-wrap {
+  margin-left: 30px;
+  margin-top: var(--space-2);
+  margin-bottom: 0;
+}
+
 /* Search-select (combobox com busca por texto) */
 .search-select {
   position: relative;

@@ -185,119 +185,207 @@
         </p>
         <div id="fb-nova-opp"></div>
 
-        <div class="form-group">
-          <label class="form-label required" for="opp-empresa">Concedente</label>
-          <select id="opp-empresa" class="form-control" required aria-required="true" aria-describedby="opp-empresa-error" disabled>
-            <option value="">Carregando concedentes...</option>
-          </select>
-          <span id="opp-empresa-error" class="form-error hidden" role="alert"></span>
+        <div class="form-section">
+          <h3 class="form-section-title">Concedente</h3>
+          <div class="form-group">
+            <label class="form-label required" for="opp-empresa">Concedente</label>
+            <select id="opp-empresa" class="form-control" required aria-required="true" aria-describedby="opp-empresa-error" disabled>
+              <option value="">Carregando concedentes...</option>
+            </select>
+            <span id="opp-empresa-error" class="form-error hidden" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="opp-responsavel">Responsável</label>
+            <input type="text" id="opp-responsavel" class="form-control" placeholder="Nome do responsável">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required" for="opp-email">E-mail de contato</label>
+              <input type="email" id="opp-email" class="form-control" placeholder="rh@empresa.com.br">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opp-telefone">Telefone</label>
+              <input type="text" id="opp-telefone" class="form-control" placeholder="(53) 99999-9999">
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="opp-imagem">Imagem de divulgação <span class="tooltip-help" aria-label="Imagem usada no card da vaga no portal de oportunidades. Opcional. Formatos aceitos: JPG ou PNG, até 5 MB.">?</span></label>
-          <div class="file-input-wrapper">
-            <label class="file-input-label" for="opp-imagem">
-              <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
-              <span class="file-text">Selecionar imagem (JPG ou PNG)</span>
-              <span class="file-selected" id="opp-imagem-name"></span>
-              <span class="file-types">JPG/PNG — máx. 5 MB</span>
-            </label>
-            <input type="file" class="form-control-file" id="opp-imagem" accept=".jpg,.jpeg,.png" aria-describedby="opp-imagem-error">
-          </div>
-          <img id="opp-imagem-preview" class="hidden" alt="Pré-visualização da imagem" style="margin-top:var(--space-3);max-width:200px;border-radius:var(--radius-md);border:1px solid var(--color-border);">
-          <span id="opp-imagem-error" class="form-error hidden" role="alert"></span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label required" for="opp-responsavel">Responsável</label>
-          <input type="text" id="opp-responsavel" class="form-control" placeholder="Nome do responsável">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label required" for="opp-email">E-mail de contato</label>
-            <input type="email" id="opp-email" class="form-control" placeholder="rh@empresa.com.br">
+        <div class="form-section">
+          <h3 class="form-section-title">Dados da Vaga</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required" for="opp-tipo">Tipo de vaga</label>
+              <select id="opp-tipo" class="form-control">
+                <option value="">Selecione…</option>
+                <option value="Estágio Obrigatório">Estágio Obrigatório</option>
+                <option value="Estágio Não Obrigatório">Estágio Não Obrigatório</option>
+                <option value="Emprego">Emprego (CLT/Contrato)</option>
+                <option value="Jovem Aprendiz">Jovem Aprendiz</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opp-num-vagas">Nº de vagas</label>
+              <input type="number" id="opp-num-vagas" class="form-control" placeholder="1" min="1" value="1">
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label" for="opp-telefone">Telefone</label>
-            <input type="text" id="opp-telefone" class="form-control" placeholder="(53) 99999-9999">
+            <label class="form-label required" for="opp-titulo">Título da vaga</label>
+            <input type="text" id="opp-titulo" class="form-control" placeholder="Ex.: Estagiário de Desenvolvimento">
           </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label required" for="opp-tipo">Tipo de vaga</label>
-            <select id="opp-tipo" class="form-control">
-              <option value="">Selecione…</option>
-              <option value="Estágio Obrigatório">Estágio Obrigatório</option>
-              <option value="Estágio Não Obrigatório">Estágio Não Obrigatório</option>
-              <option value="Emprego">Emprego (CLT/Contrato)</option>
-              <option value="Jovem Aprendiz">Jovem Aprendiz</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="opp-num-vagas">Nº de vagas</label>
-            <input type="number" id="opp-num-vagas" class="form-control" placeholder="1" min="1" value="1">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label required" for="opp-titulo">Título da vaga</label>
-          <input type="text" id="opp-titulo" class="form-control" placeholder="Ex.: Estagiário de Desenvolvimento">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label required" for="opp-area">Área / Curso</label>
-            <input type="text" id="opp-area" class="form-control" placeholder="Ex.: Análise e Desenvolvimento de Sistemas">
-          </div>
-          <div class="form-group">
-            <label class="form-label required" for="opp-modalidade">Modalidade</label>
-            <select id="opp-modalidade" class="form-control">
-              <option value="">Selecione…</option>
-              <option value="Presencial">Presencial</option>
-              <option value="Híbrido">Híbrido</option>
-              <option value="Remoto">Remoto</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label required" for="opp-cidade">Cidade</label>
-            <input type="text" id="opp-cidade" class="form-control" value="Rio Grande">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required" for="opp-modalidade">Modalidade</label>
+              <select id="opp-modalidade" class="form-control">
+                <option value="">Selecione…</option>
+                <option value="Presencial">Presencial</option>
+                <option value="Híbrido">Híbrido</option>
+                <option value="Remoto">Remoto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="opp-cidade">Cidade</label>
+              <input type="text" id="opp-cidade" class="form-control" value="Rio Grande">
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label required" for="opp-carga">Carga horária</label>
             <input type="text" id="opp-carga" class="form-control" placeholder="Ex.: 20h semanais">
           </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label required" for="opp-atividades">Atividades</label>
-          <textarea id="opp-atividades" class="form-control" rows="3" placeholder="Descreva as atividades…"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label required" for="opp-requisitos">Requisitos</label>
-          <textarea id="opp-requisitos" class="form-control" rows="2" placeholder="Requisitos básicos…"></textarea>
-        </div>
-        <div class="form-row">
           <div class="form-group">
-            <label class="form-label required" for="opp-remuneracao">Remuneração</label>
-            <input type="text" id="opp-remuneracao" class="form-control" placeholder="R$ 800,00 ou Não se aplica">
+            <label class="form-label required" for="opp-atividades">Atividades</label>
+            <textarea id="opp-atividades" class="form-control" rows="3" placeholder="Descreva as atividades…"></textarea>
           </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Requisitos</h3>
+          <div class="form-group">
+            <label class="form-label required">Cursos aceitos para vaga</label>
+            <div style="display:flex;gap:var(--space-3);align-items:flex-end;flex-wrap:wrap;">
+              <div class="form-group" style="flex:2;min-width:220px;margin-bottom:0;">
+                <select id="opp-curso-add" class="form-control" disabled>
+                  <option value="">Carregando cursos…</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-secondary" id="btn-add-curso-vaga">+ Adicionar</button>
+            </div>
+            <div id="opp-cursos-lista" style="margin-top:var(--space-3);"></div>
+            <span id="opp-cursos-error" class="form-error hidden" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label required" for="opp-requisitos">Requisitos</label>
+            <textarea id="opp-requisitos" class="form-control" rows="2" placeholder="Requisitos básicos…"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Benefícios</h3>
+          <p class="form-hint" style="margin-bottom:var(--space-4);">Marque os benefícios oferecidos e complete os detalhes de cada um.</p>
+          <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-remuneracao" data-wrap="beneficio-remuneracao-wrap">
+                <label class="form-check-label" for="beneficio-remuneracao">Remuneração / Bolsa</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-remuneracao-wrap" hidden>
+                <input type="text" id="beneficio-remuneracao-valor" class="form-control" placeholder="Ex.: R$ 800,00">
+              </div>
+            </div>
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-transporte" data-wrap="beneficio-transporte-wrap">
+                <label class="form-check-label" for="beneficio-transporte">Auxílio-transporte</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-transporte-wrap" hidden>
+                <input type="text" id="beneficio-transporte-valor" class="form-control" placeholder="Ex.: R$ 100,00 ou vale-transporte">
+              </div>
+            </div>
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-alimentacao" data-wrap="beneficio-alimentacao-wrap">
+                <label class="form-check-label" for="beneficio-alimentacao">Alimentação</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-alimentacao-wrap" hidden>
+                <input type="text" id="beneficio-alimentacao-valor" class="form-control" placeholder="Ex.: Vale-refeição R$ 25/dia">
+              </div>
+            </div>
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-medico" data-wrap="beneficio-medico-wrap">
+                <label class="form-check-label" for="beneficio-medico">Convênio médico</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-medico-wrap" hidden>
+                <input type="text" id="beneficio-medico-valor" class="form-control" placeholder="Nome da operadora (opcional)">
+              </div>
+            </div>
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-odontologico" data-wrap="beneficio-odontologico-wrap">
+                <label class="form-check-label" for="beneficio-odontologico">Convênio odontológico</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-odontologico-wrap" hidden>
+                <input type="text" id="beneficio-odontologico-valor" class="form-control" placeholder="Nome da operadora (opcional)">
+              </div>
+            </div>
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-seguro-vida" data-wrap="beneficio-seguro-vida-wrap">
+                <label class="form-check-label" for="beneficio-seguro-vida">Seguro de vida</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-seguro-vida-wrap" hidden>
+                <input type="text" id="beneficio-seguro-vida-valor" class="form-control" placeholder="Detalhes (opcional)">
+              </div>
+            </div>
+            <div class="beneficio-item">
+              <div class="form-check">
+                <input type="checkbox" class="beneficio-check" id="beneficio-outros" data-wrap="beneficio-outros-wrap">
+                <label class="form-check-label" for="beneficio-outros">Outros benefícios</label>
+              </div>
+              <div class="form-group beneficio-wrap" id="beneficio-outros-wrap" hidden>
+                <input type="text" id="beneficio-outros-valor" class="form-control" placeholder="Descreva o benefício">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Candidatura</h3>
           <div class="form-group">
             <label class="form-label required" for="opp-prazo">Prazo para candidatura</label>
             <input type="date" id="opp-prazo" class="form-control">
           </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="opp-como">Como se candidatar</label>
-            <select id="opp-como" class="form-control">
-              <option value="E-mail">E-mail</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="Link (site/formulário)">Link</option>
-              <option value="Presencialmente">Presencialmente</option>
-            </select>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="opp-como">Como se candidatar</label>
+              <select id="opp-como" class="form-control">
+                <option value="E-mail">E-mail</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Link (site/formulário)">Link</option>
+                <option value="Presencialmente">Presencialmente</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opp-contato-cand">Contato para candidatura</label>
+              <input type="text" id="opp-contato-cand" class="form-control" placeholder="E-mail ou link">
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="opp-contato-cand">Contato para candidatura</label>
-            <input type="text" id="opp-contato-cand" class="form-control" placeholder="E-mail ou link">
+        </div>
+
+        <div class="form-section" style="margin-bottom:0;">
+          <h3 class="form-section-title">Divulgação</h3>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="opp-imagem">Imagem de divulgação <span class="tooltip-help" aria-label="Imagem usada no card da vaga no portal de oportunidades. Opcional. Formatos aceitos: JPG ou PNG, até 5 MB.">?</span></label>
+            <div class="file-input-wrapper">
+              <label class="file-input-label" for="opp-imagem">
+                <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+                <span class="file-text">Selecionar imagem (JPG ou PNG)</span>
+                <span class="file-selected" id="opp-imagem-name"></span>
+                <span class="file-types">JPG/PNG — máx. 5 MB</span>
+              </label>
+              <input type="file" class="form-control-file" id="opp-imagem" accept=".jpg,.jpeg,.png" aria-describedby="opp-imagem-error">
+            </div>
+            <img id="opp-imagem-preview" class="hidden" alt="Pré-visualização da imagem" style="margin-top:var(--space-3);max-width:200px;border-radius:var(--radius-md);border:1px solid var(--color-border);">
+            <span id="opp-imagem-error" class="form-error hidden" role="alert"></span>
           </div>
         </div>
       </div>
@@ -386,8 +474,26 @@
       var prazoEl = document.getElementById('opp-prazo');
       if (prazoEl) prazoEl.min = getMinDateString(1);
       carregarConcedentes();
+      carregarCursosVaga();
       validarImagem('opp-imagem', 'opp-imagem-name', 'opp-imagem-error', 'opp-imagem-preview');
       carregar();
+    });
+
+    var BENEFICIO_LABELS = {
+      remuneracao: 'Remuneração/Bolsa',
+      transporte: 'Auxílio-transporte',
+      alimentacao: 'Alimentação',
+      medico: 'Convênio médico',
+      odontologico: 'Convênio odontológico',
+      'seguro-vida': 'Seguro de vida',
+      outros: 'Outros benefícios',
+    };
+
+    document.querySelectorAll('.beneficio-check').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var wrap = document.getElementById(this.dataset.wrap);
+        if (wrap) wrap.hidden = !this.checked;
+      });
     });
 
     async function carregar() {
@@ -448,6 +554,11 @@
           ? '<img class="opp-admin-card__image" src="' + escapeHtml(safeUrl(o.imagemUrl)) + '" alt="">'
           : '';
 
+        var cursosStr = Array.isArray(o.cursosAceitos) && o.cursosAceitos.length ? o.cursosAceitos.join(', ') : '—';
+        var beneficiosStr = o.beneficios && Object.keys(o.beneficios).length
+          ? Object.keys(o.beneficios).map(function (k) { return BENEFICIO_LABELS[k] || k; }).join(', ')
+          : '—';
+
         return '<div class="opp-admin-card">'
           + imagemHtml
           + '<div class="opp-admin-card__body">'
@@ -463,9 +574,9 @@
           + '<span class="badge ' + badgeCls + '">' + escapeHtml(o.status || '—') + '</span>'
           + '</div>'
           + '<div class="opp-admin-card__desc">'
-          + '<strong>Área:</strong> ' + escapeHtml(o.area || '—') + ' · '
+          + '<strong>Cursos aceitos:</strong> ' + escapeHtml(cursosStr) + ' · '
           + '<strong>Vagas:</strong> ' + escapeHtml(String(o.numVagas || '1')) + ' · '
-          + '<strong>Remuneração:</strong> ' + escapeHtml(o.remuneracao || '—') + ' · '
+          + '<strong>Benefícios:</strong> ' + escapeHtml(beneficiosStr) + ' · '
           + '<strong>Contato:</strong> ' + escapeHtml(o.emailContato || '—')
           + '</div>'
           + '<div class="opp-admin-card__actions">' + acoes + '</div>'
@@ -589,6 +700,56 @@
       }
     }
 
+    /* Cursos aceitos para vaga (lista dinâmica, a partir do catálogo de listarCursos) */
+    async function carregarCursosVaga() {
+      var sel = document.getElementById('opp-curso-add');
+      try {
+        var cursos = await API.get('listarCursos');
+        var nomes = Array.from(new Set((cursos || []).map(function (c) { return c.nome; }))).sort();
+        populateSelect('opp-curso-add', nomes.map(function (n) { return { value: n, label: n }; }), 'Selecione um curso…');
+        sel.disabled = false;
+      } catch (e) {
+        sel.innerHTML = '<option value="">Erro ao carregar cursos</option>';
+      }
+    }
+
+    function _addCursoVaga(nome) {
+      var lista = document.getElementById('opp-cursos-lista');
+      var jaAdicionado = Array.from(lista.querySelectorAll('.item-lista-nome')).some(function (el) { return el.textContent === nome; });
+      if (jaAdicionado) return;
+
+      clearFieldError('opp-cursos');
+      var row = document.createElement('div');
+      row.className = 'item-lista-row';
+      var label = document.createElement('span');
+      label.className = 'item-lista-indice';
+      label.textContent = (lista.children.length + 1) + '.';
+      var nomeEl = document.createElement('span');
+      nomeEl.className = 'item-lista-nome';
+      nomeEl.style.flex = '1';
+      nomeEl.textContent = nome;
+      var btnRem = document.createElement('button');
+      btnRem.type = 'button';
+      btnRem.className = 'item-lista-remove';
+      btnRem.textContent = '×';
+      btnRem.title = 'Remover';
+      btnRem.addEventListener('click', function () {
+        lista.removeChild(row);
+        Array.from(lista.children).forEach(function (r, i) { r.querySelector('.item-lista-indice').textContent = (i + 1) + '.'; });
+      });
+      row.appendChild(label);
+      row.appendChild(nomeEl);
+      row.appendChild(btnRem);
+      lista.appendChild(row);
+    }
+
+    document.getElementById('btn-add-curso-vaga').addEventListener('click', function () {
+      var sel = document.getElementById('opp-curso-add');
+      if (!sel.value) return;
+      _addCursoVaga(sel.value);
+      sel.value = '';
+    });
+
     document.getElementById('btn-nova-opp').addEventListener('click', function () {
       hideFormFeedback('fb-nova-opp');
       document.getElementById('modal-nova-opp').classList.add('is-open');
@@ -598,6 +759,15 @@
       var btn = this;
       hideFormFeedback('fb-nova-opp');
 
+      var cursosAceitos = Array.from(document.querySelectorAll('#opp-cursos-lista .item-lista-nome')).map(function (el) { return el.textContent; });
+
+      var beneficios = {};
+      document.querySelectorAll('.beneficio-check:checked').forEach(function (cb) {
+        var chave = cb.id.replace('beneficio-', '');
+        var valorEl = document.getElementById(cb.id + '-valor');
+        beneficios[chave] = valorEl ? valorEl.value.trim() : '';
+      });
+
       var campos = {
         cnpjEmpresa:        document.getElementById('opp-empresa').value,
         responsavelVaga:    document.getElementById('opp-responsavel').value.trim(),
@@ -606,23 +776,28 @@
         tipoVaga:           document.getElementById('opp-tipo').value,
         numVagas:           document.getElementById('opp-num-vagas').value || '1',
         tituloVaga:         document.getElementById('opp-titulo').value.trim(),
-        areaCurso:          document.getElementById('opp-area').value.trim(),
+        cursosAceitos:      cursosAceitos,
         atividades:         document.getElementById('opp-atividades').value.trim(),
         requisitos:         document.getElementById('opp-requisitos').value.trim(),
         cidadeVaga:         document.getElementById('opp-cidade').value.trim(),
         modalidade:         document.getElementById('opp-modalidade').value,
         cargaHoraria:       document.getElementById('opp-carga').value.trim(),
-        remuneracao:        document.getElementById('opp-remuneracao').value.trim(),
+        beneficios:         beneficios,
         prazoCandidatura:   document.getElementById('opp-prazo').value,
         comoCandidatar:     document.getElementById('opp-como').value,
         contatoCandidatura: document.getElementById('opp-contato-cand').value.trim(),
         declaracao:         'Sim',
       };
 
-      var obrigatorios = ['cnpjEmpresa', 'responsavelVaga', 'emailContato', 'tipoVaga', 'tituloVaga', 'areaCurso', 'atividades', 'requisitos', 'cidadeVaga', 'modalidade', 'cargaHoraria', 'remuneracao', 'prazoCandidatura'];
+      var obrigatorios = ['cnpjEmpresa', 'responsavelVaga', 'emailContato', 'tipoVaga', 'tituloVaga', 'atividades', 'requisitos', 'cidadeVaga', 'modalidade', 'cargaHoraria', 'prazoCandidatura'];
       var vazio = obrigatorios.find(function (k) { return !campos[k]; });
       if (vazio) {
         showFormFeedback('fb-nova-opp', 'error', '', 'Preencha todos os campos obrigatórios.');
+        return;
+      }
+      if (!cursosAceitos.length) {
+        showFieldError('opp-cursos', 'Adicione ao menos um curso aceito para a vaga.');
+        showFormFeedback('fb-nova-opp', 'error', '', 'Adicione ao menos um curso aceito para a vaga.');
         return;
       }
       if (_fileOk['opp-imagem'] === false) {
