@@ -33,6 +33,35 @@
     a.mega-panel-item:hover { background: #f7faf7; }
     .mega-panel-item-title { font-weight: 700; color: #1565c0; font-size: var(--font-size-md); }
     .mega-panel-item-desc { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+    .toolbar-actions {
+      display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+      margin-bottom: var(--space-5);
+    }
+    .toolbar-sep { width: 1px; height: 24px; background: var(--color-border); margin: 0 var(--space-1); }
+
+    @media print {
+      #app-header, #app-footer,
+      .filters, .toolbar-actions, #alerta-pendentes,
+      #resultado-count, #pagination,
+      .no-print { display: none !important; }
+
+      .page-hero { padding: 12px 0 8px !important; }
+      .page-hero-title { font-size: 18px !important; margin: 0; }
+      .page-hero-desc { display: none; }
+
+      .table-wrapper { border: none; overflow: visible; }
+      .table { font-size: 11px; }
+      .table th { font-size: 10px; padding: 4px 6px; }
+      .table td { padding: 4px 6px; }
+      .table tr:hover td { background: none; }
+
+      .badge { padding: 1px 4px; }
+
+      #print-meta { display: block !important; font-size: 11px; color: #666; margin-bottom: 8px; }
+      body { font-size: 12px; }
+    }
+    #print-meta { display: none; }
   </style>
 </head>
 <body>
@@ -125,18 +154,109 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Estágios</h1>
-        <p class="page-hero-desc">Acompanhamento, aprovação, validação e encaminhamento das solicitações.</p>
+        <p class="page-hero-desc">Acompanhamento completo de todos os estágios: solicitações, documentos e histórico.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A lista de solicitações de estágio, com aprovação, validação e encaminhamento, será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="alerta-pendentes" class="alert alert-warning" style="display:none;margin-bottom:var(--space-4);">
+        <div class="alert-content" id="alerta-pendentes-texto"></div>
       </div>
+
+      <div class="filters no-print">
+        <div class="form-group">
+          <label class="form-label" for="filtro-status">Status</label>
+          <select id="filtro-status" class="form-control">
+            <option value="">Todos</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Em análise">Em análise</option>
+            <option value="Em Checklist">Em Checklist</option>
+            <option value="Em Assinaturas">Em Assinaturas</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Encerrado">Encerrado</option>
+            <option value="Reprovado">Reprovado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-tipo">Tipo</label>
+          <select id="filtro-tipo" class="form-control">
+            <option value="">Todos</option>
+            <option value="Obrigatório">Obrigatório</option>
+            <option value="Não Obrigatório">Não Obrigatório</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-curso">Curso</label>
+          <select id="filtro-curso" class="form-control">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-empresa">Concedente</label>
+          <select id="filtro-empresa" class="form-control">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-orientador">Orientador</label>
+          <select id="filtro-orientador" class="form-control">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-supervisor">Supervisor</label>
+          <select id="filtro-supervisor" class="form-control">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:2;min-width:220px;">
+          <label class="form-label" for="filtro-busca">Buscar</label>
+          <input type="search" id="filtro-busca" class="form-control" placeholder="Nome, matrícula, concedente…">
+        </div>
+      </div>
+
+      <div class="toolbar-actions no-print">
+        <button type="button" id="btn-limpar" class="btn btn-ghost btn-sm">Limpar filtros</button>
+        <button type="button" id="btn-atualizar" class="btn btn-secondary btn-sm">Atualizar</button>
+        <div class="toolbar-sep"></div>
+        <button type="button" id="btn-exportar-xls" class="btn btn-secondary btn-sm">⬇ Exportar XLS</button>
+        <button type="button" id="btn-exportar-pdf" class="btn btn-secondary btn-sm">🖨 Exportar PDF</button>
+      </div>
+
+      <div id="print-meta"></div>
+
+      <div id="resultado-count" style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:var(--space-3);"></div>
+
+      <div class="table-wrapper">
+        <table class="table" id="tbl-estagios" aria-label="Estágios">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Estudante</th>
+              <th>Curso</th>
+              <th>Concedente</th>
+              <th>Orientador</th>
+              <th>Tipo</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Status</th>
+              <th class="no-print" style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-estagios">
+            <tr>
+              <td colspan="10" style="text-align:center;padding:var(--space-12);">
+                <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                Carregando estágios…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="pagination" class="pagination no-print"></div>
+
     </div>
   </main>
 
@@ -153,6 +273,8 @@
     </div>
   </footer>
 
+  <!-- SheetJS para exportação XLS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
@@ -160,9 +282,318 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _dados = [];
+    var _dadosFiltrados = [];
+    var _paginaAtual = 1;
+    var POR_PAGINA = 25;
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarEstagios();
+
+      document.getElementById('btn-atualizar').addEventListener('click', carregarEstagios);
+      document.getElementById('btn-limpar').addEventListener('click', limparFiltros);
+      document.getElementById('btn-exportar-xls').addEventListener('click', exportarXLS);
+      document.getElementById('btn-exportar-pdf').addEventListener('click', exportarPDF);
+
+      ['filtro-status', 'filtro-tipo', 'filtro-curso', 'filtro-empresa', 'filtro-orientador', 'filtro-supervisor'].forEach(function (id) {
+        document.getElementById(id).addEventListener('change', aplicarFiltros);
+      });
+      document.getElementById('filtro-busca').addEventListener('input', aplicarFiltros);
+
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('status')) document.getElementById('filtro-status').value = params.get('status');
     });
+
+    async function carregarEstagios() {
+      setTabelaLoading();
+      try {
+        _dados = await API.get('listarSolicitacoesAdmin');
+        _dados = Array.isArray(_dados) ? _dados : [];
+        popularFiltrosDinamicos();
+        verificarPendentes();
+        aplicarFiltros();
+      } catch (err) {
+        setTabelaErro('Não foi possível carregar os estágios. ' + escapeHtml(err.message));
+      }
+    }
+
+    function popularFiltrosDinamicos() {
+      var cursos = Array.from(new Set(_dados.map(function (s) { return s.curso || ''; }).filter(Boolean))).sort();
+      var empresas = Array.from(new Set(_dados.map(function (s) { return s.empresa || ''; }).filter(Boolean))).sort();
+      var orientadores = Array.from(new Set(_dados.map(function (s) { return s.nomeOrientador || ''; }).filter(Boolean))).sort();
+      var supervisores = Array.from(new Set(_dados.map(function (s) { return s.nomeSupervisor || ''; }).filter(Boolean))).sort();
+
+      preencherSelect('filtro-curso', cursos, 'Todos');
+      preencherSelect('filtro-empresa', empresas, 'Todas');
+      preencherSelect('filtro-orientador', orientadores, 'Todos');
+      preencherSelect('filtro-supervisor', supervisores, 'Todos');
+    }
+
+    function preencherSelect(id, itens, labelTodos) {
+      var sel = document.getElementById(id);
+      var valorAtual = sel.value;
+      sel.innerHTML = '<option value="">' + labelTodos + '</option>';
+      itens.forEach(function (v) {
+        var opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        if (v === valorAtual) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function verificarPendentes() {
+      var pendentes = _dados.filter(function (s) { return s.status === 'Pendente'; }).length;
+      var el = document.getElementById('alerta-pendentes');
+      if (pendentes > 0) {
+        document.getElementById('alerta-pendentes-texto').textContent =
+          'Há ' + pendentes + ' solicitaç' + (pendentes === 1 ? 'ão pendente' : 'ões pendentes') + ' de aprovação.';
+        el.style.display = 'flex';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    function aplicarFiltros() {
+      var status = document.getElementById('filtro-status').value.toLowerCase();
+      var tipo = document.getElementById('filtro-tipo').value.toLowerCase();
+      var curso = document.getElementById('filtro-curso').value.toLowerCase();
+      var empresa = document.getElementById('filtro-empresa').value.toLowerCase();
+      var orientador = document.getElementById('filtro-orientador').value.toLowerCase();
+      var supervisor = document.getElementById('filtro-supervisor').value.toLowerCase();
+      var busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+
+      _dadosFiltrados = _dados.filter(function (s) {
+        if (status && (s.status || '').toLowerCase() !== status) return false;
+        if (tipo && (s.tipoEstagio || '').toLowerCase() !== tipo) return false;
+        if (curso && (s.curso || '').toLowerCase() !== curso) return false;
+        if (empresa && (s.empresa || '').toLowerCase() !== empresa) return false;
+        if (orientador && (s.nomeOrientador || '').toLowerCase() !== orientador) return false;
+        if (supervisor && (s.nomeSupervisor || '').toLowerCase() !== supervisor) return false;
+        if (busca) {
+          var texto = [s.nomeEstudante, s.matricula, s.empresa, s.id, s.nomeOrientador, s.nomeSupervisor, s.curso].join(' ').toLowerCase();
+          if (!texto.includes(busca)) return false;
+        }
+        return true;
+      });
+
+      _paginaAtual = 1;
+      renderTabela();
+    }
+
+    function limparFiltros() {
+      ['filtro-status', 'filtro-tipo', 'filtro-curso', 'filtro-empresa', 'filtro-orientador', 'filtro-supervisor'].forEach(function (id) {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('filtro-busca').value = '';
+      aplicarFiltros();
+    }
+
+    function renderTabela() {
+      var tbody = document.getElementById('tbody-estagios');
+      var countEl = document.getElementById('resultado-count');
+
+      if (_dadosFiltrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10">' +
+          '<div class="empty-state">' +
+          '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto var(--space-4);display:block;opacity:.3">' +
+          '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>' +
+          '</svg>' +
+          '<p>Nenhum estágio encontrado com os filtros aplicados.</p>' +
+          '</div></td></tr>';
+        document.getElementById('pagination').innerHTML = '';
+        countEl.textContent = '';
+        return;
+      }
+
+      countEl.textContent = _dadosFiltrados.length + ' estágio' + (_dadosFiltrados.length !== 1 ? 's' : '') +
+                            ' encontrado' + (_dadosFiltrados.length !== 1 ? 's' : '');
+
+      var inicioIdx = (_paginaAtual - 1) * POR_PAGINA;
+      var fimIdx = Math.min(inicioIdx + POR_PAGINA, _dadosFiltrados.length);
+      var pagina = _dadosFiltrados.slice(inicioIdx, fimIdx);
+
+      tbody.innerHTML = pagina.map(function (s) {
+        var inicio = s.dataInicio ? formatDateBR(s.dataInicio) : '—';
+        var fim = s.dataTermino ? formatDateBR(s.dataTermino) : '—';
+        return '<tr>' +
+          '<td><code style="font-size:11px;color:var(--color-secondary);">' + escapeHtml(s.id || '—') + '</code></td>' +
+          '<td>' +
+          '<div style="font-weight:500;line-height:1.3;">' + escapeHtml(s.nomeEstudante || '—') + '</div>' +
+          '<div style="font-size:11px;color:var(--color-text-muted);">' + escapeHtml(s.matricula || '') + '</div>' +
+          '</td>' +
+          '<td style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escapeHtml(s.curso || '') + '">' + escapeHtml(s.curso || '—') + '</td>' +
+          '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escapeHtml(s.empresa || '') + '">' + escapeHtml(s.empresa || '—') + '</td>' +
+          '<td style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escapeHtml(s.nomeOrientador || '') + '">' + escapeHtml(s.nomeOrientador || '—') + '</td>' +
+          '<td><span class="badge ' + (s.tipoEstagio === 'Obrigatório' ? 'badge-info' : 'badge-neutral') + '">' + escapeHtml(s.tipoEstagio || '—') + '</span></td>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + escapeHtml(inicio) + '</td>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + escapeHtml(fim) + '</td>' +
+          '<td>' + badgeStatus(s.status) + '</td>' +
+          '<td class="no-print">' +
+          '<div style="display:flex;justify-content:flex-end;">' +
+          '<a href="estagio-detalhe.html?id=' + encodeURIComponent(s.id || '') + '" class="btn btn-secondary btn-sm">Ver</a>' +
+          '</div></td>' +
+          '</tr>';
+      }).join('');
+
+      renderPaginacao(_dadosFiltrados.length);
+    }
+
+    function renderPaginacao(total) {
+      var totalPaginas = Math.ceil(total / POR_PAGINA);
+      var pag = document.getElementById('pagination');
+      if (totalPaginas <= 1) { pag.innerHTML = ''; return; }
+
+      var html = '<button ' + (_paginaAtual === 1 ? 'disabled' : '') + ' data-pagina="' + (_paginaAtual - 1) + '">‹</button>';
+      for (var i = 1; i <= totalPaginas; i++) {
+        if (totalPaginas > 7 && i !== 1 && i !== totalPaginas && Math.abs(i - _paginaAtual) > 2) {
+          if (i === 2 || i === totalPaginas - 1) html += '<button disabled>…</button>';
+          continue;
+        }
+        html += '<button class="' + (i === _paginaAtual ? 'is-active' : '') + '" data-pagina="' + i + '">' + i + '</button>';
+      }
+      html += '<button ' + (_paginaAtual === totalPaginas ? 'disabled' : '') + ' data-pagina="' + (_paginaAtual + 1) + '">›</button>';
+      pag.innerHTML = html;
+    }
+
+    document.getElementById('pagination').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-pagina]');
+      if (!btn || btn.disabled) return;
+      var n = parseInt(btn.dataset.pagina, 10);
+      var totalPaginas = Math.ceil(_dadosFiltrados.length / POR_PAGINA);
+      if (n < 1 || n > totalPaginas) return;
+      _paginaAtual = n;
+      renderTabela();
+      document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    /* ── Exportação ── */
+    function exportarXLS() {
+      if (_dadosFiltrados.length === 0) {
+        showToast('Nenhum dado para exportar. Ajuste os filtros e tente novamente.', 'error');
+        return;
+      }
+      var linhas = _dadosFiltrados.map(function (s) {
+        return {
+          'ID Estágio': s.id || '',
+          'Estudante': s.nomeEstudante || '',
+          'Matrícula': s.matricula || '',
+          'Curso': s.curso || '',
+          'E-mail Estudante': s.emailEstudante || '',
+          'Empresa': s.empresa || '',
+          'Orientador': s.nomeOrientador || '',
+          'Supervisor': s.nomeSupervisor || '',
+          'Tipo de Estágio': s.tipoEstagio || '',
+          'Data Início': s.dataInicio || '',
+          'Data Término': s.dataTermino || '',
+          'Carga Horária (h/sem)': s.cargaHorariaSemanal || '',
+          'Status': s.status || '',
+          'Obs. Setor': s.observacaoSetor || '',
+        };
+      });
+
+      var ws = XLSX.utils.json_to_sheet(linhas);
+      ws['!cols'] = [
+        { wch: 18 }, { wch: 30 }, { wch: 12 }, { wch: 35 }, { wch: 30 },
+        { wch: 30 }, { wch: 28 }, { wch: 28 }, { wch: 18 },
+        { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 28 }, { wch: 40 },
+      ];
+
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Estágios');
+      var ts = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, 'estagios_' + ts + '.xlsx');
+    }
+
+    function exportarPDF() {
+      if (_dadosFiltrados.length === 0) {
+        showToast('Nenhum dado para exportar. Ajuste os filtros e tente novamente.', 'error');
+        return;
+      }
+
+      var agora = new Date().toLocaleString('pt-BR');
+      var total = _dadosFiltrados.length;
+      var filtros = resumoFiltrosAtivos();
+      var meta = document.getElementById('print-meta');
+      meta.innerHTML =
+        '<strong>IFRS Campus Rio Grande — Relatório de Estágios</strong><br>' +
+        'Gerado em: ' + escapeHtml(agora) + ' &nbsp;|&nbsp; Total: ' + total + ' registro' + (total !== 1 ? 's' : '') +
+        (filtros ? '<br>Filtros: ' + escapeHtml(filtros) : '');
+
+      var tbody = document.getElementById('tbody-estagios');
+      var bkpHtml = tbody.innerHTML;
+
+      tbody.innerHTML = _dadosFiltrados.map(function (s) {
+        var ini = s.dataInicio ? formatDateBR(s.dataInicio) : '—';
+        var fim = s.dataTermino ? formatDateBR(s.dataTermino) : '—';
+        return '<tr>' +
+          '<td><code style="font-size:10px;">' + escapeHtml(s.id || '—') + '</code></td>' +
+          '<td>' + escapeHtml(s.nomeEstudante || '—') + '<br><small style="color:#666;">' + escapeHtml(s.matricula || '') + '</small></td>' +
+          '<td>' + escapeHtml(s.curso || '—') + '</td>' +
+          '<td>' + escapeHtml(s.empresa || '—') + '</td>' +
+          '<td>' + escapeHtml(s.nomeOrientador || '—') + '</td>' +
+          '<td>' + escapeHtml(s.tipoEstagio || '—') + '</td>' +
+          '<td>' + escapeHtml(ini) + '</td>' +
+          '<td>' + escapeHtml(fim) + '</td>' +
+          '<td>' + escapeHtml(s.status || '—') + '</td>' +
+          '<td class="no-print"></td>' +
+          '</tr>';
+      }).join('');
+
+      window.print();
+
+      setTimeout(function () {
+        tbody.innerHTML = bkpHtml;
+        meta.innerHTML = '';
+      }, 500);
+    }
+
+    function resumoFiltrosAtivos() {
+      var partes = [];
+      var st = document.getElementById('filtro-status').value;
+      var ti = document.getElementById('filtro-tipo').value;
+      var cu = document.getElementById('filtro-curso').value;
+      var em = document.getElementById('filtro-empresa').value;
+      var or = document.getElementById('filtro-orientador').value;
+      var su = document.getElementById('filtro-supervisor').value;
+      var bu = document.getElementById('filtro-busca').value.trim();
+      if (st) partes.push('Status: ' + st);
+      if (ti) partes.push('Tipo: ' + ti);
+      if (cu) partes.push('Curso: ' + cu);
+      if (em) partes.push('Empresa: ' + em);
+      if (or) partes.push('Orientador: ' + or);
+      if (su) partes.push('Supervisor: ' + su);
+      if (bu) partes.push('Busca: "' + bu + '"');
+      return partes.join('  ·  ');
+    }
+
+    /* ── Helpers ── */
+    function badgeStatus(status) {
+      var map = {
+        'Pendente': 'badge-warning',
+        'Em análise': 'badge-info',
+        'Em Checklist': 'badge-info',
+        'Em Assinaturas': 'badge-warning',
+        'Ativo': 'badge-success',
+        'Encerrado': 'badge-neutral',
+        'Reprovado': 'badge-error',
+      };
+      var cls = map[status] || 'badge-neutral';
+      return '<span class="badge ' + cls + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    function setTabelaLoading() {
+      document.getElementById('tbody-estagios').innerHTML =
+        '<tr><td colspan="10" style="text-align:center;padding:var(--space-12);"><div class="spinner" style="margin:0 auto var(--space-3);"></div>Carregando…</td></tr>';
+      document.getElementById('pagination').innerHTML = '';
+      document.getElementById('resultado-count').textContent = '';
+    }
+
+    function setTabelaErro(msg) {
+      document.getElementById('tbody-estagios').innerHTML =
+        '<tr><td colspan="10" style="text-align:center;padding:var(--space-12);color:var(--color-error);">' + msg + '</td></tr>';
+    }
 
     (function () {
       var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));
