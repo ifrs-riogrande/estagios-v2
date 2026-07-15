@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Checklist de Estágio — IFRS Campus Rio Grande">
+  <title>Checklist de Estágio — SGE IFRS Campus Rio Grande</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+
+  <style>
+    .ck-public-main { padding: var(--space-8) 0; min-height: calc(100vh - 64px - 56px); }
+    .ck-public-wrap { max-width: 640px; margin: 0 auto; padding: 0 var(--space-4); }
+    .ck-public-header { margin-bottom: var(--space-6); text-align: center; }
+    .ck-public-header h1 { font-size: var(--font-size-xl); margin: 0 0 var(--space-2); }
+    .ck-public-header p { color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0; }
+  </style>
+</head>
+<body>
+
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="https://ifrs-riogrande.github.io/estagios-v2/" class="header-brand">
+          <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="ck-public-main">
+    <div class="ck-public-wrap">
+      <div class="ck-public-header">
+        <h1>Checklist de Estágio</h1>
+        <p>Validação do Supervisor de Estágio</p>
+      </div>
+
+      <div id="ck-conteudo">
+        <div class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script>
+    'use strict';
+
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    var params = new URLSearchParams(window.location.search);
+    var estagioId = params.get('id');
+    var token = params.get('token');
+
+    var el = document.getElementById('ck-conteudo');
+
+    function mostrarErro(msg) {
+      el.innerHTML = '<div class="alert alert-error"><div class="alert-content">' + escapeHtml(msg) + '</div></div>';
+    }
+
+    if (!estagioId || !token) {
+      mostrarErro('Link inválido: faltam parâmetros necessários. Verifique se você abriu o link completo recebido por e-mail.');
+    } else {
+      carregarChecklist();
+    }
+
+    async function carregarChecklist() {
+      try {
+        var dados = await API.get('obterChecklistSupervisorPublico', { id: estagioId, token: token });
+        renderPagina(dados);
+      } catch (err) {
+        mostrarErro(err.code === 'TOKEN_INVALIDO' || err.code === 'TOKEN_EXPIRADO'
+          ? 'Este link não é mais válido. Ele pode ter expirado ou já ter sido substituído por um mais recente. Entre em contato com a instituição de ensino para receber um novo link.'
+          : 'Erro ao carregar checklist: ' + err.message);
+      }
+    }
+
+    function renderPagina(dados) {
+      var s = dados.estagio || {};
+      var ck = dados.checklist || {};
+      var itens = ck.itens || [];
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-6);">' +
+        '<div class="detail-item"><label>Estudante</label><p>' + escapeHtml(s.nomeEstudante || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(s.curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Concedente</label><p>' + escapeHtml(s.empresa || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Início</label><p>' + escapeHtml(s.dataInicio ? formatDateBR(s.dataInicio) : '—') + '</p></div>' +
+        '<div class="detail-item"><label>Fim</label><p>' + escapeHtml(s.dataFim ? formatDateBR(s.dataFim) : '—') + '</p></div>' +
+        '</div>';
+
+      html += '<div class="card"><div class="card-body" id="ck-form-body">';
+
+      if (ck.status === 'aprovado' || ck.status === 'ajuste') {
+        html += '<div class="alert alert-' + (ck.status === 'aprovado' ? 'success' : 'warning') + '" style="margin-bottom:var(--space-4);">' +
+          '<div class="alert-content">Você já ' + (ck.status === 'aprovado' ? 'aprovou' : 'solicitou ajuste n') + 'este checklist' + (ck.data ? ' em ' + formatDateBR(ck.data) : '') + '. Pode alterar sua resposta abaixo.</div></div>';
+      }
+
+      html += '<div style="display:flex;flex-direction:column;gap:var(--space-3);">';
+      if (!itens.length) {
+        html += '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Nenhum item de verificação cadastrado ainda.</p>';
+      }
+      itens.forEach(function (item, idx) {
+        html += '<div class="form-check">' +
+          '<input type="checkbox" id="ck-item-' + idx + '"' + (item.checked ? ' checked' : '') + '>' +
+          '<label class="form-check-label" for="ck-item-' + idx + '">' + escapeHtml(item.label || '') + '</label>' +
+          '</div>';
+      });
+      html += '</div>';
+
+      html += '<div class="form-group" style="margin-top:var(--space-4);">' +
+        '<label class="form-label" for="ck-observacao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>' +
+        '<textarea id="ck-observacao" class="form-control" rows="3" maxlength="500">' + escapeHtml(ck.observacao || '') + '</textarea></div>';
+
+      html += '<div class="form-check" style="margin-top:var(--space-4);">' +
+        '<input type="checkbox" id="ck-termo">' +
+        '<label class="form-check-label" for="ck-termo">Declaro que as informações prestadas nesta validação são verdadeiras.</label>' +
+        '</div>';
+
+      html += '</div>' +
+        '<div class="card-footer" style="display:flex;justify-content:flex-end;gap:var(--space-2);">' +
+        '<button type="button" class="btn btn-danger btn-sm" id="btn-devolver-checklist">Devolver para ajustes</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-aprovar-checklist">Aprovar</button>' +
+        '</div></div>';
+
+      el.innerHTML = html;
+
+      document.getElementById('btn-devolver-checklist').addEventListener('click', function () { responder('ajuste', this); });
+      document.getElementById('btn-aprovar-checklist').addEventListener('click', function () { responder('aprovado', this); });
+    }
+
+    async function responder(decisao, btn) {
+      if (!document.getElementById('ck-termo').checked) {
+        showToast('Confirme a declaração de veracidade das informações antes de continuar.', 'error');
+        return;
+      }
+      if (decisao === 'ajuste' && !document.getElementById('ck-observacao').value.trim()) {
+        showToast('Informe uma observação explicando o ajuste solicitado.', 'error');
+        return;
+      }
+      var itensResp = Array.from(document.querySelectorAll('#ck-form-body input[type="checkbox"][id^="ck-item-"]')).map(function (cb) { return cb.checked; });
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = decisao === 'aprovado' ? 'Aprovando…' : 'Enviando…';
+      try {
+        await API.post('responderChecklistSupervisorPublico', {
+          id: estagioId,
+          token: token,
+          decisao: decisao,
+          itens: itensResp,
+          observacao: document.getElementById('ck-observacao').value.trim(),
+        });
+        showToast(decisao === 'aprovado' ? '✅ Checklist aprovado.' : 'Ajuste solicitado ao estudante.', 'success');
+        carregarChecklist();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+  </script>
+</body>
+</html>
