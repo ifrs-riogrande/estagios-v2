@@ -406,3 +406,45 @@ function makeSearchable(selectId, placeholder) {
   input.addEventListener('blur', function () { setTimeout(function () { list.classList.add('ss-hidden'); }, 160); });
   input.addEventListener('keydown', function (e) { if (e.key === 'Escape') list.classList.add('ss-hidden'); });
 }
+
+/**
+ * Calcula os períodos de avaliação (semestral(is) + final) de um estágio,
+ * a partir da data de início e término — usado nas telas de acompanhamento
+ * de orientadores/supervisores/coordenadores pra mostrar quando cada
+ * relatório é esperado. Estágios de até 6 meses têm só avaliação final;
+ * acima disso, uma avaliação a cada 6 meses, mais a final.
+ */
+function calcularPeriodosAvaliacao(dataInicio, dataTermino) {
+  function parseData(v) {
+    if (!v) return null;
+    if (v instanceof Date) return v;
+    const m = String(v).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) return new Date(m[3], m[2] - 1, m[1]);
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const dInicio = parseData(dataInicio);
+  const dFim = parseData(dataTermino);
+  if (!dInicio || !dFim || dFim <= dInicio) return [];
+
+  const diasTotal = (dFim - dInicio) / 86400000;
+  const mesesTotal = diasTotal / 30.44;
+  const periodos = [];
+
+  if (mesesTotal <= 6) {
+    periodos.push({ tipo: 'final', label: 'Final', dataDisparo: new Date(dFim) });
+    return periodos;
+  }
+
+  let sem = 1;
+  while (true) {
+    const dSem = new Date(dInicio);
+    dSem.setMonth(dSem.getMonth() + sem * 6);
+    if (dSem >= dFim) break;
+    periodos.push({ tipo: 'semestral_' + sem, label: 'Semestral ' + sem, dataDisparo: new Date(dSem) });
+    sem++;
+  }
+  periodos.push({ tipo: 'final', label: 'Final', dataDisparo: new Date(dFim) });
+  return periodos;
+}
