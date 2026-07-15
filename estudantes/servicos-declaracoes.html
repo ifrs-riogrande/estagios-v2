@@ -254,11 +254,11 @@
       <div class="container mega-panel-grid">
         <a href="servicos-declaracoes.html" class="mega-panel-item is-current">
           <span class="mega-panel-item-title">Declarações</span>
-          <span class="mega-panel-item-desc">Emissão de declarações relacionadas ao seu estágio, certificação, conversão e aproveitamento</span>
+          <span class="mega-panel-item-desc">Emissão de declarações do seu estágio, em andamento ou já concluído</span>
         </a>
         <a href="servicos-historico.html" class="mega-panel-item">
           <span class="mega-panel-item-title">Histórico</span>
-          <span class="mega-panel-item-desc">Registro completo dos seus estágios, certificações, conversões e aproveitamentos já concluídos</span>
+          <span class="mega-panel-item-desc">Registro dos seus estágios em andamento e já concluídos</span>
         </a>
       </div>
     </div>
@@ -271,17 +271,84 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Declarações</h1>
-        <p class="page-hero-desc">Emissão de declarações relacionadas ao seu estágio, certificação, conversão e aproveitamento.</p>
+        <p class="page-hero-desc">Emissão de declarações do seu estágio, em andamento ou já concluído.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">Aqui você vai poder emitir suas próprias declarações de estágio, certificação de conhecimento, conversão e aproveitamento.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+      <div style="max-width:800px;margin:0 auto;">
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Nova Declaração</h2>
+          </div>
+          <div class="card-body">
+            <div id="fb-declaracao"></div>
+
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label required">1. Tipo de declaração</label>
+              <div class="radio-group" id="grupo-tipo" aria-required="true" style="flex-direction:column;align-items:flex-start;">
+                <div class="radio-option">
+                  <input type="radio" name="tipo-declaracao" id="tipo-andamento" value="andamento">
+                  <label for="tipo-andamento">Estágio em Andamento</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="tipo-declaracao" id="tipo-concluido" value="concluido">
+                  <label for="tipo-concluido">Estágio Concluído</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="tipo-declaracao" id="tipo-ambos" value="ambos">
+                  <label for="tipo-ambos">Ambos</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label required">2. Período</label>
+              <div class="radio-group" id="grupo-periodo" aria-required="true" style="flex-direction:column;align-items:flex-start;margin-bottom:var(--space-4);">
+                <div class="radio-option">
+                  <input type="radio" name="periodo-tipo" id="periodo-todos" value="todos" checked>
+                  <label for="periodo-todos">Todos os períodos</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="periodo-tipo" id="periodo-personalizado" value="personalizado">
+                  <label for="periodo-personalizado">Período personalizado</label>
+                </div>
+              </div>
+              <div class="form-row hidden" id="bloco-periodo">
+                <div class="form-group">
+                  <label class="form-label required" for="periodo-inicio">Início</label>
+                  <input type="date" id="periodo-inicio" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label required" for="periodo-fim">Fim</label>
+                  <input type="date" id="periodo-fim" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label required">3. Modalidade</label>
+              <div class="radio-group" id="grupo-modalidade" aria-required="true">
+                <div class="radio-option">
+                  <input type="radio" name="modalidade" id="modalidade-obrigatorio" value="Obrigatório">
+                  <label for="modalidade-obrigatorio">Obrigatório</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="modalidade" id="modalidade-nao-obrigatorio" value="Não Obrigatório">
+                  <label for="modalidade-nao-obrigatorio">Não Obrigatório</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="modalidade" id="modalidade-ambos" value="Ambos">
+                  <label for="modalidade-ambos">Ambos</label>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" id="btn-solicitar" class="btn btn-primary">Gerar e enviar por e-mail</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -312,6 +379,50 @@
     // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+    });
+
+    document.querySelectorAll('input[name="periodo-tipo"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        document.getElementById('bloco-periodo').classList.toggle('hidden', this.value !== 'personalizado');
+      });
+    });
+
+    document.getElementById('btn-solicitar').addEventListener('click', async function () {
+      var btn = this;
+      hideFormFeedback('fb-declaracao');
+
+      var tipoEl = document.querySelector('input[name="tipo-declaracao"]:checked');
+      var tipoDeclaracao = tipoEl ? tipoEl.value : '';
+      var periodoTipo = document.querySelector('input[name="periodo-tipo"]:checked').value;
+      var periodoInicio = document.getElementById('periodo-inicio').value;
+      var periodoFim = document.getElementById('periodo-fim').value;
+      var modalidadeEl = document.querySelector('input[name="modalidade"]:checked');
+      var modalidade = modalidadeEl ? modalidadeEl.value : '';
+
+      if (!tipoDeclaracao) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione o tipo de declaração.'); return; }
+      if (periodoTipo === 'personalizado' && !periodoInicio) { showFormFeedback('fb-declaracao', 'error', '', 'Informe a data de início do período.'); return; }
+      if (periodoTipo === 'personalizado' && !periodoFim) { showFormFeedback('fb-declaracao', 'error', '', 'Informe a data de fim do período.'); return; }
+      if (periodoTipo === 'personalizado' && periodoInicio > periodoFim) { showFormFeedback('fb-declaracao', 'error', '', 'A data de início deve ser anterior à data de fim.'); return; }
+      if (!modalidade) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione a modalidade.'); return; }
+
+      var orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Gerando…';
+
+      try {
+        var payload = { tipoDeclaracao: tipoDeclaracao, modalidade: modalidade, todoPeriodo: periodoTipo === 'todos' };
+        if (periodoTipo === 'personalizado') {
+          payload.periodoInicio = periodoInicio;
+          payload.periodoFim = periodoFim;
+        }
+        var res = await API.post('solicitarDeclaracaoEstudante', payload);
+        showToast('✅ Declaração gerada (' + (res && res.totalEstagios || 0) + ' estágio(s)). Verifique seu e-mail.', 'success');
+      } catch (err) {
+        showFormFeedback('fb-declaracao', 'error', '', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
     });
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez

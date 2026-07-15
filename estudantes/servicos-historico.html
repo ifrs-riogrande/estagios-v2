@@ -151,6 +151,9 @@
       border-radius: 9999px;
       margin-left: 6px;
     }
+
+    .th-sort { cursor: pointer; user-select: none; }
+    .th-sort .th-sort-arrow { opacity: .4; font-size: .8em; margin-left: 2px; }
   </style>
 </head>
 <body>
@@ -254,11 +257,11 @@
       <div class="container mega-panel-grid">
         <a href="servicos-declaracoes.html" class="mega-panel-item">
           <span class="mega-panel-item-title">Declarações</span>
-          <span class="mega-panel-item-desc">Emissão de declarações relacionadas ao seu estágio, certificação, conversão e aproveitamento</span>
+          <span class="mega-panel-item-desc">Emissão de declarações do seu estágio, em andamento ou já concluído</span>
         </a>
         <a href="servicos-historico.html" class="mega-panel-item is-current">
           <span class="mega-panel-item-title">Histórico</span>
-          <span class="mega-panel-item-desc">Registro completo dos seus estágios, certificações, conversões e aproveitamentos já concluídos</span>
+          <span class="mega-panel-item-desc">Registro dos seus estágios em andamento e já concluídos</span>
         </a>
       </div>
     </div>
@@ -271,18 +274,78 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Histórico</h1>
-        <p class="page-hero-desc">Registro completo dos seus estágios, certificações, conversões e aproveitamentos já concluídos.</p>
+        <p class="page-hero-desc">Registro dos seus estágios em andamento e já concluídos.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">Aqui vai aparecer o histórico completo dos seus estágios, certificações, conversões e aproveitamentos já concluídos.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando histórico…</p>
       </div>
+
+      <div id="painel-erro" class="hidden">
+        <div class="alert alert-error">
+          <div class="alert-content">
+            <strong id="msg-erro">Não foi possível carregar o histórico.</strong>
+            <div><button type="button" id="btn-tentar-novamente" class="btn btn-secondary btn-sm" style="margin-top:var(--space-3);">Tentar novamente</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="conteudo" class="hidden">
+
+        <div class="filters">
+          <div class="form-group">
+            <label class="form-label" for="filtro-situacao">Situação</label>
+            <select id="filtro-situacao" class="form-control">
+              <option value="">Todas</option>
+              <option value="andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="filtro-tipo">Tipo</label>
+            <select id="filtro-tipo" class="form-control">
+              <option value="">Todos</option>
+              <option value="Obrigatório">Obrigatório</option>
+              <option value="Não Obrigatório">Não Obrigatório</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label class="form-label" for="filtro-busca">Buscar</label>
+            <input type="search" id="filtro-busca" class="form-control" placeholder="Curso, empresa, orientador…">
+          </div>
+        </div>
+
+        <div id="resultado-count" style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:var(--space-3);"></div>
+
+        <div class="table-wrapper">
+          <table class="table" id="tbl-historico" aria-label="Histórico de estágios">
+            <thead>
+              <tr id="thead-historico">
+                <th class="th-sort" data-col="0">ID <span class="th-sort-arrow">↕</span></th>
+                <th class="th-sort" data-col="1">Curso <span class="th-sort-arrow">↕</span></th>
+                <th class="th-sort" data-col="2">Empresa <span class="th-sort-arrow">↕</span></th>
+                <th class="th-sort" data-col="3">Orientador <span class="th-sort-arrow">↕</span></th>
+                <th class="th-sort" data-col="4">Tipo <span class="th-sort-arrow">↕</span></th>
+                <th class="th-sort" data-col="5">Período <span class="th-sort-arrow">↕</span></th>
+                <th class="th-sort" data-col="6">Situação <span class="th-sort-arrow">↕</span></th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+
+        <div id="lista-vazia" class="empty-state hidden">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto var(--space-4);display:block;opacity:.3;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+          </svg>
+          <p id="msg-vazia">Nenhum estágio encontrado.</p>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -309,10 +372,132 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _todos = [];
+    var _sortCol = -1;
+    var _sortAsc = true;
+
     // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+      carregarHistorico();
     });
+
+    function mostrarPainel(id) {
+      ['painel-carregando', 'painel-erro', 'conteudo'].forEach(function (p) {
+        document.getElementById(p).classList.toggle('hidden', p !== id);
+      });
+    }
+
+    async function carregarHistorico() {
+      mostrarPainel('painel-carregando');
+      try {
+        var lista = await API.get('listarMeusEstagios');
+        lista = Array.isArray(lista) ? lista : [];
+        _todos = lista
+          .filter(function (s) { return s.status === 'Ativo' || s.status === 'Encerrado'; })
+          .map(function (s) { return Object.assign({}, s, { situacao: s.status === 'Ativo' ? 'andamento' : 'concluido' }); });
+        mostrarPainel('conteudo');
+        filtrar();
+      } catch (err) {
+        document.getElementById('msg-erro').textContent = 'Não foi possível carregar o histórico. ' + (err && err.message ? err.message : '');
+        mostrarPainel('painel-erro');
+      }
+    }
+    document.getElementById('btn-tentar-novamente').addEventListener('click', carregarHistorico);
+
+    var LABEL_SITUACAO = { andamento: 'Em andamento', concluido: 'Concluído' };
+
+    function filtrar() {
+      var situacao = document.getElementById('filtro-situacao').value;
+      var tipo = document.getElementById('filtro-tipo').value.toLowerCase();
+      var busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+
+      var filtrados = _todos.filter(function (s) {
+        if (situacao && s.situacao !== situacao) return false;
+        if (tipo && String(s.tipoEstagio || '').toLowerCase() !== tipo) return false;
+        if (busca) {
+          var texto = [s.curso, s.empresa, s.nomeOrientador, s.id].join(' ').toLowerCase();
+          if (texto.indexOf(busca) === -1) return false;
+        }
+        return true;
+      });
+
+      renderTabela(filtrados);
+    }
+    document.getElementById('filtro-situacao').addEventListener('change', filtrar);
+    document.getElementById('filtro-tipo').addEventListener('change', filtrar);
+    document.getElementById('filtro-busca').addEventListener('input', filtrar);
+
+    function _sortKey(s, col) {
+      switch (col) {
+        case 0: return s.id || '';
+        case 1: return s.curso || '';
+        case 2: return s.empresa || '';
+        case 3: return s.nomeOrientador || '';
+        case 4: return s.tipoEstagio || '';
+        case 5: return s.dataInicio || '';
+        case 6: return LABEL_SITUACAO[s.situacao] || '';
+        default: return '';
+      }
+    }
+
+    document.getElementById('thead-historico').addEventListener('click', function (e) {
+      var th = e.target.closest('.th-sort');
+      if (!th) return;
+      var col = parseInt(th.dataset.col, 10);
+      if (_sortCol === col) _sortAsc = !_sortAsc;
+      else { _sortCol = col; _sortAsc = true; }
+
+      document.querySelectorAll('#thead-historico .th-sort').forEach(function (t) {
+        var arrow = t.querySelector('.th-sort-arrow');
+        var c = parseInt(t.dataset.col, 10);
+        if (c === col) { arrow.style.opacity = '1'; arrow.textContent = _sortAsc ? '▲' : '▼'; }
+        else { arrow.style.opacity = '.4'; arrow.textContent = '↕'; }
+      });
+      filtrar();
+    });
+
+    function renderTabela(lista) {
+      if (_sortCol >= 0) {
+        lista = lista.slice().sort(function (a, b) {
+          var ka = _sortKey(a, _sortCol);
+          var kb = _sortKey(b, _sortCol);
+          var cmp = String(ka).localeCompare(String(kb), 'pt-BR');
+          return _sortAsc ? cmp : -cmp;
+        });
+      }
+
+      var tbody = document.getElementById('corpo-tabela');
+      var vazioEl = document.getElementById('lista-vazia');
+      var contEl = document.getElementById('resultado-count');
+
+      contEl.textContent = lista.length + ' registro' + (lista.length !== 1 ? 's' : '');
+
+      if (lista.length === 0) {
+        tbody.innerHTML = '';
+        vazioEl.classList.remove('hidden');
+        document.getElementById('msg-vazia').textContent =
+          _todos.length === 0 ? 'Você ainda não possui estágios em andamento ou concluídos.' : 'Nenhum resultado para os filtros aplicados.';
+        return;
+      }
+      vazioEl.classList.add('hidden');
+
+      tbody.innerHTML = lista.map(function (s) {
+        var periodo = '';
+        if (s.dataInicio || s.dataTermino) {
+          periodo = (s.dataInicio ? formatDateBR(s.dataInicio) : '?') + ' – ' + (s.dataTermino ? formatDateBR(s.dataTermino) : '?');
+        }
+        return '<tr>' +
+          '<td><code style="font-size:11px;color:var(--color-text-muted);">' + escapeHtml(s.id || '—') + '</code></td>' +
+          '<td style="max-width:160px;white-space:normal;">' + escapeHtml(s.curso || '—') + '</td>' +
+          '<td style="max-width:160px;white-space:normal;">' + escapeHtml(s.empresa || '—') + '</td>' +
+          '<td style="max-width:150px;white-space:normal;">' + escapeHtml(s.nomeOrientador || '—') + '</td>' +
+          '<td style="white-space:nowrap;"><span class="badge ' + (s.tipoEstagio === 'Obrigatório' ? 'badge-info' : 'badge-neutral') + '">' + escapeHtml(s.tipoEstagio || '—') + '</span></td>' +
+          '<td style="white-space:nowrap;font-size:12px;">' + escapeHtml(periodo || '—') + '</td>' +
+          '<td><span class="badge ' + (s.situacao === 'andamento' ? 'badge-success' : 'badge-neutral') + '">' + escapeHtml(LABEL_SITUACAO[s.situacao] || '—') + '</span></td>' +
+          '</tr>';
+      }).join('');
+    }
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
     (function () {
