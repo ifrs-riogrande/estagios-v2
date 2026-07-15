@@ -40,6 +40,19 @@
     }
     .toolbar-sep { width: 1px; height: 24px; background: var(--color-border); margin: 0 var(--space-1); }
 
+    .btn-export {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 32px; padding: 0 var(--space-3);
+      border-radius: var(--radius-md); border: 1px solid var(--color-border);
+      font-size: var(--font-size-xs); font-weight: 600; cursor: pointer;
+      transition: all .15s; white-space: nowrap; background: var(--color-surface);
+      color: var(--color-text);
+    }
+    .btn-export--xls { color: #166534; border-color: #bbf7d0; background: #f0fdf4; }
+    .btn-export--xls:hover { background: #dcfce7; border-color: #86efac; }
+    .btn-export--pdf { color: #991b1b; border-color: #fecaca; background: #fff5f5; }
+    .btn-export--pdf:hover { background: #fee2e2; border-color: #fca5a5; }
+
     @media print {
       #app-header, #app-footer,
       .filters, .toolbar-actions, #alerta-pendentes,
@@ -168,8 +181,8 @@
         <button type="button" id="btn-limpar" class="btn btn-ghost btn-sm">Limpar filtros</button>
         <button type="button" id="btn-atualizar" class="btn btn-secondary btn-sm">Atualizar</button>
         <div class="toolbar-sep"></div>
-        <button type="button" id="btn-exportar-xls" class="btn btn-secondary btn-sm">⬇ Exportar XLS</button>
-        <button type="button" id="btn-exportar-pdf" class="btn btn-secondary btn-sm">🖨 Exportar PDF</button>
+        <button type="button" id="btn-exportar-xls" class="btn-export btn-export--xls">⬇ Exportar XLS</button>
+        <button type="button" id="btn-exportar-pdf" class="btn-export btn-export--pdf">🖨 Exportar PDF</button>
       </div>
 
       <div class="filters no-print">
