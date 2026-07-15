@@ -207,18 +207,92 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Coordenação</h1>
-        <p class="page-hero-desc">Estágios do seu curso e pareceres de aproveitamento pendentes.</p>
+        <p class="page-hero-desc" id="subtitulo-curso">Estágios do seu curso e pareceres de aproveitamento pendentes.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">Aqui vão aparecer, em destaque, os pareceres de aproveitamento pendentes da sua decisão, e abaixo o acompanhamento geral dos estágios do seu curso.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <!-- Pareceres pendentes -->
+      <div id="pareceres-section" class="hidden" style="margin-bottom:var(--space-8);">
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          📋 Pareceres Finais Pendentes
+        </h2>
+        <div id="lista-pareceres-coord"></div>
       </div>
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando estágios…</p>
+      </div>
+
+      <div id="painel-erro" class="hidden">
+        <div class="alert alert-error">
+          <div class="alert-content">
+            <strong id="msg-erro">Não foi possível carregar os estágios do curso.</strong>
+            <div><button type="button" id="btn-tentar-novamente" class="btn btn-secondary btn-sm" style="margin-top:var(--space-3);">Tentar novamente</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="conteudo" class="hidden">
+
+        <div class="filters">
+          <div class="form-group">
+            <label class="form-label" for="filtro-status">Status</label>
+            <select id="filtro-status" class="form-control">
+              <option value="">Todos</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Em análise">Em análise</option>
+              <option value="Em Checklist">Em Checklist</option>
+              <option value="Em Assinaturas">Em Assinaturas</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Encerrado">Encerrado</option>
+              <option value="Reprovado">Reprovado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="filtro-tipo">Tipo</label>
+            <select id="filtro-tipo" class="form-control">
+              <option value="">Todos</option>
+              <option value="Obrigatório">Obrigatório</option>
+              <option value="Não Obrigatório">Não Obrigatório</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label class="form-label" for="filtro-busca">Buscar</label>
+            <input type="search" id="filtro-busca" class="form-control" placeholder="Nome, matrícula, empresa, orientador…">
+          </div>
+        </div>
+
+        <div id="resultado-count" style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:var(--space-3);"></div>
+
+        <div class="table-wrapper">
+          <table class="table" id="tbl-estagios-curso" aria-label="Estágios do meu curso">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Estudante</th>
+                <th>Empresa</th>
+                <th>Orientador</th>
+                <th>Tipo</th>
+                <th>Período</th>
+                <th>Status</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+
+        <div id="lista-vazia" class="empty-state hidden">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto var(--space-4);display:block;opacity:.3;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+          </svg>
+          <p id="msg-vazia">Nenhum estágio encontrado para este curso.</p>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -245,10 +319,148 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _todos = [];
+    var _curso = '';
+
     // Guarda de acesso: só servidores autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarEstagios();
+      var s = typeof getSession === 'function' ? getSession() : null;
+      if (s && s.email) carregarPareceres(s.email);
     });
+
+    function mostrarPainel(id) {
+      ['painel-carregando', 'painel-erro', 'conteudo'].forEach(function (p) {
+        document.getElementById(p).classList.toggle('hidden', p !== id);
+      });
+    }
+
+    function carregarEstagios() {
+      mostrarPainel('painel-carregando');
+      API.get('listarEstagiosCoordenador').then(function (data) {
+        _curso = (data && data.curso) ? data.curso : '';
+        _todos = (data && Array.isArray(data.estagios)) ? data.estagios : [];
+
+        if (_curso) {
+          document.getElementById('subtitulo-curso').textContent =
+            'Estágios do curso: ' + _curso + ' (' + _todos.length + ' registro' + (_todos.length !== 1 ? 's' : '') + ')';
+        }
+
+        mostrarPainel('conteudo');
+        filtrar();
+      }).catch(function (err) {
+        var msg = (err && err.message) ? err.message : '';
+        document.getElementById('msg-erro').textContent =
+          'Não foi possível carregar os estágios. ' +
+          (msg.indexOf('NOT_FOUND') !== -1 ? 'Você não está cadastrado como coordenador ou seu curso não está vinculado.' : msg);
+        mostrarPainel('painel-erro');
+      });
+    }
+    document.getElementById('btn-tentar-novamente').addEventListener('click', carregarEstagios);
+
+    function filtrar() {
+      var status = document.getElementById('filtro-status').value.toLowerCase();
+      var tipo = document.getElementById('filtro-tipo').value.toLowerCase();
+      var busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+
+      var filtrados = _todos.filter(function (s) {
+        if (status && String(s.status || '').toLowerCase() !== status) return false;
+        if (tipo && String(s.tipoEstagio || '').toLowerCase() !== tipo) return false;
+        if (busca) {
+          var texto = [s.nomeEstudante, s.matricula, s.empresa, s.nomeOrientador, s.id].join(' ').toLowerCase();
+          if (texto.indexOf(busca) === -1) return false;
+        }
+        return true;
+      });
+
+      renderTabela(filtrados);
+    }
+    document.getElementById('filtro-status').addEventListener('change', filtrar);
+    document.getElementById('filtro-tipo').addEventListener('change', filtrar);
+    document.getElementById('filtro-busca').addEventListener('input', filtrar);
+
+    function badgeStatus(status) {
+      var map = {
+        'Pendente': 'badge-warning',
+        'Em análise': 'badge-info',
+        'Em Checklist': 'badge-info',
+        'Em Assinaturas': 'badge-warning',
+        'Ativo': 'badge-success',
+        'Encerrado': 'badge-neutral',
+        'Reprovado': 'badge-error',
+      };
+      var cls = map[status] || 'badge-neutral';
+      return '<span class="badge ' + cls + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    function renderTabela(lista) {
+      var tbody = document.getElementById('corpo-tabela');
+      var vazioEl = document.getElementById('lista-vazia');
+      var contEl = document.getElementById('resultado-count');
+
+      contEl.textContent = lista.length + ' registro' + (lista.length !== 1 ? 's' : '');
+
+      if (lista.length === 0) {
+        tbody.innerHTML = '';
+        vazioEl.classList.remove('hidden');
+        document.getElementById('msg-vazia').textContent =
+          _todos.length === 0 ? 'Nenhum estágio registrado para este curso ainda.' : 'Nenhum resultado para os filtros aplicados.';
+        return;
+      }
+      vazioEl.classList.add('hidden');
+
+      tbody.innerHTML = lista.map(function (s) {
+        var periodo = '';
+        if (s.dataInicio || s.dataTermino) {
+          periodo = (s.dataInicio ? formatDateBR(s.dataInicio) : '?') + ' – ' + (s.dataTermino ? formatDateBR(s.dataTermino) : '?');
+        }
+        var periodoAvals = '';
+        if (s.dataInicio && s.dataTermino) {
+          var pAvs = calcularPeriodosAvaliacao(s.dataInicio, s.dataTermino);
+          if (pAvs.length) {
+            periodoAvals = '<div style="font-size:10px;color:var(--color-text-muted);margin-top:2px;">Avals.: '
+              + pAvs.map(function (p) { return p.label + ' ' + p.dataDisparo.toLocaleDateString('pt-BR'); }).join(' · ')
+              + '</div>';
+          }
+        }
+
+        var links = s.id
+          ? '<a href="checklist.html?id=' + encodeURIComponent(s.id) + '" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Checklist</a>'
+          : '';
+
+        return '<tr>' +
+          '<td><code style="font-size:11px;color:var(--color-text-muted);">' + escapeHtml(s.id || '—') + '</code></td>' +
+          '<td>' +
+          '<div style="font-weight:500;line-height:1.3;">' + escapeHtml(s.nomeEstudante || '—') + '</div>' +
+          (s.matricula ? '<div style="font-size:11px;color:var(--color-text-muted);">Matr. ' + escapeHtml(s.matricula) + '</div>' : '') +
+          '</td>' +
+          '<td style="max-width:180px;white-space:normal;">' + escapeHtml(s.empresa || '—') + '</td>' +
+          '<td style="max-width:160px;white-space:normal;">' + escapeHtml(s.nomeOrientador || '—') + '</td>' +
+          '<td style="white-space:nowrap;"><span class="badge ' + (s.tipoEstagio === 'Obrigatório' ? 'badge-info' : 'badge-neutral') + '">' + escapeHtml(s.tipoEstagio || '—') + '</span></td>' +
+          '<td style="white-space:nowrap;font-size:12px;">' + escapeHtml(periodo || '—') + periodoAvals + '</td>' +
+          '<td>' + badgeStatus(s.status) + '</td>' +
+          '<td><div style="display:flex;justify-content:flex-end;">' + links + '</div></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    /* ── Pareceres finais pendentes ── */
+    function carregarPareceres(email) {
+      API.get('listarPareceresPendentes', { papel: 'coordenador', ref: email }).then(function (lista) {
+        if (!lista || !lista.length) return;
+        document.getElementById('pareceres-section').classList.remove('hidden');
+        document.getElementById('lista-pareceres-coord').innerHTML = lista.map(function (p) {
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(p.nomeAluno || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(p.curso || '—') + ' · ' + escapeHtml(String(p.totalHoras || 0)) + 'h · ' + escapeHtml(p.modalidade || '—') + '</div>' +
+            '</div>' +
+            '<a href="parecer.html?id=' + encodeURIComponent(p.idEstagio) + '&token=' + encodeURIComponent(p.tokenCoordenador) + '" class="btn btn-primary btn-sm">Preencher Parecer →</a>' +
+            '</div>';
+        }).join('');
+      }).catch(function () { /* falha silenciosa — pareceres não são críticos pra essa tela */ });
+    }
 
     // Mega menu — abre/fecha o painel de Acompanhamento
     (function () {

@@ -211,14 +211,79 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A lista de estágios supervisionados por você será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando supervisionados…</p>
       </div>
+
+      <div id="painel-erro" class="hidden">
+        <div class="alert alert-error">
+          <div class="alert-content">
+            <strong id="msg-erro">Não foi possível carregar seus supervisionados.</strong>
+            <div><button type="button" id="btn-tentar-novamente" class="btn btn-secondary btn-sm" style="margin-top:var(--space-3);">Tentar novamente</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="conteudo" class="hidden">
+
+        <div class="filters">
+          <div class="form-group">
+            <label class="form-label" for="filtro-status">Status</label>
+            <select id="filtro-status" class="form-control">
+              <option value="">Todos</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Em análise">Em análise</option>
+              <option value="Em Checklist">Em Checklist</option>
+              <option value="Em Assinaturas">Em Assinaturas</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Encerrado">Encerrado</option>
+              <option value="Reprovado">Reprovado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="filtro-tipo">Tipo</label>
+            <select id="filtro-tipo" class="form-control">
+              <option value="">Todos</option>
+              <option value="Obrigatório">Obrigatório</option>
+              <option value="Não Obrigatório">Não Obrigatório</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:2;min-width:220px;">
+            <label class="form-label" for="filtro-busca">Buscar</label>
+            <input type="search" id="filtro-busca" class="form-control" placeholder="Nome, matrícula, curso…">
+          </div>
+        </div>
+
+        <div id="resultado-count" style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:var(--space-3);"></div>
+
+        <div class="table-wrapper">
+          <table class="table" id="tbl-supervisionados" aria-label="Meus supervisionados">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Estudante</th>
+                <th>Curso</th>
+                <th>Tipo</th>
+                <th>Período</th>
+                <th>Status</th>
+                <th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+
+        <div id="lista-vazia" class="empty-state hidden">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto var(--space-4);display:block;opacity:.3;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+          </svg>
+          <p id="msg-vazia">Nenhum supervisionado encontrado.</p>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -245,10 +310,111 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _todos = [];
+
     // Guarda de acesso: só servidores autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarSupervisionados();
     });
+
+    function mostrarPainel(id) {
+      ['painel-carregando', 'painel-erro', 'conteudo'].forEach(function (p) {
+        document.getElementById(p).classList.toggle('hidden', p !== id);
+      });
+    }
+
+    function carregarSupervisionados() {
+      mostrarPainel('painel-carregando');
+      API.get('listarMeusSupervisionados').then(function (data) {
+        _todos = Array.isArray(data) ? data : [];
+        mostrarPainel('conteudo');
+        filtrar();
+      }).catch(function (err) {
+        document.getElementById('msg-erro').textContent =
+          'Não foi possível carregar seus supervisionados. ' + (err && err.message ? err.message : '');
+        mostrarPainel('painel-erro');
+      });
+    }
+    document.getElementById('btn-tentar-novamente').addEventListener('click', carregarSupervisionados);
+
+    function filtrar() {
+      var status = document.getElementById('filtro-status').value.toLowerCase();
+      var tipo = document.getElementById('filtro-tipo').value.toLowerCase();
+      var busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+
+      var filtrados = _todos.filter(function (s) {
+        if (status && String(s.status || '').toLowerCase() !== status) return false;
+        if (tipo && String(s.tipoEstagio || '').toLowerCase() !== tipo) return false;
+        if (busca) {
+          var texto = [s.nomeEstudante, s.matricula, s.curso, s.id].join(' ').toLowerCase();
+          if (texto.indexOf(busca) === -1) return false;
+        }
+        return true;
+      });
+
+      renderTabela(filtrados);
+    }
+    document.getElementById('filtro-status').addEventListener('change', filtrar);
+    document.getElementById('filtro-tipo').addEventListener('change', filtrar);
+    document.getElementById('filtro-busca').addEventListener('input', filtrar);
+
+    function badgeStatus(status) {
+      var map = {
+        'Pendente': 'badge-warning',
+        'Em análise': 'badge-info',
+        'Em Checklist': 'badge-info',
+        'Em Assinaturas': 'badge-warning',
+        'Ativo': 'badge-success',
+        'Encerrado': 'badge-neutral',
+        'Reprovado': 'badge-error',
+      };
+      var cls = map[status] || 'badge-neutral';
+      return '<span class="badge ' + cls + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    function renderTabela(lista) {
+      var tbody = document.getElementById('corpo-tabela');
+      var vazioEl = document.getElementById('lista-vazia');
+      var contEl = document.getElementById('resultado-count');
+
+      contEl.textContent = lista.length + ' registro' + (lista.length !== 1 ? 's' : '');
+
+      if (lista.length === 0) {
+        tbody.innerHTML = '';
+        vazioEl.classList.remove('hidden');
+        document.getElementById('msg-vazia').textContent =
+          _todos.length === 0
+            ? 'Você ainda não possui supervisionados cadastrados no IFRS Campus Rio Grande.'
+            : 'Nenhum resultado para os filtros aplicados.';
+        return;
+      }
+      vazioEl.classList.add('hidden');
+
+      tbody.innerHTML = lista.map(function (s) {
+        var periodo = '';
+        if (s.dataInicio || s.dataTermino) {
+          periodo = (s.dataInicio ? formatDateBR(s.dataInicio) : '?') + ' – ' + (s.dataTermino ? formatDateBR(s.dataTermino) : '?');
+        }
+
+        var links = (s.driveUrl && safeUrl(s.driveUrl))
+          ? '<a href="' + escapeHtml(safeUrl(s.driveUrl)) + '" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">📁 Abrir pasta</a>'
+          : '<button type="button" class="btn btn-secondary btn-sm" disabled title="Pasta no Drive não disponível">📁 Pasta</button>';
+
+        return '<tr>' +
+          '<td><code style="font-size:11px;color:var(--color-text-muted);">' + escapeHtml(s.id || '—') + '</code></td>' +
+          '<td>' +
+          '<div style="font-weight:500;line-height:1.3;">' + escapeHtml(s.nomeEstudante || '—') + '</div>' +
+          (s.matricula ? '<div style="font-size:11px;color:var(--color-text-muted);">Matr. ' + escapeHtml(s.matricula) + '</div>' : '') +
+          '</td>' +
+          '<td style="max-width:160px;white-space:normal;">' + escapeHtml(s.curso || '—') + '</td>' +
+          '<td style="white-space:nowrap;"><span class="badge ' + (s.tipoEstagio === 'Obrigatório' ? 'badge-info' : 'badge-neutral') + '">' + escapeHtml(s.tipoEstagio || '—') + '</span></td>' +
+          '<td style="white-space:nowrap;font-size:12px;">' + escapeHtml(periodo || '—') + '</td>' +
+          '<td>' + badgeStatus(s.status) + '</td>' +
+          '<td><div style="display:flex;justify-content:flex-end;">' + links + '</div></td>' +
+          '</tr>';
+      }).join('');
+    }
 
     // Mega menu — abre/fecha o painel de Acompanhamento
     (function () {
