@@ -126,20 +126,212 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Cadastros — Supervisores</h1>
-        <p class="page-hero-desc">Cadastros de supervisores de estágio.</p>
+        <p class="page-hero-desc">Valide, edite ou recuse supervisores externos cadastrados pelas concedentes.</p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A validação e gestão de cadastros de supervisores será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-6);">
+        <button type="button" class="btn btn-primary" id="btn-cadastrar-supervisor">+ Cadastrar supervisor</button>
+        <button type="button" class="btn btn-secondary" id="btn-convidar-supervisor">✉️ Convidar supervisor</button>
+      </div>
+
+      <div id="alerta-pendentes" class="alert alert-warning hidden" style="margin-bottom:var(--space-4);">
+        <div class="alert-content" id="alerta-pendentes-texto"></div>
+      </div>
+
+      <div class="filters">
+        <div class="form-group" style="flex:2;min-width:220px;">
+          <label class="form-label" for="busca-sup">Buscar</label>
+          <input type="search" id="busca-sup" class="form-control" placeholder="Nome, CPF, concedente ou e-mail…">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-status">Status</label>
+          <select id="filtro-status" class="form-control">
+            <option value="Pendente" selected>Pendente</option>
+            <option value="Validado">Validado</option>
+            <option value="Inativo">Inativo</option>
+            <option value="Recusado">Recusado</option>
+            <option value="Excluído">Excluído</option>
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div style="align-self:flex-end;">
+          <button type="button" id="btn-atualizar" class="btn btn-secondary btn-sm">Atualizar</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table" aria-label="Supervisores cadastrados">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Concedente</th>
+              <th>Cargo</th>
+              <th>E-mail</th>
+              <th style="text-align:center;">Estágios Ativos</th>
+              <th>Status</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-sup">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:var(--space-12);">
+                <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                Carregando…
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </main>
+
+  <!-- Modal: detalhe / editar / recusar / excluir supervisor -->
+  <div class="modal-backdrop" id="modal-sup">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-sup-titulo">Supervisor</h2>
+        <button type="button" class="modal-close" id="modal-sup-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-sup-body"></div>
+      <div class="modal-footer" id="modal-sup-footer"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Cadastrar supervisor diretamente -->
+  <div class="modal-backdrop" id="modal-cadastrar-sup">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Cadastrar Supervisor</h2>
+        <button type="button" class="modal-close" id="modal-cadastrar-sup-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-5);">O supervisor será cadastrado com status <strong>Validado</strong> diretamente.</p>
+        <div id="fb-cadastrar-sup"></div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Dados do Supervisor</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required" for="cs-nome">Nome completo</label>
+              <input id="cs-nome" class="form-control" maxlength="150">
+            </div>
+            <div class="form-group">
+              <label class="form-label required" for="cs-cpf">CPF</label>
+              <input id="cs-cpf" class="form-control" placeholder="000.000.000-00" maxlength="15">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required" for="cs-email">E-mail</label>
+              <input id="cs-email" type="email" class="form-control" maxlength="200">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cs-tel">Telefone</label>
+              <input id="cs-tel" class="form-control" placeholder="(53) 9 0000-0000" maxlength="30">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="cs-cargo">Cargo</label>
+              <input id="cs-cargo" class="form-control" maxlength="100">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Formação</label>
+            <div style="display:flex;gap:var(--space-3);align-items:flex-start;">
+              <div id="cs-formacao-lista" style="flex:1;display:flex;flex-direction:column;gap:var(--space-2);"></div>
+              <button type="button" id="btn-add-cs-formacao" class="btn btn-secondary" style="flex-shrink:0;">+ Adicionar</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="cs-experiencia">Experiência profissional na área do estágio <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+            <textarea id="cs-experiencia" class="form-control" maxlength="3000" rows="5" placeholder="Descreva aqui..."></textarea>
+            <div class="char-counter"><span id="cnt-cs-experiencia">0</span>/3000 caracteres</div>
+          </div>
+        </div>
+
+        <div class="form-section" style="margin-bottom:0;">
+          <h3 class="form-section-title">Vínculo com a Concedente</h3>
+          <div class="form-group">
+            <label class="form-label required" for="cs-concedente">Concedente</label>
+            <select id="cs-concedente" class="form-control" disabled>
+              <option value="">Carregando concedentes...</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="cs-setor">Setor</label>
+              <input id="cs-setor" class="form-control" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cs-tel-setor">Telefone do Setor</label>
+              <input id="cs-tel-setor" class="form-control" maxlength="30">
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label" for="cs-email-setor">E-mail do Setor</label>
+              <input id="cs-email-setor" type="email" class="form-control" maxlength="200">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cs-end-setor">Endereço do Setor</label>
+              <input id="cs-end-setor" class="form-control" maxlength="300">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-cadastrar-sup-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-salvar-supervisor">Cadastrar supervisor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Convidar supervisor -->
+  <div class="modal-backdrop" id="modal-convidar-sup">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Convidar Supervisor para Cadastro</h2>
+        <button type="button" class="modal-close" id="modal-convidar-sup-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-5);">Informe os dados do supervisor. Será enviado um e-mail com o link para preenchimento do cadastro.</p>
+        <div id="fb-convidar-sup"></div>
+        <div class="form-group">
+          <label class="form-label required" for="convite-sup-email">E-mail do supervisor</label>
+          <input type="email" id="convite-sup-email" class="form-control" placeholder="supervisor@empresa.com.br">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="convite-sup-cpf">CPF <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+            <input type="text" id="convite-sup-cpf" class="form-control" placeholder="000.000.000-00" maxlength="14">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="convite-sup-cnpj">CNPJ da concedente <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+            <input type="text" id="convite-sup-cnpj" class="form-control" placeholder="00.000.000/0001-00" maxlength="18">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="convite-sup-nome">Nome do supervisor <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>
+          <input type="text" id="convite-sup-nome" class="form-control" placeholder="Nome completo">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-convidar-sup-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-enviar-convite-sup">Enviar convite</button>
+      </div>
+    </div>
+  </div>
 
   <footer id="app-footer">
     <div class="container">
@@ -161,8 +353,458 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _dados = [], _filtrados = [], _atual = null;
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregar();
+      carregarConcedentesSup();
+      document.getElementById('btn-atualizar').addEventListener('click', carregar);
+      document.getElementById('modal-sup-fechar').addEventListener('click', fechar);
+      document.getElementById('modal-sup').addEventListener('click', function (e) { if (e.target === this) fechar(); });
+      document.getElementById('busca-sup').addEventListener('input', filtrar);
+      document.getElementById('filtro-status').addEventListener('change', filtrar);
+    });
+
+    async function carregar() {
+      document.getElementById('tbody-sup').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:var(--space-12);"><div class="spinner" style="margin:0 auto var(--space-3);"></div>Carregando…</td></tr>';
+      try {
+        var data = await API.get('listarSupervisoresAdmin');
+        _dados = Array.isArray(data) ? data : (data.supervisores || []);
+        var pendentes = _dados.filter(function (s) { return s.status === 'Pendente'; }).length;
+        var elP = document.getElementById('alerta-pendentes');
+        elP.classList.toggle('hidden', pendentes === 0);
+        if (pendentes > 0) {
+          document.getElementById('alerta-pendentes-texto').textContent =
+            '⏳ Há ' + pendentes + ' supervisor' + (pendentes > 1 ? 'es' : '') + ' aguardando aprovação.';
+        }
+        filtrar();
+      } catch (err) {
+        document.getElementById('tbody-sup').innerHTML =
+          '<tr><td colspan="8" style="text-align:center;padding:var(--space-12);color:var(--color-error);">Erro: ' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    function filtrar() {
+      var busca = document.getElementById('busca-sup').value.toLowerCase().trim();
+      var status = document.getElementById('filtro-status').value;
+      _filtrados = _dados.filter(function (s) {
+        if (status && s.status !== status) return false;
+        if (busca && [s.nome, s.cpf, s.empresa, s.email, s.cargo].join(' ').toLowerCase().indexOf(busca) === -1) return false;
+        return true;
+      });
+      render();
+    }
+
+    function badgeSupervisor(s) {
+      var m = { 'Validado': 'badge-success', 'Pendente': 'badge-warning', 'Recusado': 'badge-error', 'Excluído': 'badge-neutral' };
+      return '<span class="badge ' + (m[s] || 'badge-neutral') + '">' + escapeHtml(s || '—') + '</span>';
+    }
+
+    function render() {
+      var tb = document.getElementById('tbody-sup');
+      if (_filtrados.length === 0) {
+        tb.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>Nenhum supervisor encontrado.</p></div></td></tr>';
+        return;
+      }
+      tb.innerHTML = _filtrados.map(function (s, idx) {
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(s.nome || '—') + '</strong></td>' +
+          '<td style="font-size:12px;">' + escapeHtml(s.cpf || '—') + '</td>' +
+          '<td style="font-size:12px;max-width:160px;white-space:normal;">' + escapeHtml(s.empresa || '—') + '</td>' +
+          '<td style="font-size:12px;">' + escapeHtml(s.cargo || '—') + '</td>' +
+          '<td style="font-size:12px;">' + escapeHtml(s.email || '—') + '</td>' +
+          '<td style="text-align:center;">' + (s.estagiosAtivos || 0) + '</td>' +
+          '<td>' + badgeSupervisor(s.status) + '</td>' +
+          '<td style="text-align:right;"><button type="button" class="btn btn-secondary btn-sm" data-ver="' + idx + '">Ver</button></td>' +
+          '</tr>';
+      }).join('');
+      tb.querySelectorAll('[data-ver]').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrir(_filtrados[+btn.dataset.ver]); });
+      });
+    }
+
+    /* ── Modal principal (ver / editar / recusar / excluir) ── */
+    function abrir(s) {
+      _atual = s;
+      renderVisualizacao();
+      document.getElementById('modal-sup').classList.add('is-open');
+    }
+
+    function renderVisualizacao() {
+      var s = _atual;
+      document.getElementById('modal-sup-titulo').textContent = s.nome || 'Supervisor';
+
+      var obsBanner = (s.status === 'Recusado' && s.observacoes)
+        ? '<div class="alert alert-error" style="margin-bottom:var(--space-4);"><div class="alert-content"><strong>Cadastro recusado — motivo:</strong> ' + escapeHtml(s.observacoes) + '</div></div>'
+        : '';
+
+      var formacaoStr = (s.formacao || []).map(function (f) { return f.nivel + (f.area ? ' — ' + f.area : ''); }).join(', ');
+
+      document.getElementById('modal-sup-body').innerHTML = obsBanner + '<div class="detail-grid">' +
+        '<div class="detail-item"><label>Nome</label><p>' + escapeHtml(s.nome || '—') + '</p></div>' +
+        '<div class="detail-item"><label>CPF</label><p>' + escapeHtml(s.cpf || '—') + '</p></div>' +
+        '<div class="detail-item"><label>E-mail</label><p>' + escapeHtml(s.email || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Telefone</label><p>' + escapeHtml(s.telefone || '—') + '</p></div>' +
+        '<div class="detail-item detail-item--full"><label>Formação</label><p>' + escapeHtml(formacaoStr || '—') + '</p></div>' +
+        (s.experiencia ? '<div class="detail-item detail-item--full"><label>Experiência profissional na área do estágio</label><p style="white-space:pre-wrap;">' + escapeHtml(s.experiencia) + '</p></div>' : '') +
+        '<div class="detail-item detail-item--full"><label>Concedente</label><p>' + escapeHtml(s.empresa || '—') + (s.empresaCnpj ? ' <span style="color:var(--color-text-muted);font-size:11px;">(' + escapeHtml(s.empresaCnpj) + ')</span>' : '') + '</p></div>' +
+        '<div class="detail-item"><label>Cargo</label><p>' + escapeHtml(s.cargo || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Setor</label><p>' + escapeHtml(s.setor || '—') + '</p></div>' +
+        '<div class="detail-item"><label>E-mail do Setor</label><p>' + escapeHtml(s.emailSetor || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Telefone do Setor</label><p>' + escapeHtml(s.telSetor || '—') + '</p></div>' +
+        (s.enderecoSetor ? '<div class="detail-item detail-item--full"><label>Endereço do Setor</label><p>' + escapeHtml(s.enderecoSetor) + '</p></div>' : '') +
+        '<div class="detail-item"><label>Status</label><p>' + badgeSupervisor(s.status) + '</p></div>' +
+        '<div class="detail-item"><label>Estágios Ativos</label><p>' + (s.estagiosAtivos || 0) + '</p></div>' +
+        '</div>';
+
+      var footer = document.getElementById('modal-sup-footer');
+      var st = s.status;
+      var html = '<button type="button" class="btn btn-secondary" id="btn-fechar-vis">' + (st === 'Pendente' ? 'Cancelar' : 'Fechar') + '</button>';
+      if (st !== 'Excluído') {
+        html += '<button type="button" class="btn btn-secondary btn-sm" id="btn-editar">' + (st === 'Recusado' ? 'Editar dados' : 'Editar') + '</button>';
+        if (st === 'Pendente' || st === 'Inativo') html += '<button type="button" class="btn btn-danger btn-sm" id="btn-excluir">Excluir</button>';
+        if (st === 'Pendente') html += '<button type="button" class="btn btn-danger btn-sm" id="btn-recusar">Recusar</button>';
+        if (st === 'Validado') html += '<button type="button" class="btn btn-danger btn-sm" id="btn-inativar">Inativar</button>';
+        if (st === 'Inativo') html += '<button type="button" class="btn btn-primary btn-sm" id="btn-reativar">Reativar</button>';
+        if (st === 'Pendente' || st === 'Recusado') html += '<button type="button" class="btn btn-primary btn-sm" id="btn-validar">' + (st === 'Recusado' ? 'Validar mesmo assim' : 'Validar') + '</button>';
+      }
+      footer.innerHTML = html;
+
+      document.getElementById('btn-fechar-vis').addEventListener('click', fechar);
+      var btnEditar = document.getElementById('btn-editar'); if (btnEditar) btnEditar.addEventListener('click', renderEdicao);
+      var btnExcluir = document.getElementById('btn-excluir'); if (btnExcluir) btnExcluir.addEventListener('click', renderExcluir);
+      var btnRecusar = document.getElementById('btn-recusar'); if (btnRecusar) btnRecusar.addEventListener('click', renderRecusa);
+      var btnValidar = document.getElementById('btn-validar'); if (btnValidar) btnValidar.addEventListener('click', function () { acaoSimples('validarSupervisor', 'Supervisor validado com sucesso.'); });
+      var btnInativar = document.getElementById('btn-inativar'); if (btnInativar) btnInativar.addEventListener('click', function () { acaoSimples('inativarSupervisor', 'Supervisor inativado.'); });
+      var btnReativar = document.getElementById('btn-reativar'); if (btnReativar) btnReativar.addEventListener('click', function () { acaoSimples('reativarSupervisor', 'Supervisor reativado.'); });
+    }
+
+    /* ── Editar ── */
+    function renderEdicao() {
+      var s = _atual;
+      document.getElementById('modal-sup-titulo').textContent = 'Editar Supervisor';
+      document.getElementById('modal-sup-body').innerHTML =
+        '<div class="form-section">' +
+        '<h3 class="form-section-title">Dados do Supervisor</h3>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Nome completo</label><input id="e-nome" class="form-control" value="' + escapeHtml(s.nome || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Cargo</label><input id="e-cargo" class="form-control" value="' + escapeHtml(s.cargo || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Telefone</label><input id="e-tel-sup" class="form-control" value="' + escapeHtml(s.telefone || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">E-mail</label><input id="e-email-sup" type="email" class="form-control" value="' + escapeHtml(s.email || '') + '"></div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="form-section">' +
+        '<h3 class="form-section-title">Setor</h3>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Setor / Departamento</label><input id="e-setor" class="form-control" value="' + escapeHtml(s.setor || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Telefone do Setor</label><input id="e-tel-setor" class="form-control" value="' + escapeHtml(s.telSetor || '') + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">E-mail do Setor</label><input id="e-email-setor" type="email" class="form-control" value="' + escapeHtml(s.emailSetor || '') + '"></div>' +
+          '<div class="form-group"><label class="form-label">Endereço do Setor</label><input id="e-end-setor" class="form-control" value="' + escapeHtml(s.enderecoSetor || '') + '"></div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="form-section" style="margin-bottom:0;">' +
+        '<h3 class="form-section-title">Qualificação</h3>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Formação</label>' +
+          '<div style="display:flex;gap:var(--space-3);align-items:flex-start;">' +
+            '<div id="e-formacao-lista" style="flex:1;display:flex;flex-direction:column;gap:var(--space-2);"></div>' +
+            '<button type="button" id="btn-add-e-formacao" class="btn btn-secondary" style="flex-shrink:0;">+ Adicionar</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="form-group" style="margin-bottom:0;">' +
+          '<label class="form-label" for="e-experiencia">Experiência profissional na área do estágio <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>' +
+          '<textarea id="e-experiencia" class="form-control" maxlength="3000" rows="5">' + escapeHtml(s.experiencia || '') + '</textarea>' +
+          '<div class="char-counter"><span id="cnt-e-experiencia">0</span>/3000 caracteres</div>' +
+        '</div>' +
+        '</div>';
+
+      document.getElementById('modal-sup-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-edicao">Cancelar</button>' +
+        '<button type="button" class="btn btn-primary" id="btn-salvar-edicao">Salvar Alterações</button>';
+      document.getElementById('btn-cancelar-edicao').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-salvar-edicao').addEventListener('click', salvarEdicaoAdmin);
+
+      (s.formacao && s.formacao.length ? s.formacao : [{ nivel: '', area: '' }]).forEach(function (f) {
+        _addFormacaoLista('e-formacao-lista', f.nivel, f.area);
+      });
+      document.getElementById('btn-add-e-formacao').addEventListener('click', function () { _addFormacaoLista('e-formacao-lista', '', ''); });
+      var cntExp = document.getElementById('cnt-e-experiencia');
+      cntExp.textContent = document.getElementById('e-experiencia').value.length;
+      document.getElementById('e-experiencia').addEventListener('input', function () { cntExp.textContent = this.value.length; });
+    }
+
+    async function salvarEdicaoAdmin() {
+      var s = _atual;
+      var btn = document.getElementById('btn-salvar-edicao');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('editarSupervisorAdmin', {
+          cpf: s.cpf,
+          nome: document.getElementById('e-nome').value.trim(),
+          cargo: document.getElementById('e-cargo').value.trim(),
+          telSupervisor: document.getElementById('e-tel-sup').value.trim(),
+          emailSupervisor: document.getElementById('e-email-sup').value.trim(),
+          setor: document.getElementById('e-setor').value.trim(),
+          telSetor: document.getElementById('e-tel-setor').value.trim(),
+          emailSetor: document.getElementById('e-email-setor').value.trim(),
+          enderecoSetor: document.getElementById('e-end-setor').value.trim(),
+          formacao: _coletarFormacaoLista('e-formacao-lista'),
+          experiencia: document.getElementById('e-experiencia').value.trim(),
+        });
+        showToast('Dados salvos com sucesso.', 'success');
+        await carregar();
+        var novo = _dados.find(function (x) { return x.cpf === s.cpf; });
+        if (novo) { _atual = novo; renderVisualizacao(); } else fechar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    /* ── Recusar ── */
+    function renderRecusa() {
+      document.getElementById('modal-sup-titulo').textContent = 'Recusar Supervisor';
+      document.getElementById('modal-sup-body').innerHTML =
+        '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">Informe o motivo da recusa. O supervisor receberá um e-mail com esta observação e poderá corrigir e reenviar o cadastro.</p>' +
+        '<div class="form-group"><label class="form-label" for="obs-recusa">Observações / Motivo da recusa</label>' +
+        '<textarea id="obs-recusa" class="form-control" rows="5" placeholder="Ex.: Documentação incompleta. Informar o tempo de experiência mínimo exigido…"></textarea></div>';
+      document.getElementById('modal-sup-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-recusa">Cancelar</button>' +
+        '<button type="button" class="btn btn-danger" id="btn-confirmar-recusa">Confirmar recusa</button>';
+      document.getElementById('btn-cancelar-recusa').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-confirmar-recusa').addEventListener('click', confirmarRecusa);
+    }
+
+    async function confirmarRecusa() {
+      var obs = document.getElementById('obs-recusa').value.trim();
+      if (!obs) { showToast('Informe o motivo da recusa.', 'error'); return; }
+      var btn = document.getElementById('btn-confirmar-recusa');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('recusarSupervisor', { cpf: _atual.cpf, obs: obs });
+        showToast('Supervisor recusado. E-mail enviado.', 'success');
+        fechar(); carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    /* ── Excluir ── */
+    function renderExcluir() {
+      document.getElementById('modal-sup-titulo').textContent = 'Excluir Supervisor';
+      document.getElementById('modal-sup-body').innerHTML =
+        '<div class="alert alert-error" style="margin-bottom:var(--space-4);"><div class="alert-content"><strong>Atenção:</strong> esta ação marca o cadastro como excluído. O registro é mantido, mas não aparece mais nas listagens ativas.</div></div>' +
+        '<p>Tem certeza que deseja excluir o supervisor <strong>' + escapeHtml(_atual.nome || '') + '</strong>?</p>';
+      document.getElementById('modal-sup-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-cancelar-excluir">Cancelar</button>' +
+        '<button type="button" class="btn btn-danger" id="btn-confirmar-excluir">Confirmar Exclusão</button>';
+      document.getElementById('btn-cancelar-excluir').addEventListener('click', renderVisualizacao);
+      document.getElementById('btn-confirmar-excluir').addEventListener('click', confirmarExcluir);
+    }
+
+    async function confirmarExcluir() {
+      var btn = document.getElementById('btn-confirmar-excluir');
+      btn.classList.add('is-loading'); btn.disabled = true;
+      try {
+        await API.post('excluirSupervisor', { cpf: _atual.cpf });
+        showToast('Supervisor excluído.', 'success');
+        fechar(); carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      finally { btn.classList.remove('is-loading'); btn.disabled = false; }
+    }
+
+    /* ── Ações simples ── */
+    async function acaoSimples(action, successMsg) {
+      try {
+        await API.post(action, { cpf: _atual.cpf });
+        showToast(successMsg, 'success');
+        fechar(); carregar();
+      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+    }
+
+    function fechar() {
+      document.getElementById('modal-sup').classList.remove('is-open');
+      _atual = null;
+    }
+
+    /* ── Formação (lista dinâmica nível+área) — reaproveitada no cadastro e na edição ── */
+    function _addFormacaoLista(listaId, nivel, area) {
+      var lista = document.getElementById(listaId);
+      var idx = lista.children.length + 1;
+      var row = document.createElement('div');
+      row.className = 'item-lista-row';
+      var label = document.createElement('span');
+      label.className = 'item-lista-indice';
+      label.textContent = idx + '.';
+      var selNivel = document.createElement('select');
+      selNivel.className = 'form-control';
+      selNivel.style.flex = '0 0 180px';
+      ['', 'Ensino Médio', 'Técnico', 'Graduação', 'Especialização', 'Mestrado', 'Doutorado'].forEach(function (op) {
+        var o = document.createElement('option');
+        o.value = op;
+        o.textContent = op || 'Nível...';
+        if (op === nivel) o.selected = true;
+        selNivel.appendChild(o);
+      });
+      var inputArea = document.createElement('input');
+      inputArea.type = 'text';
+      inputArea.className = 'form-control';
+      inputArea.style.flex = '1';
+      inputArea.maxLength = 150;
+      inputArea.value = area || '';
+      inputArea.placeholder = 'Área — Ex: Recursos Humanos';
+      var btnRem = document.createElement('button');
+      btnRem.type = 'button';
+      btnRem.className = 'item-lista-remove';
+      btnRem.textContent = '×';
+      btnRem.title = 'Remover';
+      btnRem.addEventListener('click', function () {
+        lista.removeChild(row);
+        Array.from(lista.children).forEach(function (r, i) { r.querySelector('.item-lista-indice').textContent = (i + 1) + '.'; });
+      });
+      row.appendChild(label);
+      row.appendChild(selNivel);
+      row.appendChild(inputArea);
+      row.appendChild(btnRem);
+      lista.appendChild(row);
+    }
+
+    function _coletarFormacaoLista(listaId) {
+      return Array.from(document.querySelectorAll('#' + listaId + ' .item-lista-row')).map(function (row) {
+        var selects = row.querySelectorAll('select');
+        var inputs = row.querySelectorAll('input');
+        return { nivel: selects[0].value, area: inputs[0].value.trim() };
+      }).filter(function (f) { return f.nivel || f.area; });
+    }
+
+    /* ── Cadastrar supervisor diretamente ── */
+    async function carregarConcedentesSup() {
+      var sel = document.getElementById('cs-concedente');
+      try {
+        var lista = await API.get('listarEmpresasAdmin');
+        var validas = (lista || []).filter(function (e) { return e.ehInstituicao || e.status === 'Validada'; });
+        sel.innerHTML = '<option value="">Selecione a concedente...</option>';
+        validas.forEach(function (e) {
+          var opt = document.createElement('option');
+          opt.value = e.cnpj;
+          opt.dataset.nome = e.razaoSocial;
+          opt.textContent = (e.nomeFantasia || e.razaoSocial) + ' — ' + e.cnpj;
+          sel.appendChild(opt);
+        });
+        sel.disabled = false;
+        makeSearchable('cs-concedente', 'Digite o nome da concedente…');
+      } catch (e) {
+        sel.innerHTML = '<option value="">Erro ao carregar — recarregue a página</option>';
+      }
+    }
+
+    document.getElementById('btn-cadastrar-supervisor').addEventListener('click', function () {
+      hideFormFeedback('fb-cadastrar-sup');
+      document.getElementById('modal-cadastrar-sup').classList.add('is-open');
+    });
+    document.getElementById('modal-cadastrar-sup-fechar').addEventListener('click', fecharCadastroSup);
+    document.getElementById('modal-cadastrar-sup-cancelar').addEventListener('click', fecharCadastroSup);
+    document.getElementById('modal-cadastrar-sup').addEventListener('click', function (e) { if (e.target === this) fecharCadastroSup(); });
+
+    document.getElementById('btn-add-cs-formacao').addEventListener('click', function () { _addFormacaoLista('cs-formacao-lista', '', ''); });
+    _addFormacaoLista('cs-formacao-lista', '', '');
+
+    var cntCsExp = document.getElementById('cnt-cs-experiencia');
+    document.getElementById('cs-experiencia').addEventListener('input', function () { cntCsExp.textContent = this.value.length; });
+
+    function fecharCadastroSup() {
+      document.getElementById('modal-cadastrar-sup').classList.remove('is-open');
+      ['cs-nome', 'cs-cpf', 'cs-email', 'cs-tel', 'cs-cargo',
+        'cs-setor', 'cs-tel-setor', 'cs-email-setor', 'cs-end-setor', 'cs-experiencia'
+      ].forEach(function (id) { document.getElementById(id).value = ''; });
+      document.getElementById('cnt-cs-experiencia').textContent = '0';
+      document.getElementById('cs-concedente').value = '';
+      var wrapper = document.getElementById('cs-concedente').parentNode.querySelector('.ss-wrapper input');
+      if (wrapper) wrapper.value = '';
+      document.getElementById('cs-formacao-lista').innerHTML = '';
+      _addFormacaoLista('cs-formacao-lista', '', '');
+      hideFormFeedback('fb-cadastrar-sup');
+    }
+
+    document.getElementById('btn-salvar-supervisor').addEventListener('click', async function () {
+      var btn = this;
+      hideFormFeedback('fb-cadastrar-sup');
+      var nome = document.getElementById('cs-nome').value.trim();
+      var cpf = document.getElementById('cs-cpf').value.trim();
+      var email = document.getElementById('cs-email').value.trim();
+      var cnpjConcedente = document.getElementById('cs-concedente').value;
+
+      if (!nome) { showFormFeedback('fb-cadastrar-sup', 'error', '', 'Informe o nome do supervisor.'); return; }
+      if (!cpf) { showFormFeedback('fb-cadastrar-sup', 'error', '', 'Informe o CPF.'); return; }
+      if (!email) { showFormFeedback('fb-cadastrar-sup', 'error', '', 'Informe o e-mail.'); return; }
+      if (!cnpjConcedente) { showFormFeedback('fb-cadastrar-sup', 'error', '', 'Selecione a concedente.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Cadastrando…';
+      try {
+        await API.post('cadastrarSupervisorAdmin', {
+          nome: nome, cpf: cpf, email: email,
+          telefone: document.getElementById('cs-tel').value.trim(),
+          cargo: document.getElementById('cs-cargo').value.trim(),
+          formacao: _coletarFormacaoLista('cs-formacao-lista'),
+          experiencia: document.getElementById('cs-experiencia').value.trim(),
+          cnpjEmpresa: cnpjConcedente,
+          setor: document.getElementById('cs-setor').value.trim(),
+          telSetor: document.getElementById('cs-tel-setor').value.trim(),
+          emailSetor: document.getElementById('cs-email-setor').value.trim(),
+          enderecoSetor: document.getElementById('cs-end-setor').value.trim(),
+        });
+        showToast('Supervisor cadastrado com sucesso.', 'success');
+        fecharCadastroSup();
+        carregar();
+      } catch (err) {
+        showFormFeedback('fb-cadastrar-sup', 'error', '', err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Cadastrar supervisor';
+      }
+    });
+
+    /* ── Convidar supervisor ── */
+    document.getElementById('btn-convidar-supervisor').addEventListener('click', function () {
+      hideFormFeedback('fb-convidar-sup');
+      document.getElementById('modal-convidar-sup').classList.add('is-open');
+    });
+    document.getElementById('modal-convidar-sup-fechar').addEventListener('click', fecharConviteSup);
+    document.getElementById('modal-convidar-sup-cancelar').addEventListener('click', fecharConviteSup);
+    document.getElementById('modal-convidar-sup').addEventListener('click', function (e) { if (e.target === this) fecharConviteSup(); });
+
+    function fecharConviteSup() {
+      document.getElementById('modal-convidar-sup').classList.remove('is-open');
+      ['convite-sup-email', 'convite-sup-cpf', 'convite-sup-cnpj', 'convite-sup-nome'].forEach(function (id) {
+        document.getElementById(id).value = '';
+      });
+      hideFormFeedback('fb-convidar-sup');
+    }
+
+    document.getElementById('btn-enviar-convite-sup').addEventListener('click', async function () {
+      var btn = this;
+      hideFormFeedback('fb-convidar-sup');
+      var email = document.getElementById('convite-sup-email').value.trim();
+      if (!email || !email.includes('@')) {
+        showFormFeedback('fb-convidar-sup', 'error', '', 'Informe um e-mail válido.');
+        return;
+      }
+      var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('enviarMagicLinkSupervisor', {
+          email: email,
+          cpf: document.getElementById('convite-sup-cpf').value.trim(),
+          cnpjEmpresa: document.getElementById('convite-sup-cnpj').value.trim(),
+          nome: document.getElementById('convite-sup-nome').value.trim(),
+        });
+        fecharConviteSup();
+        showToast('✅ Convite enviado para ' + escapeHtml(email) + '.', 'success');
+      } catch (err) {
+        showFormFeedback('fb-convidar-sup', 'error', '', err.message);
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
     });
 
     (function () {
