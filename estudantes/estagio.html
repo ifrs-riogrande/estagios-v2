@@ -940,8 +940,12 @@
             'Selecione o vínculo para este estágio...'
           );
           selVinculo.disabled = false;
+          var vinculoPadrao = getVinculoPadrao();
           if (cursos.length === 1) {
             selVinculo.value = cursos[0].curso;
+            selVinculo.dispatchEvent(new Event('change'));
+          } else if (vinculoPadrao && cursos.some(function (c) { return c.curso === vinculoPadrao; })) {
+            selVinculo.value = vinculoPadrao;
             selVinculo.dispatchEvent(new Event('change'));
           }
         }
@@ -1036,6 +1040,7 @@
       document.getElementById('curso-estagio').value = cursoNome;
       document.getElementById('matricula-estagio').value = entry ? entry.matricula : '';
       emailInstEstagio = entry ? (entry.emailInst || '') : '';
+      setVinculoPadrao(cursoNome);
 
       var grupo = (cursosPorNome[cursoNome] || {}).grupo || '';
       var opcoes = opcoesSemestrePorGrupo(grupo);

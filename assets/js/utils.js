@@ -151,6 +151,29 @@ function populateSelect(selectId, options, placeholder = 'Selecione...') {
 }
 
 // ─────────────────────────────────────────
+//  VÍNCULO ACADÊMICO PADRÃO (estudantes com múltiplos cursos)
+// ─────────────────────────────────────────
+const VINCULO_PADRAO_KEY = 'sge_vinculo_padrao';
+
+/**
+ * Lê o curso escolhido como vínculo padrão nas últimas solicitações
+ * (mesma chave usada por todas as páginas de solicitação, pra que a
+ * preferência convirja independente de qual formulário o estudante usou
+ * por último).
+ */
+function getVinculoPadrao() {
+  try { return localStorage.getItem(VINCULO_PADRAO_KEY) || ''; } catch (e) { return ''; }
+}
+
+/**
+ * Salva o curso escolhido como vínculo padrão. Chamar no 'change' do
+ * select de vínculo de cada formulário de solicitação.
+ */
+function setVinculoPadrao(curso) {
+  try { if (curso) localStorage.setItem(VINCULO_PADRAO_KEY, curso); } catch (e) { /* localStorage indisponível — não bloqueia o formulário */ }
+}
+
+// ─────────────────────────────────────────
 //  VALIDAÇÃO DE UPLOAD DE PDF (magic bytes)
 // ─────────────────────────────────────────
 const PDF_MAGIC = [0x25, 0x50, 0x44, 0x46]; // %PDF

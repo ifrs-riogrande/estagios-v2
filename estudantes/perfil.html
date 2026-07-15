@@ -451,6 +451,8 @@
                 </button>
               </div>
             </div>
+            <span id="cad-cursos-error" class="form-error hidden" role="alert"></span>
+            <div id="cad-cursos-lista"></div>
           </div>
 
           <!-- Seção 5: Declaração -->
@@ -513,6 +515,7 @@
       requireAreaAuth('estudante', '../index.html');
 
       initAccordion(document.getElementById('form-cadastro'));
+      carregarCursosCadastro();
 
       showToast(
         '<strong>Primeiro acesso.</strong> Preencha seus dados para se cadastrar. '
@@ -520,6 +523,93 @@
         + 'Dúvidas: <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>',
         'info'
       );
+    });
+
+    // ── Seção 4 — Dados Acadêmicos: lista de vínculos (curso + matrícula + e-mail) ──
+    var MAX_VINCULOS = 6;
+
+    async function carregarCursosCadastro() {
+      var sel = document.getElementById('cad-curso-add');
+      try {
+        var cursos = await API.get('listarCursos');
+        var nomes = Array.from(new Set((cursos || []).map(function (c) { return c.nome; }))).sort();
+        populateSelect('cad-curso-add', nomes.map(function (n) { return { value: n, label: n }; }), 'Selecione o curso...');
+      } catch (e) {
+        sel.innerHTML = '<option value="">Erro ao carregar cursos</option>';
+      }
+    }
+
+    function _cursosAdicionados() {
+      return Array.from(document.querySelectorAll('#cad-cursos-lista .item-lista-row')).map(function (row) {
+        return { curso: row.dataset.curso, matricula: row.dataset.matricula, emailInst: row.dataset.email };
+      });
+    }
+
+    function _addCurso(curso, matricula, emailInst) {
+      var lista = document.getElementById('cad-cursos-lista');
+      var atuais = _cursosAdicionados();
+
+      clearFieldError('cad-cursos');
+      if (atuais.length >= MAX_VINCULOS) {
+        showFieldError('cad-cursos', 'Máximo de ' + MAX_VINCULOS + ' cursos.');
+        return false;
+      }
+      if (atuais.some(function (c) { return c.curso === curso; })) {
+        showFieldError('cad-cursos', 'Esse curso já foi adicionado.');
+        return false;
+      }
+      if (atuais.some(function (c) { return c.emailInst.toLowerCase() === emailInst.toLowerCase(); })) {
+        showFieldError('cad-cursos', 'Esse e-mail institucional já foi usado em outro vínculo.');
+        return false;
+      }
+
+      var row = document.createElement('div');
+      row.className = 'item-lista-row';
+      row.dataset.curso = curso;
+      row.dataset.matricula = matricula;
+      row.dataset.email = emailInst;
+      var label = document.createElement('span');
+      label.className = 'item-lista-indice';
+      label.textContent = (lista.children.length + 1) + '.';
+      var texto = document.createElement('span');
+      texto.style.flex = '1';
+      texto.textContent = curso + ' · Mat. ' + matricula + ' · ' + emailInst;
+      var btnRem = document.createElement('button');
+      btnRem.type = 'button';
+      btnRem.className = 'item-lista-remove';
+      btnRem.textContent = '×';
+      btnRem.title = 'Remover';
+      btnRem.addEventListener('click', function () {
+        lista.removeChild(row);
+        Array.from(lista.children).forEach(function (r, i) { r.querySelector('.item-lista-indice').textContent = (i + 1) + '.'; });
+      });
+      row.appendChild(label);
+      row.appendChild(texto);
+      row.appendChild(btnRem);
+      lista.appendChild(row);
+      return true;
+    }
+
+    document.getElementById('cad-btn-add-curso').addEventListener('click', function () {
+      var curso = document.getElementById('cad-curso-add').value;
+      var matricula = document.getElementById('cad-matricula-add').value.trim();
+      var email = document.getElementById('cad-email-inst-add').value.trim();
+
+      clearFieldError('cad-cursos');
+      if (!curso || !matricula || !email) {
+        showFieldError('cad-cursos', 'Preencha curso, matrícula e e-mail institucional antes de adicionar.');
+        return;
+      }
+      if (!email.toLowerCase().endsWith('@aluno.riogrande.ifrs.edu.br')) {
+        showFieldError('cad-cursos', 'O e-mail institucional deve terminar em @aluno.riogrande.ifrs.edu.br.');
+        return;
+      }
+
+      if (_addCurso(curso, matricula, email)) {
+        document.getElementById('cad-curso-add').value = '';
+        document.getElementById('cad-matricula-add').value = '';
+        document.getElementById('cad-email-inst-add').value = '';
+      }
     });
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez

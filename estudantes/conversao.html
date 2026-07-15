@@ -550,8 +550,12 @@
             'Selecione o curso...'
           );
           selVinculo.disabled = false;
+          var vinculoPadrao = getVinculoPadrao();
           if (cursos.length === 1) {
             selVinculo.value = cursos[0].curso;
+            selVinculo.dispatchEvent(new Event('change'));
+          } else if (vinculoPadrao && cursos.some(function (c) { return c.curso === vinculoPadrao; })) {
+            selVinculo.value = vinculoPadrao;
             selVinculo.dispatchEvent(new Event('change'));
           }
         }
@@ -623,6 +627,7 @@
 
       var entry = (dadosEstudante.cursos || []).find(function (c) { return c.curso === cursoNome; });
       document.getElementById('matricula-conversao').value = entry ? entry.matricula : '';
+      setVinculoPadrao(cursoNome);
 
       var grupo = (cursosPorNome[cursoNome] || {}).grupo || '';
       var opcoes = opcoesSemestrePorGrupo(grupo);
