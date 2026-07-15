@@ -131,6 +131,46 @@
 
     .th-sort { cursor: pointer; user-select: none; }
     .th-sort .th-sort-arrow { opacity: .4; font-size: .8em; margin-left: 2px; }
+
+    .toolbar-actions {
+      display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); flex-wrap: wrap;
+      margin-bottom: var(--space-3);
+    }
+
+    .btn-export {
+      display: inline-flex; align-items: center; gap: 5px;
+      height: 32px; padding: 0 var(--space-3);
+      border-radius: var(--radius-md); border: 1px solid var(--color-border);
+      font-size: var(--font-size-xs); font-weight: 600; cursor: pointer;
+      transition: all .15s; white-space: nowrap; background: var(--color-surface);
+      color: var(--color-text);
+    }
+    .btn-export--xls { color: #166534; border-color: #bbf7d0; background: #f0fdf4; }
+    .btn-export--xls:hover { background: #dcfce7; border-color: #86efac; }
+    .btn-export--pdf { color: #991b1b; border-color: #fecaca; background: #fff5f5; }
+    .btn-export--pdf:hover { background: #fee2e2; border-color: #fca5a5; }
+
+    @media print {
+      #app-header, #app-footer,
+      .filters, .toolbar-actions,
+      #resultado-count, .no-print { display: none !important; }
+
+      .page-hero { padding: 12px 0 8px !important; }
+      .page-hero-title { font-size: 18px !important; margin: 0; }
+      .page-hero-desc { display: none; }
+
+      .table-wrapper { border: none; overflow: visible; }
+      .table { font-size: 11px; }
+      .table th { font-size: 10px; padding: 4px 6px; }
+      .table td { padding: 4px 6px; }
+      .table tr:hover td { background: none; }
+
+      .badge { padding: 1px 4px; }
+
+      #print-meta { display: block !important; font-size: 11px; color: #666; margin-bottom: 8px; }
+      body { font-size: 12px; }
+    }
+    #print-meta { display: none; }
   </style>
 </head>
 <body>
@@ -232,6 +272,13 @@
 
       <div id="conteudo" class="hidden">
 
+        <div class="toolbar-actions">
+          <button type="button" id="btn-exportar-xls" class="btn-export btn-export--xls">⬇ Exportar XLS</button>
+          <button type="button" id="btn-exportar-pdf" class="btn-export btn-export--pdf">🖨 Exportar PDF</button>
+        </div>
+
+        <div id="print-meta"></div>
+
         <div class="filters">
           <div class="form-group">
             <label class="form-label" for="filtro-papel">Papel</label>
@@ -301,6 +348,8 @@
     </div>
   </footer>
 
+  <!-- SheetJS para exportação XLS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
@@ -309,6 +358,7 @@
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
     var _todos = [];
+    var _filtrados = [];
     var _sortCol = -1;
     var _sortAsc = true;
 
@@ -365,11 +415,60 @@
         return true;
       });
 
+      _filtrados = filtrados;
       renderTabela(filtrados);
     }
     document.getElementById('filtro-papel').addEventListener('change', filtrar);
     document.getElementById('filtro-tipo').addEventListener('change', filtrar);
     document.getElementById('filtro-busca').addEventListener('input', filtrar);
+
+    /* ── Exportação ── */
+    function exportarXLS() {
+      if (_filtrados.length === 0) {
+        showToast('Nenhum dado para exportar. Ajuste os filtros e tente novamente.', 'error');
+        return;
+      }
+      var linhas = _filtrados.map(function (s) {
+        return {
+          'Papel': LABEL_PAPEL[s.papel] || '',
+          'ID Estágio': s.id || '',
+          'Estudante': s.nomeEstudante || '',
+          'Matrícula': s.matricula || '',
+          'Curso': s.curso || '',
+          'Empresa': s.empresa || '',
+          'Tipo de Estágio': s.tipoEstagio || '',
+          'Data Início': s.dataInicio || '',
+          'Data Término': s.dataTermino || '',
+        };
+      });
+
+      var ws = XLSX.utils.json_to_sheet(linhas);
+      ws['!cols'] = [{ wch: 14 }, { wch: 18 }, { wch: 30 }, { wch: 12 }, { wch: 35 }, { wch: 30 }, { wch: 18 }, { wch: 12 }, { wch: 12 }];
+
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Histórico');
+      var ts = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, 'historico_' + ts + '.xlsx');
+    }
+    document.getElementById('btn-exportar-xls').addEventListener('click', exportarXLS);
+
+    function exportarPDF() {
+      if (_filtrados.length === 0) {
+        showToast('Nenhum dado para exportar. Ajuste os filtros e tente novamente.', 'error');
+        return;
+      }
+
+      var agora = new Date().toLocaleString('pt-BR');
+      var total = _filtrados.length;
+      var meta = document.getElementById('print-meta');
+      meta.innerHTML =
+        '<strong>IFRS Campus Rio Grande — Histórico de Orientações e Supervisões</strong><br>' +
+        'Gerado em: ' + escapeHtml(agora) + ' &nbsp;|&nbsp; Total: ' + total + ' registro' + (total !== 1 ? 's' : '');
+
+      window.print();
+      setTimeout(function () { meta.innerHTML = ''; }, 500);
+    }
+    document.getElementById('btn-exportar-pdf').addEventListener('click', exportarPDF);
 
     function _sortKey(s, col) {
       switch (col) {
