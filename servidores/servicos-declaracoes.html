@@ -193,7 +193,7 @@
       <div class="container mega-panel-grid">
         <a href="servicos-declaracoes.html" class="mega-panel-item is-current">
           <span class="mega-panel-item-title">Declarações</span>
-          <span class="mega-panel-item-desc">Emissão de declarações de orientação, supervisão e coordenação</span>
+          <span class="mega-panel-item-desc">Emissão de declarações de orientação e supervisão</span>
         </a>
         <a href="servicos-historico.html" class="mega-panel-item">
           <span class="mega-panel-item-title">Histórico</span>
@@ -210,7 +210,7 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Declarações</h1>
-        <p class="page-hero-desc">Emissão de declarações de orientação, supervisão e coordenação.</p>
+        <p class="page-hero-desc">Emissão de declarações de orientação e supervisão.</p>
       </div>
     </section>
 
@@ -218,84 +218,96 @@
       <div style="max-width:800px;margin:0 auto;">
 
         <!-- Nova Declaração -->
-        <div class="card" style="margin-bottom:var(--space-8);">
+        <div class="card">
           <div class="card-header">
             <h2 class="card-title">Nova Declaração</h2>
           </div>
           <div class="card-body">
             <div id="fb-declaracao"></div>
 
-            <div class="form-check" style="margin-bottom:var(--space-4);">
-              <input type="checkbox" id="todo-periodo">
-              <label class="form-check-label" for="todo-periodo">Todos os períodos — incluir todos os estágios concluídos, independentemente da data</label>
-            </div>
-
-            <div class="form-row" id="bloco-periodo" style="margin-bottom:var(--space-5);">
-              <div class="form-group">
-                <label class="form-label required" for="periodo-inicio">Período — início</label>
-                <input type="date" id="periodo-inicio" class="form-control">
-              </div>
-              <div class="form-group">
-                <label class="form-label required" for="periodo-fim">Período — fim</label>
-                <input type="date" id="periodo-fim" class="form-control">
-              </div>
-            </div>
-
-            <div class="form-row" style="margin-bottom:var(--space-6);">
-              <div class="form-group">
-                <label class="form-label required">Função</label>
-                <div class="radio-group" id="grupo-funcao" aria-required="true">
-                  <div class="form-check">
-                    <input type="checkbox" id="funcao-orientacao">
-                    <label class="form-check-label" for="funcao-orientacao">Orientação</label>
-                  </div>
-                  <div class="form-check">
-                    <input type="checkbox" id="funcao-supervisao">
-                    <label class="form-check-label" for="funcao-supervisao">Supervisão</label>
-                  </div>
-                  <div class="form-check">
-                    <input type="checkbox" id="funcao-coordenacao">
-                    <label class="form-check-label" for="funcao-coordenacao">Coordenação</label>
-                  </div>
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label required">1. Tipo de declaração</label>
+              <div class="radio-group" id="grupo-tipo" aria-required="true" style="flex-direction:column;align-items:flex-start;">
+                <div class="radio-option">
+                  <input type="radio" name="tipo-declaracao" id="tipo-orientacao" value="orientacao">
+                  <label for="tipo-orientacao">Declaração de Orientação de Estágio</label>
                 </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label required">Modalidade</label>
-                <div class="radio-group" id="grupo-modalidade" aria-required="true">
-                  <div class="radio-option">
-                    <input type="radio" name="modalidade" id="modalidade-obrigatorio" value="Obrigatório">
-                    <label for="modalidade-obrigatorio">Obrigatório</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" name="modalidade" id="modalidade-nao-obrigatorio" value="Não Obrigatório">
-                    <label for="modalidade-nao-obrigatorio">Não Obrigatório</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" name="modalidade" id="modalidade-ambos" value="Ambos">
-                    <label for="modalidade-ambos">Ambos</label>
-                  </div>
+                <div class="radio-option">
+                  <input type="radio" name="tipo-declaracao" id="tipo-supervisao" value="supervisao">
+                  <label for="tipo-supervisao">Declaração de Supervisão de Estágio</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="tipo-declaracao" id="tipo-consolidada" value="consolidada">
+                  <label for="tipo-consolidada">Declaração Consolidada (Orientação + Supervisão)</label>
                 </div>
               </div>
             </div>
 
-            <div class="alert alert-info" style="margin-bottom:var(--space-5);">
-              <div class="alert-content">A declaração será gerada em PDF e enviada para o seu e-mail institucional. O documento inclui lista de estágios, assinatura eletrônica e QR Code de validação.</div>
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label required">2. Período</label>
+              <div class="radio-group" id="grupo-periodo" aria-required="true" style="flex-direction:column;align-items:flex-start;margin-bottom:var(--space-4);">
+                <div class="radio-option">
+                  <input type="radio" name="periodo-tipo" id="periodo-todos" value="todos" checked>
+                  <label for="periodo-todos">Todos os períodos</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" name="periodo-tipo" id="periodo-personalizado" value="personalizado">
+                  <label for="periodo-personalizado">Período personalizado</label>
+                </div>
+              </div>
+              <div class="form-row hidden" id="bloco-periodo">
+                <div class="form-group">
+                  <label class="form-label required" for="periodo-inicio">Início</label>
+                  <input type="date" id="periodo-inicio" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label required" for="periodo-fim">Fim</label>
+                  <input type="date" id="periodo-fim" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label required">3. Estágios a incluir</label>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" style="font-weight:400;color:var(--color-text-muted);">Situação</label>
+                  <div class="radio-group" id="grupo-situacao" aria-required="true">
+                    <div class="radio-option">
+                      <input type="radio" name="situacao" id="situacao-concluidos" value="Concluídos">
+                      <label for="situacao-concluidos">Concluídos</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" name="situacao" id="situacao-andamento" value="Em andamento">
+                      <label for="situacao-andamento">Em andamento</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" name="situacao" id="situacao-ambos" value="Ambos">
+                      <label for="situacao-ambos">Ambos</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="font-weight:400;color:var(--color-text-muted);">Modalidade</label>
+                  <div class="radio-group" id="grupo-modalidade" aria-required="true">
+                    <div class="radio-option">
+                      <input type="radio" name="modalidade" id="modalidade-obrigatorio" value="Obrigatório">
+                      <label for="modalidade-obrigatorio">Obrigatórios</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" name="modalidade" id="modalidade-nao-obrigatorio" value="Não Obrigatório">
+                      <label for="modalidade-nao-obrigatorio">Não obrigatórios</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" name="modalidade" id="modalidade-ambos" value="Ambos">
+                      <label for="modalidade-ambos">Ambos</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <button type="button" id="btn-solicitar" class="btn btn-primary">Gerar e enviar por e-mail</button>
-          </div>
-        </div>
-
-        <!-- Histórico -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Histórico de Declarações</h2>
-          </div>
-          <div class="card-body" id="historico-container">
-            <div class="empty-state">
-              <div class="spinner" aria-hidden="true"></div>
-              <p>Carregando…</p>
-            </div>
           </div>
         </div>
 
@@ -326,160 +338,50 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-    var _listaDecl = [];
-    var _sortCol = 1; // Data por padrão
-    var _sortAsc = false;
-
     // Guarda de acesso: só servidores autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
-      carregarHistorico();
     });
 
-    document.getElementById('todo-periodo').addEventListener('change', function () {
-      var checked = this.checked;
-      var bloco = document.getElementById('bloco-periodo');
-      bloco.style.opacity = checked ? '0.4' : '1';
-      bloco.style.pointerEvents = checked ? 'none' : '';
-      document.getElementById('periodo-inicio').disabled = checked;
-      document.getElementById('periodo-fim').disabled = checked;
-    });
-
-    function fmtPeriodo(v) {
-      if (!v) return '—';
-      var m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);
-      return m ? (m[3] + '/' + m[2] + '/' + m[1]) : v;
-    }
-    var LABEL_FUNCAO = { orientacao: 'Orientação', supervisao: 'Supervisão', coordenacao: 'Coordenação' };
-    function labelFuncoes(funcoes) {
-      return (funcoes || []).map(function (f) { return LABEL_FUNCAO[f] || f; }).join(' e ') || '—';
-    }
-    function labelPeriodo(d) {
-      return (!d.periodoInicio && !d.periodoFim) ? 'Todos os períodos' : fmtPeriodo(d.periodoInicio) + ' a ' + fmtPeriodo(d.periodoFim);
-    }
-
-    async function carregarHistorico() {
-      document.getElementById('historico-container').innerHTML =
-        '<div class="empty-state"><div class="spinner" aria-hidden="true"></div><p>Carregando…</p></div>';
-      try {
-        var lista = await API.get('listarDeclaracoesServidor');
-        renderizarHistorico(Array.isArray(lista) ? lista : []);
-      } catch (err) {
-        document.getElementById('historico-container').innerHTML =
-          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar histórico: ' + escapeHtml(err.message) + '</div></div>';
-      }
-    }
-
-    function _sortKey(d, col) {
-      switch (col) {
-        case 0: return d.id || '';
-        case 1: return d.dataEmissao || '';
-        case 2: return labelFuncoes(d.funcoes);
-        case 3: return d.modalidade || '';
-        case 4: return (d.periodoInicio || '') + (d.periodoFim || '');
-        case 5: return d.totalEstagios || 0;
-        default: return '';
-      }
-    }
-
-    function renderizarHistorico(lista) {
-      _listaDecl = lista;
-      var c = document.getElementById('historico-container');
-
-      if (!lista.length) {
-        c.innerHTML = '<div class="empty-state">' +
-          '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto var(--space-4);display:block;opacity:.3;"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>' +
-          '<p>Nenhuma declaração emitida ainda.</p></div>';
-        return;
-      }
-
-      var sorted = lista.slice().sort(function (a, b) {
-        var ka = _sortKey(a, _sortCol);
-        var kb = _sortKey(b, _sortCol);
-        var cmp = typeof ka === 'number' ? ka - kb : String(ka).localeCompare(String(kb), 'pt-BR');
-        return _sortAsc ? cmp : -cmp;
+    document.querySelectorAll('input[name="periodo-tipo"]').forEach(function (radio) {
+      radio.addEventListener('change', function () {
+        document.getElementById('bloco-periodo').classList.toggle('hidden', this.value !== 'personalizado');
       });
-
-      function arrow(col) {
-        if (_sortCol !== col) return '<span class="th-sort-arrow">↕</span>';
-        return '<span class="th-sort-arrow" style="opacity:1;">' + (_sortAsc ? '▲' : '▼') + '</span>';
-      }
-      function th(col, label, extra) {
-        return '<th class="th-sort" data-col="' + col + '"' + (extra || '') + '>' + label + ' ' + arrow(col) + '</th>';
-      }
-
-      var html = '<div class="table-wrapper"><table class="table" id="tbl-declaracoes"><thead><tr>' +
-        th(0, 'ID') + th(1, 'Data') + th(2, 'Função') + th(3, 'Modalidade') + th(4, 'Período') +
-        th(5, 'Estágios', ' style="text-align:center;"') +
-        '<th style="text-align:right;">Ações</th>' +
-        '</tr></thead><tbody>';
-
-      sorted.forEach(function (d) {
-        html += '<tr>' +
-          '<td><code style="font-size:11px;">' + escapeHtml(d.id || '—') + '</code></td>' +
-          '<td style="white-space:nowrap;">' + escapeHtml(formatDateBR(d.dataEmissao)) + '</td>' +
-          '<td>' + escapeHtml(labelFuncoes(d.funcoes)) + '</td>' +
-          '<td>' + escapeHtml(d.modalidade || '—') + '</td>' +
-          '<td style="white-space:nowrap;">' + escapeHtml(labelPeriodo(d)) + '</td>' +
-          '<td style="text-align:center;">' + escapeHtml(String(d.totalEstagios || 0)) + '</td>' +
-          '<td><div style="display:flex;justify-content:flex-end;gap:6px;">' +
-          '<button type="button" class="btn btn-secondary btn-sm" data-acao="reenviar" data-id="' + escapeHtml(d.id) + '" title="Reenviar declaração por e-mail">↻ Reenviar</button>' +
-          '<button type="button" class="btn btn-danger btn-sm" data-acao="excluir" data-id="' + escapeHtml(d.id) + '" title="Excluir declaração">🗑</button>' +
-          '</div></td>' +
-          '</tr>';
-      });
-
-      html += '</tbody></table></div>';
-      c.innerHTML = html;
-    }
-
-    document.getElementById('historico-container').addEventListener('click', function (e) {
-      var th = e.target.closest('.th-sort');
-      if (th) {
-        var col = parseInt(th.dataset.col, 10);
-        if (_sortCol === col) _sortAsc = !_sortAsc;
-        else { _sortCol = col; _sortAsc = true; }
-        renderizarHistorico(_listaDecl);
-        return;
-      }
-      var btn = e.target.closest('button[data-acao]');
-      if (!btn) return;
-      if (btn.dataset.acao === 'reenviar') reenviarDeclaracao(btn.dataset.id, btn);
-      else if (btn.dataset.acao === 'excluir') deletarDeclaracao(btn.dataset.id, btn);
     });
 
     document.getElementById('btn-solicitar').addEventListener('click', async function () {
       var btn = this;
       hideFormFeedback('fb-declaracao');
 
-      var todoPeriodo = document.getElementById('todo-periodo').checked;
+      var tipoEl = document.querySelector('input[name="tipo-declaracao"]:checked');
+      var tipoDeclaracao = tipoEl ? tipoEl.value : '';
+      var periodoTipo = document.querySelector('input[name="periodo-tipo"]:checked').value;
       var periodoInicio = document.getElementById('periodo-inicio').value;
       var periodoFim = document.getElementById('periodo-fim').value;
-      var funcoes = ['orientacao', 'supervisao', 'coordenacao'].filter(function (f) {
-        return document.getElementById('funcao-' + f).checked;
-      });
+      var situacaoEl = document.querySelector('input[name="situacao"]:checked');
+      var situacao = situacaoEl ? situacaoEl.value : '';
       var modalidadeEl = document.querySelector('input[name="modalidade"]:checked');
       var modalidade = modalidadeEl ? modalidadeEl.value : '';
 
-      if (!todoPeriodo && !periodoInicio) { showFormFeedback('fb-declaracao', 'error', '', 'Informe a data de início do período.'); return; }
-      if (!todoPeriodo && !periodoFim) { showFormFeedback('fb-declaracao', 'error', '', 'Informe a data de fim do período.'); return; }
-      if (!todoPeriodo && periodoInicio > periodoFim) { showFormFeedback('fb-declaracao', 'error', '', 'A data de início deve ser anterior à data de fim.'); return; }
-      if (!funcoes.length) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione ao menos uma função.'); return; }
-      if (!modalidade) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione a modalidade.'); return; }
+      if (!tipoDeclaracao) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione o tipo de declaração.'); return; }
+      if (periodoTipo === 'personalizado' && !periodoInicio) { showFormFeedback('fb-declaracao', 'error', '', 'Informe a data de início do período.'); return; }
+      if (periodoTipo === 'personalizado' && !periodoFim) { showFormFeedback('fb-declaracao', 'error', '', 'Informe a data de fim do período.'); return; }
+      if (periodoTipo === 'personalizado' && periodoInicio > periodoFim) { showFormFeedback('fb-declaracao', 'error', '', 'A data de início deve ser anterior à data de fim.'); return; }
+      if (!situacao) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione a situação dos estágios.'); return; }
+      if (!modalidade) { showFormFeedback('fb-declaracao', 'error', '', 'Selecione a modalidade dos estágios.'); return; }
 
       var orig = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Gerando…';
 
       try {
-        var payload = { funcoes: funcoes, modalidade: modalidade, todoPeriodo: todoPeriodo };
-        if (!todoPeriodo) {
+        var payload = { tipoDeclaracao: tipoDeclaracao, situacao: situacao, modalidade: modalidade, todoPeriodo: periodoTipo === 'todos' };
+        if (periodoTipo === 'personalizado') {
           payload.periodoInicio = periodoInicio;
           payload.periodoFim = periodoFim;
         }
         var res = await API.post('solicitarDeclaracao', payload);
         showToast('✅ Declaração gerada (' + (res && res.totalEstagios || 0) + ' estágio(s)). Verifique seu e-mail.', 'success');
-        await carregarHistorico();
       } catch (err) {
         showFormFeedback('fb-declaracao', 'error', '', err.message);
       } finally {
@@ -487,37 +389,6 @@
         btn.textContent = orig;
       }
     });
-
-    async function deletarDeclaracao(id, btn) {
-      if (!confirm('Excluir esta declaração do histórico? Esta ação não pode ser desfeita.')) return;
-      var orig = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = '…';
-      try {
-        await API.post('deletarDeclaracao', { id: id });
-        showToast('Declaração excluída.', 'success');
-        await carregarHistorico();
-      } catch (err) {
-        showToast('Erro: ' + err.message, 'error');
-        btn.disabled = false;
-        btn.textContent = orig;
-      }
-    }
-
-    async function reenviarDeclaracao(id, btn) {
-      var orig = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Enviando…';
-      try {
-        await API.post('reenviarDeclaracao', { id: id });
-        showToast('✅ Declaração reenviada para o seu e-mail.', 'success');
-      } catch (err) {
-        showToast('Erro: ' + err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = orig;
-      }
-    }
 
     // Mega menu — abre/fecha o painel de Acompanhamento
     (function () {
