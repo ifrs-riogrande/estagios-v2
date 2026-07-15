@@ -273,6 +273,20 @@
     </div>
   </main>
 
+  <!-- Modal: detalhe do estágio + checklist dos validadores -->
+  <div class="modal-backdrop" id="modal-estagio">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-estagio-titulo">Estágio</h2>
+        <button type="button" class="modal-close" id="modal-estagio-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-estagio-body"></div>
+      <div class="modal-footer" id="modal-estagio-footer"></div>
+    </div>
+  </div>
+
   <footer id="app-footer">
     <div class="container">
       <div class="footer-inner">
@@ -308,6 +322,8 @@
       document.getElementById('btn-limpar').addEventListener('click', limparFiltros);
       document.getElementById('btn-exportar-xls').addEventListener('click', exportarXLS);
       document.getElementById('btn-exportar-pdf').addEventListener('click', exportarPDF);
+      document.getElementById('modal-estagio-fechar').addEventListener('click', fecharDetalhe);
+      document.getElementById('modal-estagio').addEventListener('click', function (e) { if (e.target === this) fecharDetalhe(); });
 
       ['filtro-status', 'filtro-tipo', 'filtro-curso', 'filtro-empresa', 'filtro-orientador', 'filtro-supervisor'].forEach(function (id) {
         document.getElementById(id).addEventListener('change', aplicarFiltros);
@@ -445,12 +461,98 @@
           '<td>' + badgeStatus(s.status) + '</td>' +
           '<td class="no-print">' +
           '<div style="display:flex;justify-content:flex-end;">' +
-          '<a href="estagio-detalhe.html?id=' + encodeURIComponent(s.id || '') + '" class="btn btn-secondary btn-sm">Ver</a>' +
+          '<button type="button" class="btn btn-secondary btn-sm" data-ver-id="' + escapeHtml(s.id || '') + '">Ver</button>' +
           '</div></td>' +
           '</tr>';
       }).join('');
 
       renderPaginacao(_dadosFiltrados.length);
+    }
+
+    document.getElementById('tbody-estagios').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-ver-id]');
+      if (!btn) return;
+      var estagio = _dados.find(function (x) { return String(x.id) === btn.dataset.verId; });
+      if (estagio) abrirDetalhe(estagio);
+    });
+
+    /* ── Modal de detalhe do estágio (dados + checklist dos 3 validadores) ── */
+    var _atualDetalhe = null;
+
+    function abrirDetalhe(s) {
+      _atualDetalhe = s;
+      document.getElementById('modal-estagio-titulo').textContent = s.nomeEstudante || 'Estágio';
+
+      var inicio = s.dataInicio ? formatDateBR(s.dataInicio) : '—';
+      var fim = s.dataTermino ? formatDateBR(s.dataTermino) : '—';
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-6);">' +
+        '<div class="detail-item"><label>ID</label><p>' + escapeHtml(s.id || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Status</label><p>' + badgeStatus(s.status) + '</p></div>' +
+        '<div class="detail-item"><label>Estudante</label><p>' + escapeHtml(s.nomeEstudante || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Matrícula</label><p>' + escapeHtml(s.matricula || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(s.curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Concedente</label><p>' + escapeHtml(s.empresa || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Orientador</label><p>' + escapeHtml(s.nomeOrientador || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Tipo</label><p>' + escapeHtml(s.tipoEstagio || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Início</label><p>' + escapeHtml(inicio) + '</p></div>' +
+        '<div class="detail-item"><label>Fim</label><p>' + escapeHtml(fim) + '</p></div>' +
+        '</div>';
+
+      if (s.status === 'Em Checklist') {
+        html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Checklist</h3>' +
+          '<div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-5);">' +
+          checklistValidadorRow('Orientador', s.ckOrientadorStatus, s.ckOrientadorObs, s.ckOrientadorData) +
+          checklistValidadorRow('Supervisor', s.ckSupervisorStatus, s.ckSupervisorObs, s.ckSupervisorData) +
+          checklistValidadorRow('Coordenador', s.ckCoordenadorStatus, s.ckCoordenadorObs, s.ckCoordenadorData) +
+          '</div>' +
+          '<div class="alert alert-info"><div class="alert-content">O Setor pode concluir e enviar para assinaturas a qualquer momento, mesmo com validadores pendentes.</div></div>';
+      }
+
+      document.getElementById('modal-estagio-body').innerHTML = html;
+
+      var footer = document.getElementById('modal-estagio-footer');
+      footer.innerHTML = '<button type="button" class="btn btn-secondary" id="btn-fechar-detalhe">Fechar</button>' +
+        (s.status === 'Em Checklist' ? '<button type="button" class="btn btn-primary" id="btn-concluir-checklist">Concluir e enviar para assinaturas</button>' : '');
+      document.getElementById('btn-fechar-detalhe').addEventListener('click', fecharDetalhe);
+      var btnConcluir = document.getElementById('btn-concluir-checklist');
+      if (btnConcluir) btnConcluir.addEventListener('click', function () { concluirChecklist(s.id, this); });
+
+      document.getElementById('modal-estagio').classList.add('is-open');
+    }
+
+    function checklistValidadorRow(label, status, obs, data) {
+      var map = { 'aprovado': 'badge-success', 'ajuste': 'badge-warning' };
+      var cls = map[status] || 'badge-neutral';
+      var statusLabel = status === 'aprovado' ? 'Aprovado' : status === 'ajuste' ? 'Ajuste solicitado' : 'Pendente';
+      return '<div style="border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);flex-wrap:wrap;">' +
+        '<strong style="font-size:var(--font-size-sm);">' + label + '</strong>' +
+        '<span class="badge ' + cls + '">' + statusLabel + '</span>' +
+        '</div>' +
+        (data ? '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:2px;">' + formatDateBR(data) + '</div>' : '') +
+        (obs ? '<div style="font-size:var(--font-size-sm);margin-top:var(--space-2);">' + escapeHtml(obs) + '</div>' : '') +
+        '</div>';
+    }
+
+    async function concluirChecklist(estagioId, btn) {
+      if (!confirm('Concluir o checklist e enviar para assinaturas do TCE? Esta ação ativa o processo de assinatura eletrônica.')) return;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Concluindo…';
+      try {
+        await API.post('concluirChecklistEstagio', { id: estagioId });
+        showToast('✅ Checklist concluído. Estágio enviado para assinaturas.', 'success');
+        fecharDetalhe();
+        carregarEstagios();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharDetalhe() {
+      document.getElementById('modal-estagio').classList.remove('is-open');
+      _atualDetalhe = null;
     }
 
     function renderPaginacao(total) {
