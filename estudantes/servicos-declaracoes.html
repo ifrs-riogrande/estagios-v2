@@ -287,16 +287,16 @@
 
             <div class="form-group" style="margin-bottom:var(--space-6);">
               <label class="form-label required">1. Tipo de declaração</label>
-              <div class="radio-group" id="grupo-tipo" aria-required="true" style="flex-direction:column;align-items:flex-start;">
-                <div class="radio-option">
+              <div class="radio-native-group" id="grupo-tipo" aria-required="true">
+                <div class="radio-native">
                   <input type="radio" name="tipo-declaracao" id="tipo-andamento" value="andamento">
                   <label for="tipo-andamento">Estágio em Andamento</label>
                 </div>
-                <div class="radio-option">
+                <div class="radio-native">
                   <input type="radio" name="tipo-declaracao" id="tipo-concluido" value="concluido">
                   <label for="tipo-concluido">Estágio Concluído</label>
                 </div>
-                <div class="radio-option">
+                <div class="radio-native">
                   <input type="radio" name="tipo-declaracao" id="tipo-ambos" value="ambos">
                   <label for="tipo-ambos">Ambos</label>
                 </div>
@@ -305,12 +305,12 @@
 
             <div class="form-group" style="margin-bottom:var(--space-6);">
               <label class="form-label required">2. Período</label>
-              <div class="radio-group" id="grupo-periodo" aria-required="true" style="flex-direction:column;align-items:flex-start;margin-bottom:var(--space-4);">
-                <div class="radio-option">
+              <div class="radio-native-group" id="grupo-periodo" aria-required="true" style="margin-bottom:var(--space-4);">
+                <div class="radio-native">
                   <input type="radio" name="periodo-tipo" id="periodo-todos" value="todos" checked>
                   <label for="periodo-todos">Todos os períodos</label>
                 </div>
-                <div class="radio-option">
+                <div class="radio-native">
                   <input type="radio" name="periodo-tipo" id="periodo-personalizado" value="personalizado">
                   <label for="periodo-personalizado">Período personalizado</label>
                 </div>
@@ -329,16 +329,16 @@
 
             <div class="form-group" style="margin-bottom:var(--space-6);">
               <label class="form-label required">3. Modalidade</label>
-              <div class="radio-group" id="grupo-modalidade" aria-required="true">
-                <div class="radio-option">
+              <div class="radio-native-group is-row" id="grupo-modalidade" aria-required="true">
+                <div class="radio-native">
                   <input type="radio" name="modalidade" id="modalidade-obrigatorio" value="Obrigatório">
                   <label for="modalidade-obrigatorio">Obrigatório</label>
                 </div>
-                <div class="radio-option">
+                <div class="radio-native">
                   <input type="radio" name="modalidade" id="modalidade-nao-obrigatorio" value="Não Obrigatório">
                   <label for="modalidade-nao-obrigatorio">Não Obrigatório</label>
                 </div>
-                <div class="radio-option">
+                <div class="radio-native">
                   <input type="radio" name="modalidade" id="modalidade-ambos" value="Ambos">
                   <label for="modalidade-ambos">Ambos</label>
                 </div>

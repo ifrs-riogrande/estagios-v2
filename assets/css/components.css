@@ -549,6 +549,42 @@ textarea.form-control {
   border-color: var(--color-error);
 }
 
+/* Radio nativo (círculo visível) — para listas de opções com texto mais longo,
+   onde o estilo pill do .radio-option fica pesado demais */
+.radio-native-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.radio-native-group.is-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.radio-native {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.radio-native input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.radio-native label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
 /* Linha dupla (dois campos lado a lado) */
 .form-row {
   display: grid;
