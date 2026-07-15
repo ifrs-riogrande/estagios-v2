@@ -36,28 +36,47 @@
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO — em construção
+       CONTEÚDO
        ═══════════════════════════════════════ -->
   <main id="main-content">
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Diretoria de Ensino — DEN</h1>
         <p class="page-hero-desc">
-          Pareceres finais de estágio obrigatório aguardando assinatura.
+          Pareceres de Certificação de Conhecimento aguardando análise da DEN.
         </p>
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">Os pareceres pendentes de assinatura da DEN serão adicionados aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando…</p>
       </div>
+
+      <div id="lista-vazia" class="empty-state hidden">
+        <p>Nenhuma certificação aguardando parecer da DEN no momento.</p>
+      </div>
+
+      <div id="lista-certificacoes-den"></div>
+
     </div>
   </main>
+
+  <!-- Modal: Parecer da DEN — Certificação de Conhecimento -->
+  <div class="modal-backdrop" id="modal-den">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-den-titulo">Parecer da DEN — Certificação de Conhecimento</h2>
+        <button type="button" class="modal-close" id="modal-den-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-den-body"></div>
+      <div class="modal-footer" id="modal-den-footer"></div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
        FOOTER
@@ -82,12 +101,118 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _certificacoesDen = [];
+
     // Guarda de acesso: por enquanto exige só sessão de servidor (qualquer
     // @riogrande...). A checagem do papel "DEN" de verdade acontece no
     // backend, na ConfigAcesso — ainda não há dados reais lá.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarCertificacoes();
+
+      document.getElementById('modal-den-fechar').addEventListener('click', fecharParecerDen);
+      document.getElementById('modal-den').addEventListener('click', function (e) { if (e.target === this) fecharParecerDen(); });
     });
+
+    function carregarCertificacoes() {
+      document.getElementById('painel-carregando').classList.remove('hidden');
+      document.getElementById('lista-vazia').classList.add('hidden');
+      API.get('listarCertificacoesDEN').then(function (lista) {
+        _certificacoesDen = Array.isArray(lista) ? lista : [];
+        document.getElementById('painel-carregando').classList.add('hidden');
+
+        if (!_certificacoesDen.length) {
+          document.getElementById('lista-vazia').classList.remove('hidden');
+          document.getElementById('lista-certificacoes-den').innerHTML = '';
+          return;
+        }
+
+        document.getElementById('lista-certificacoes-den').innerHTML = _certificacoesDen.map(function (c) {
+          var parecerCoord = c.parecerCoordenador
+            ? '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:4px;">Parecer do Coordenador: ' + escapeHtml(c.parecerCoordenador.decisao === 'Favoravel' ? 'Favorável' : 'Desfavorável') + '</div>'
+            : '';
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(c.nomeEstudante || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(c.curso || '—') + ' · ' + escapeHtml(String(c.totalHoras || 0)) + 'h informadas</div>' +
+            parecerCoord +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-den-id="' + escapeHtml(c.id || '') + '">Preencher Parecer</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('painel-carregando').classList.add('hidden');
+        document.getElementById('lista-certificacoes-den').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar as certificações. ' + escapeHtml(err.message) + '</div></div>';
+      });
+    }
+
+    document.getElementById('lista-certificacoes-den').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-den-id]');
+      if (!btn) return;
+      var item = _certificacoesDen.find(function (x) { return String(x.id) === btn.dataset.denId; });
+      if (item) abrirParecerDen(item);
+    });
+
+    function abrirParecerDen(c) {
+      document.getElementById('modal-den-titulo').textContent = 'Parecer da DEN — ' + (c.nomeEstudante || 'Certificação de Conhecimento');
+
+      var parecerCoordHtml = c.parecerCoordenador
+        ? '<div class="parecer-box" style="border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4);">' +
+          '<h4 style="font-size:var(--font-size-sm);font-weight:700;margin:0 0 var(--space-2);">Parecer do Coordenador</h4>' +
+          '<div style="font-size:var(--font-size-sm);margin-bottom:4px;">' + (c.parecerCoordenador.decisao === 'Favoravel' ? 'Favorável' : 'Desfavorável') + '</div>' +
+          (c.parecerCoordenador.horasReconhecidas ? '<div style="font-size:var(--font-size-sm);margin-bottom:4px;">Horas reconhecidas: ' + escapeHtml(String(c.parecerCoordenador.horasReconhecidas)) + 'h</div>' : '') +
+          (c.parecerCoordenador.justificativa ? '<div style="font-size:var(--font-size-sm);">' + escapeHtml(c.parecerCoordenador.justificativa) + '</div>' : '') +
+          '</div>'
+        : '';
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(c.curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Horas informadas</label><p>' + escapeHtml(String(c.totalHoras || 0)) + 'h</p></div>' +
+        '</div>' +
+        parecerCoordHtml +
+        '<div class="form-group"><label class="form-label">Parecer da DEN</label>' +
+        '<div class="radio-group">' +
+        '<label class="radio-option"><input type="radio" name="den-decisao" value="Favoravel" checked> Favorável</label>' +
+        '<label class="radio-option"><input type="radio" name="den-decisao" value="Desfavoravel"> Desfavorável</label>' +
+        '</div></div>' +
+        '<div class="form-group"><label class="form-label" for="den-justificativa">Justificativa</label>' +
+        '<textarea id="den-justificativa" class="form-control" rows="3" maxlength="2000"></textarea></div>' +
+        '<div class="alert alert-info"><div class="alert-content">Este parecer é opinativo — a decisão final (Deferimento/Indeferimento) é formalizada pela Central de Estágios.</div></div>';
+
+      document.getElementById('modal-den-body').innerHTML = html;
+      document.getElementById('modal-den-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-fechar-den">Fechar</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-enviar-den">Enviar Parecer</button>';
+
+      document.getElementById('btn-fechar-den').addEventListener('click', fecharParecerDen);
+      document.getElementById('btn-enviar-den').addEventListener('click', function () { enviarParecerDen(c.id, this); });
+
+      document.getElementById('modal-den').classList.add('is-open');
+    }
+
+    async function enviarParecerDen(id, btn) {
+      var decisao = document.querySelector('input[name="den-decisao"]:checked').value;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('responderCertificacaoDEN', {
+          id: id,
+          decisao: decisao,
+          justificativa: document.getElementById('den-justificativa').value.trim(),
+        });
+        showToast('✅ Parecer enviado para a Central de Estágios.', 'success');
+        fecharParecerDen();
+        carregarCertificacoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharParecerDen() {
+      document.getElementById('modal-den').classList.remove('is-open');
+    }
   </script>
 </body>
 </html>

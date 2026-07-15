@@ -90,10 +90,10 @@
             Dashboard
             <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </a>
-          <a href="estagios.html" class="mega-nav-link is-current">
-            Estágios
+          <button class="mega-nav-trigger" data-menu="acompanhamento" aria-expanded="false" aria-controls="painel-acompanhamento">
+            Acompanhamento
             <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-          </a>
+          </button>
           <button class="mega-nav-trigger" data-menu="cadastros" aria-expanded="false" aria-controls="painel-cadastros">
             Cadastros
             <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
@@ -161,6 +161,20 @@
         </a>
       </div>
     </div>
+    <!-- Painel: Acompanhamento -->
+    <div class="mega-panel" id="painel-acompanhamento" hidden>
+      <div class="container mega-panel-grid">
+        <a href="estagios.html" class="mega-panel-item is-current">
+          <span class="mega-panel-item-title">Estágios</span>
+          <span class="mega-panel-item-desc">Estágios obrigatórios e não obrigatórios em andamento e concluídos</span>
+        </a>
+        <a href="aproveitamentos.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Certificação de Conhecimento</span>
+          <span class="mega-panel-item-desc">Solicitações de certificação de conhecimento em andamento e concluídas</span>
+        </a>
+      </div>
+    </div>
+
   </header>
 
   <main id="main-content">

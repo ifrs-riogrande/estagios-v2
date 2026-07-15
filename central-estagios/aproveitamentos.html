@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificação de Conhecimento — Central de Estágios — SGE IFRS Campus Rio Grande</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+
+  <!-- Google Identity Services (necessário para revogar o token no logout) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    .header-brand-group { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+    .mega-nav-link { display: inline-flex; align-items: center; gap: 6px; padding: 14px 4px; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); text-decoration: none; border-bottom: 2.5px solid transparent; transition: color .15s, border-color .15s; }
+    a.mega-nav-link:hover { color: #2e7d32; }
+    .mega-nav-link.is-current { color: #2e7d32; border-bottom-color: #2e7d32; }
+    .mega-nav-link .mega-nav-chevron { opacity: .6; }
+    .mega-nav-trigger { display: inline-flex; align-items: center; gap: 6px; padding: 14px 4px; font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); background: none; border: none; border-bottom: 2.5px solid transparent; cursor: pointer; font-family: inherit; }
+    .mega-nav-trigger[aria-expanded="true"] { color: #2e7d32; border-bottom-color: #2e7d32; }
+    .mega-nav-chevron { width: 16px; height: 16px; transition: transform .15s; }
+    .mega-nav-trigger[aria-expanded="true"] .mega-nav-chevron { transform: rotate(180deg); }
+    .mega-panel { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--color-border, #e5e7eb); box-shadow: 0 12px 24px rgba(0,0,0,.08); z-index: 50; }
+    .mega-panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-5); padding: var(--space-6) var(--space-4); }
+    .mega-panel-item { display: flex; flex-direction: column; gap: 4px; text-decoration: none; padding: var(--space-2); border-radius: var(--radius-md, 8px); transition: background .12s; }
+    a.mega-panel-item:hover { background: #f7faf7; }
+    .mega-panel-item-title { font-weight: 700; color: #1565c0; font-size: var(--font-size-md); }
+    .mega-panel-item.is-current .mega-panel-item-title { color: #2e7d32; }
+    .mega-panel-item-desc { font-size: var(--font-size-sm); color: var(--color-text-muted); }
+
+    .toolbar-actions {
+      display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); flex-wrap: wrap;
+      margin-bottom: var(--space-3);
+    }
+
+    .parecer-box { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-4); }
+    .parecer-box h4 { font-size: var(--font-size-sm); font-weight: 700; margin: 0 0 var(--space-2); }
+  </style>
+</head>
+<body>
+
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="header-brand-group">
+          <a href="../index.html" class="header-brand">
+            <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+          </a>
+          <a href="dashboard.html" class="mega-nav-link">
+            Dashboard
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
+          <button class="mega-nav-trigger" data-menu="acompanhamento" aria-expanded="false" aria-controls="painel-acompanhamento">
+            Acompanhamento
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <button class="mega-nav-trigger" data-menu="cadastros" aria-expanded="false" aria-controls="painel-cadastros">
+            Cadastros
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <a href="oportunidades.html" class="mega-nav-link">
+            Oportunidades
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
+          <a href="declaracoes.html" class="mega-nav-link">
+            Declarações
+            <svg class="mega-nav-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </a>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-3);">
+          <div id="header-user-area"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mega-panel" id="painel-cadastros" hidden>
+      <div class="container mega-panel-grid">
+        <a href="cadastros-alunos.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Alunos</span>
+          <span class="mega-panel-item-desc">Cadastros de estudantes</span>
+        </a>
+        <a href="cadastros-concedentes.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Concedentes</span>
+          <span class="mega-panel-item-desc">Cadastros de empresas concedentes de estágio</span>
+        </a>
+        <a href="cadastros-orientadores.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Orientadores</span>
+          <span class="mega-panel-item-desc">Cadastros de orientadores</span>
+        </a>
+        <a href="cadastros-supervisores.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Supervisores</span>
+          <span class="mega-panel-item-desc">Cadastros de supervisores de estágio</span>
+        </a>
+        <a href="cadastros-coordenadores.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Coordenadores</span>
+          <span class="mega-panel-item-desc">Cadastros de coordenadores de curso</span>
+        </a>
+        <a href="cadastros-diretor-geral.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Diretor Geral</span>
+          <span class="mega-panel-item-desc">Cadastro do Diretor Geral</span>
+        </a>
+        <a href="cadastros-den.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Diretoria de Ensino</span>
+          <span class="mega-panel-item-desc">Cadastro da Diretoria de Ensino (DEN)</span>
+        </a>
+        <a href="cadastros-dex.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Diretoria de Extensão</span>
+          <span class="mega-panel-item-desc">Cadastro da Diretoria de Extensão (DEX)</span>
+        </a>
+        <a href="cadastros-agentes.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Agentes de Integração</span>
+          <span class="mega-panel-item-desc">Cadastros de agentes de integração</span>
+        </a>
+        <a href="cadastros-napne.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">NAPNE</span>
+          <span class="mega-panel-item-desc">Cadastro do NAPNE</span>
+        </a>
+        <a href="cadastros-registro-academico.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Registro Acadêmico</span>
+          <span class="mega-panel-item-desc">Cadastro do Registro Acadêmico</span>
+        </a>
+      </div>
+    </div>
+    <!-- Painel: Acompanhamento -->
+    <div class="mega-panel" id="painel-acompanhamento" hidden>
+      <div class="container mega-panel-grid">
+        <a href="estagios.html" class="mega-panel-item">
+          <span class="mega-panel-item-title">Estágios</span>
+          <span class="mega-panel-item-desc">Estágios obrigatórios e não obrigatórios em andamento e concluídos</span>
+        </a>
+        <a href="aproveitamentos.html" class="mega-panel-item is-current">
+          <span class="mega-panel-item-title">Certificação de Conhecimento</span>
+          <span class="mega-panel-item-desc">Solicitações de certificação de conhecimento em andamento e concluídas</span>
+        </a>
+      </div>
+    </div>
+
+  </header>
+
+  <main id="main-content">
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="page-hero-title">Certificação de Conhecimento</h1>
+        <p class="page-hero-desc">Acompanhamento das solicitações de certificação de conhecimento: pareceres, encaminhamentos e decisão final.</p>
+      </div>
+    </section>
+
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div class="toolbar-actions">
+        <button type="button" id="btn-limpar" class="btn btn-ghost btn-sm">Limpar filtros</button>
+        <button type="button" id="btn-atualizar" class="btn btn-secondary btn-sm">Atualizar</button>
+      </div>
+
+      <div class="filters">
+        <div class="form-group">
+          <label class="form-label" for="filtro-status">Status</label>
+          <select id="filtro-status" class="form-control">
+            <option value="">Todos</option>
+            <option value="Aguardando Coordenador">Aguardando Coordenador</option>
+            <option value="Aguardando Central de Estágios">Aguardando Central de Estágios</option>
+            <option value="Aguardando DEN">Aguardando DEN</option>
+            <option value="Aguardando Central de Estágios — Decisão Final">Aguardando Central de Estágios — Decisão Final</option>
+            <option value="Devolvido">Devolvido</option>
+            <option value="Deferido">Deferido</option>
+            <option value="Indeferido">Indeferido</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="filtro-curso">Curso</label>
+          <select id="filtro-curso" class="form-control">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:2;min-width:220px;">
+          <label class="form-label" for="filtro-busca">Buscar</label>
+          <input type="search" id="filtro-busca" class="form-control" placeholder="Nome, matrícula, curso…">
+        </div>
+      </div>
+
+      <div id="resultado-count" style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:var(--space-3);"></div>
+
+      <div class="table-wrapper">
+        <table class="table" id="tbl-aprov" aria-label="Certificações de Conhecimento">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Estudante</th>
+              <th>Curso</th>
+              <th>Envio</th>
+              <th>Status</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-aprov">
+            <tr>
+              <td colspan="6" style="text-align:center;padding:var(--space-12);">
+                <div class="spinner" style="margin:0 auto var(--space-3);"></div>
+                Carregando…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="pagination" class="pagination"></div>
+
+    </div>
+  </main>
+
+  <!-- Modal: detalhe da certificação + pareceres + ações -->
+  <div class="modal-backdrop" id="modal-aprov">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-aprov-titulo">Certificação de Conhecimento</h2>
+        <button type="button" class="modal-close" id="modal-aprov-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-aprov-body"></div>
+      <div class="modal-footer" id="modal-aprov-footer"></div>
+    </div>
+  </div>
+
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/notifications-bell.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    var _dados = [];
+    var _dadosFiltrados = [];
+    var _paginaAtual = 1;
+    var POR_PAGINA = 25;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      requireAreaAuth('servidor', '../index.html');
+      carregar();
+
+      document.getElementById('btn-atualizar').addEventListener('click', carregar);
+      document.getElementById('btn-limpar').addEventListener('click', limparFiltros);
+      document.getElementById('modal-aprov-fechar').addEventListener('click', fecharDetalhe);
+      document.getElementById('modal-aprov').addEventListener('click', function (e) { if (e.target === this) fecharDetalhe(); });
+
+      ['filtro-status', 'filtro-curso'].forEach(function (id) {
+        document.getElementById(id).addEventListener('change', aplicarFiltros);
+      });
+      document.getElementById('filtro-busca').addEventListener('input', aplicarFiltros);
+    });
+
+    async function carregar() {
+      setTabelaLoading();
+      try {
+        _dados = await API.get('listarCertificacoesAdmin');
+        _dados = Array.isArray(_dados) ? _dados : [];
+        popularFiltroCurso();
+        aplicarFiltros();
+      } catch (err) {
+        setTabelaErro('Não foi possível carregar as certificações. ' + escapeHtml(err.message));
+      }
+    }
+
+    function popularFiltroCurso() {
+      var cursos = Array.from(new Set(_dados.map(function (s) { return s.curso || ''; }).filter(Boolean))).sort();
+      var sel = document.getElementById('filtro-curso');
+      var valorAtual = sel.value;
+      sel.innerHTML = '<option value="">Todos</option>';
+      cursos.forEach(function (v) {
+        var opt = document.createElement('option');
+        opt.value = v; opt.textContent = v;
+        if (v === valorAtual) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function aplicarFiltros() {
+      var status = document.getElementById('filtro-status').value.toLowerCase();
+      var curso = document.getElementById('filtro-curso').value.toLowerCase();
+      var busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+
+      _dadosFiltrados = _dados.filter(function (s) {
+        if (status && (s.status || '').toLowerCase() !== status) return false;
+        if (curso && (s.curso || '').toLowerCase() !== curso) return false;
+        if (busca) {
+          var texto = [s.nomeEstudante, s.matricula, s.curso, s.id].join(' ').toLowerCase();
+          if (!texto.includes(busca)) return false;
+        }
+        return true;
+      });
+
+      _paginaAtual = 1;
+      renderTabela();
+    }
+
+    function limparFiltros() {
+      ['filtro-status', 'filtro-curso'].forEach(function (id) { document.getElementById(id).value = ''; });
+      document.getElementById('filtro-busca').value = '';
+      aplicarFiltros();
+    }
+
+    function renderTabela() {
+      var tbody = document.getElementById('tbody-aprov');
+      var countEl = document.getElementById('resultado-count');
+
+      if (_dadosFiltrados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">' +
+          '<div class="empty-state">' +
+          '<p>Nenhuma certificação encontrada com os filtros aplicados.</p>' +
+          '</div></td></tr>';
+        document.getElementById('pagination').innerHTML = '';
+        countEl.textContent = '';
+        return;
+      }
+
+      countEl.textContent = _dadosFiltrados.length + ' registro' + (_dadosFiltrados.length !== 1 ? 's' : '') + ' encontrado' + (_dadosFiltrados.length !== 1 ? 's' : '');
+
+      var inicioIdx = (_paginaAtual - 1) * POR_PAGINA;
+      var fimIdx = Math.min(inicioIdx + POR_PAGINA, _dadosFiltrados.length);
+      var pagina = _dadosFiltrados.slice(inicioIdx, fimIdx);
+
+      tbody.innerHTML = pagina.map(function (s) {
+        var envio = s.dataEnvio ? formatDateBR(s.dataEnvio) : '—';
+        return '<tr>' +
+          '<td><code style="font-size:11px;color:var(--color-secondary);">' + escapeHtml(s.id || '—') + '</code></td>' +
+          '<td>' +
+          '<div style="font-weight:500;line-height:1.3;">' + escapeHtml(s.nomeEstudante || '—') + '</div>' +
+          '<div style="font-size:11px;color:var(--color-text-muted);">' + escapeHtml(s.matricula || '') + '</div>' +
+          '</td>' +
+          '<td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escapeHtml(s.curso || '') + '">' + escapeHtml(s.curso || '—') + '</td>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + escapeHtml(envio) + '</td>' +
+          '<td>' + badgeStatus(s.status) + '</td>' +
+          '<td>' +
+          '<div style="display:flex;justify-content:flex-end;">' +
+          '<button type="button" class="btn btn-secondary btn-sm" data-ver-id="' + escapeHtml(s.id || '') + '">Ver</button>' +
+          '</div></td>' +
+          '</tr>';
+      }).join('');
+
+      renderPaginacao(_dadosFiltrados.length);
+    }
+
+    document.getElementById('tbody-aprov').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-ver-id]');
+      if (!btn) return;
+      var item = _dados.find(function (x) { return String(x.id) === btn.dataset.verId; });
+      if (item) abrirDetalhe(item);
+    });
+
+    /* ── Modal de detalhe ── */
+    function abrirDetalhe(s) {
+      document.getElementById('modal-aprov-titulo').textContent = s.nomeEstudante || 'Certificação de Conhecimento';
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-6);">' +
+        '<div class="detail-item"><label>ID</label><p>' + escapeHtml(s.id || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Status</label><p>' + badgeStatus(s.status) + '</p></div>' +
+        '<div class="detail-item"><label>Estudante</label><p>' + escapeHtml(s.nomeEstudante || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Matrícula</label><p>' + escapeHtml(s.matricula || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(s.curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Horas informadas</label><p>' + escapeHtml(String(s.totalHoras || 0)) + 'h</p></div>' +
+        '</div>';
+
+      if (s.parecerCoordenador) {
+        html += '<div class="parecer-box"><h4>Parecer do Coordenador</h4>' +
+          '<div style="margin-bottom:4px;">' + badgeDecisao(s.parecerCoordenador.decisao) + '</div>' +
+          (s.parecerCoordenador.horasReconhecidas ? '<div style="font-size:var(--font-size-sm);margin-bottom:4px;">Horas reconhecidas: ' + escapeHtml(String(s.parecerCoordenador.horasReconhecidas)) + 'h</div>' : '') +
+          (s.parecerCoordenador.justificativa ? '<div style="font-size:var(--font-size-sm);">' + escapeHtml(s.parecerCoordenador.justificativa) + '</div>' : '') +
+          '</div>';
+      }
+
+      if (s.parecerDen) {
+        html += '<div class="parecer-box"><h4>Parecer da DEN</h4>' +
+          '<div style="margin-bottom:4px;">' + badgeDecisao(s.parecerDen.decisao) + '</div>' +
+          (s.parecerDen.justificativa ? '<div style="font-size:var(--font-size-sm);">' + escapeHtml(s.parecerDen.justificativa) + '</div>' : '') +
+          '</div>';
+      }
+
+      if (s.status === 'Aguardando Central de Estágios') {
+        html += '<div class="form-group"><label class="form-label" for="aprov-obs-devolucao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória para devolver ao aluno)</span></label>' +
+          '<textarea id="aprov-obs-devolucao" class="form-control" rows="3" maxlength="1000"></textarea></div>';
+      } else if (s.status === 'Aguardando Central de Estágios — Decisão Final') {
+        html += '<div class="form-group"><label class="form-label">Decisão</label>' +
+          '<div class="radio-group">' +
+          '<label class="radio-option"><input type="radio" name="aprov-decisao-final" value="Deferido" checked> Deferir</label>' +
+          '<label class="radio-option"><input type="radio" name="aprov-decisao-final" value="Indeferido"> Indeferir</label>' +
+          '</div></div>' +
+          '<div class="form-group"><label class="form-label" for="aprov-carga-homologada">Carga horária homologada <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória se deferido)</span></label>' +
+          '<input type="number" id="aprov-carga-homologada" class="form-control" min="0" step="1"></div>' +
+          '<div class="form-group"><label class="form-label" for="aprov-justificativa-final">Justificativa</label>' +
+          '<textarea id="aprov-justificativa-final" class="form-control" rows="3" maxlength="2000"></textarea></div>';
+      }
+
+      document.getElementById('modal-aprov-body').innerHTML = html;
+
+      var footer = document.getElementById('modal-aprov-footer');
+      var acoesHtml = '<button type="button" class="btn btn-secondary" id="btn-fechar-aprov">Fechar</button>';
+      if (s.status === 'Aguardando Central de Estágios') {
+        acoesHtml += '<button type="button" class="btn btn-danger btn-sm" id="btn-devolver-aprov">Devolver ao Aluno</button>' +
+          '<button type="button" class="btn btn-primary btn-sm" id="btn-encaminhar-den">Encaminhar para DEN</button>';
+      } else if (s.status === 'Aguardando Central de Estágios — Decisão Final') {
+        acoesHtml += '<button type="button" class="btn btn-primary btn-sm" id="btn-concluir-aprov">Concluir</button>';
+      }
+      footer.innerHTML = acoesHtml;
+
+      document.getElementById('btn-fechar-aprov').addEventListener('click', fecharDetalhe);
+      var btnDevolver = document.getElementById('btn-devolver-aprov');
+      if (btnDevolver) btnDevolver.addEventListener('click', function () { devolverAoAluno(s.id, this); });
+      var btnEncaminhar = document.getElementById('btn-encaminhar-den');
+      if (btnEncaminhar) btnEncaminhar.addEventListener('click', function () { encaminharDEN(s.id, this); });
+      var btnConcluir = document.getElementById('btn-concluir-aprov');
+      if (btnConcluir) btnConcluir.addEventListener('click', function () { concluirDecisaoFinal(s.id, this); });
+
+      document.getElementById('modal-aprov').classList.add('is-open');
+    }
+
+    async function devolverAoAluno(id, btn) {
+      var obs = document.getElementById('aprov-obs-devolucao').value.trim();
+      if (!obs) {
+        showToast('Informe uma observação explicando o motivo da devolução.', 'error');
+        return;
+      }
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Devolvendo…';
+      try {
+        await API.post('devolverCertificacao', { id: id, obs: obs });
+        showToast('Certificação devolvida ao aluno.', 'success');
+        fecharDetalhe();
+        carregar();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function encaminharDEN(id, btn) {
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Encaminhando…';
+      try {
+        await API.post('encaminharCertificacaoDEN', { id: id });
+        showToast('✅ Encaminhado para a DEN.', 'success');
+        fecharDetalhe();
+        carregar();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function concluirDecisaoFinal(id, btn) {
+      var decisao = document.querySelector('input[name="aprov-decisao-final"]:checked').value;
+      var carga = document.getElementById('aprov-carga-homologada').value.trim();
+      if (decisao === 'Deferido' && !carga) {
+        showToast('Informe a carga horária homologada para deferir.', 'error');
+        return;
+      }
+      var justificativa = document.getElementById('aprov-justificativa-final').value.trim();
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Concluindo…';
+      try {
+        await API.post('decidirCertificacaoFinal', { id: id, decisao: decisao, cargaHomologada: carga, justificativa: justificativa });
+        showToast(decisao === 'Deferido' ? '✅ Certificação deferida.' : 'Certificação indeferida.', 'success');
+        fecharDetalhe();
+        carregar();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharDetalhe() {
+      document.getElementById('modal-aprov').classList.remove('is-open');
+    }
+
+    function renderPaginacao(total) {
+      var totalPaginas = Math.ceil(total / POR_PAGINA);
+      var pag = document.getElementById('pagination');
+      if (totalPaginas <= 1) { pag.innerHTML = ''; return; }
+
+      var html = '<button ' + (_paginaAtual === 1 ? 'disabled' : '') + ' data-pagina="' + (_paginaAtual - 1) + '">‹</button>';
+      for (var i = 1; i <= totalPaginas; i++) {
+        if (totalPaginas > 7 && i !== 1 && i !== totalPaginas && Math.abs(i - _paginaAtual) > 2) {
+          if (i === 2 || i === totalPaginas - 1) html += '<button disabled>…</button>';
+          continue;
+        }
+        html += '<button class="' + (i === _paginaAtual ? 'is-active' : '') + '" data-pagina="' + i + '">' + i + '</button>';
+      }
+      html += '<button ' + (_paginaAtual === totalPaginas ? 'disabled' : '') + ' data-pagina="' + (_paginaAtual + 1) + '">›</button>';
+      pag.innerHTML = html;
+    }
+
+    document.getElementById('pagination').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-pagina]');
+      if (!btn || btn.disabled) return;
+      var n = parseInt(btn.dataset.pagina, 10);
+      var totalPaginas = Math.ceil(_dadosFiltrados.length / POR_PAGINA);
+      if (n < 1 || n > totalPaginas) return;
+      _paginaAtual = n;
+      renderTabela();
+      document.querySelector('.table-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    /* ── Helpers ── */
+    function badgeStatus(status) {
+      var map = {
+        'Aguardando Coordenador': 'badge-warning',
+        'Aguardando Central de Estágios': 'badge-info',
+        'Aguardando DEN': 'badge-info',
+        'Aguardando Central de Estágios — Decisão Final': 'badge-info',
+        'Devolvido': 'badge-error',
+        'Deferido': 'badge-success',
+        'Indeferido': 'badge-error',
+      };
+      var cls = map[status] || 'badge-neutral';
+      return '<span class="badge ' + cls + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    function badgeDecisao(decisao) {
+      var map = { 'Favoravel': 'badge-success', 'Desfavoravel': 'badge-error', 'Deferido': 'badge-success', 'Indeferido': 'badge-error' };
+      var label = { 'Favoravel': 'Favorável', 'Desfavoravel': 'Desfavorável', 'Deferido': 'Deferido', 'Indeferido': 'Indeferido' };
+      var cls = map[decisao] || 'badge-neutral';
+      return '<span class="badge ' + cls + '">' + escapeHtml(label[decisao] || decisao || '—') + '</span>';
+    }
+
+    function setTabelaLoading() {
+      document.getElementById('tbody-aprov').innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:var(--space-12);"><div class="spinner" style="margin:0 auto var(--space-3);"></div>Carregando…</td></tr>';
+      document.getElementById('pagination').innerHTML = '';
+      document.getElementById('resultado-count').textContent = '';
+    }
+
+    function setTabelaErro(msg) {
+      document.getElementById('tbody-aprov').innerHTML =
+        '<tr><td colspan="6" style="text-align:center;padding:var(--space-12);color:var(--color-error);">' + msg + '</td></tr>';
+    }
+
+    (function () {
+      var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));
+      if (!triggers.length) return;
+
+      function fecharTodos() {
+        triggers.forEach(function (t) {
+          t.setAttribute('aria-expanded', 'false');
+          var p = document.getElementById('painel-' + t.dataset.menu);
+          if (p) p.hidden = true;
+        });
+      }
+
+      triggers.forEach(function (trigger) {
+        var panel = document.getElementById('painel-' + trigger.dataset.menu);
+        if (!panel) return;
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+          fecharTodos();
+          if (!isOpen) {
+            trigger.setAttribute('aria-expanded', 'true');
+            panel.hidden = false;
+          }
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        var dentroDeAlgumPainel = Array.prototype.some.call(
+          document.querySelectorAll('.mega-panel'),
+          function (p) { return p.contains(e.target); }
+        );
+        var noGatilho = e.target.closest && e.target.closest('.mega-nav-trigger');
+        if (!dentroDeAlgumPainel && !noGatilho) fecharTodos();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -221,6 +221,14 @@
         <div id="lista-pareceres-coord"></div>
       </div>
 
+      <!-- Certificações de Conhecimento pendentes de parecer -->
+      <div id="certificacoes-section" class="hidden" style="margin-bottom:var(--space-8);">
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          🎓 Certificações de Conhecimento Pendentes de Parecer
+        </h2>
+        <div id="lista-certificacoes-coord"></div>
+      </div>
+
       <div id="painel-carregando" class="empty-state">
         <div class="spinner" aria-hidden="true"></div>
         <p>Carregando estágios…</p>
@@ -310,6 +318,20 @@
     </div>
   </div>
 
+  <!-- Modal: Parecer de Certificação de Conhecimento -->
+  <div class="modal-backdrop" id="modal-certificacao">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-certificacao-titulo">Parecer — Certificação de Conhecimento</h2>
+        <button type="button" class="modal-close" id="modal-certificacao-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-certificacao-body"></div>
+      <div class="modal-footer" id="modal-certificacao-footer"></div>
+    </div>
+  </div>
+
   <!-- ═══════════════════════════════════════
        FOOTER
        ═══════════════════════════════════════ -->
@@ -341,7 +363,7 @@
       requireAreaAuth('servidor', '../index.html');
       carregarEstagios();
       var s = typeof getSession === 'function' ? getSession() : null;
-      if (s && s.email) carregarPareceres(s.email);
+      if (s && s.email) { carregarPareceres(s.email); carregarCertificacoes(); }
     });
 
     function mostrarPainel(id) {
@@ -559,6 +581,92 @@
         }).join('');
       }).catch(function () { /* falha silenciosa — pareceres não são críticos pra essa tela */ });
     }
+
+    /* ── Certificações de Conhecimento pendentes de parecer ── */
+    var _certificacoes = [];
+
+    function carregarCertificacoes() {
+      API.get('listarCertificacoesCoordenador').then(function (lista) {
+        _certificacoes = Array.isArray(lista) ? lista : [];
+        if (!_certificacoes.length) return;
+        document.getElementById('certificacoes-section').classList.remove('hidden');
+        document.getElementById('lista-certificacoes-coord').innerHTML = _certificacoes.map(function (c) {
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(c.nomeEstudante || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(c.curso || '—') + ' · ' + escapeHtml(String(c.totalHoras || 0)) + 'h informadas</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-certificacao-id="' + escapeHtml(c.id || '') + '">Preencher Parecer</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function () { /* falha silenciosa — não é crítico pra essa tela */ });
+    }
+
+    document.getElementById('lista-certificacoes-coord').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-certificacao-id]');
+      if (!btn) return;
+      var item = _certificacoes.find(function (x) { return String(x.id) === btn.dataset.certificacaoId; });
+      if (item) abrirCertificacao(item);
+    });
+
+    function abrirCertificacao(c) {
+      document.getElementById('modal-certificacao-titulo').textContent = 'Parecer — ' + (c.nomeEstudante || 'Certificação de Conhecimento');
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(c.curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Horas informadas</label><p>' + escapeHtml(String(c.totalHoras || 0)) + 'h</p></div>' +
+        '</div>' +
+        '<div class="form-check" style="margin-bottom:var(--space-4);">' +
+        '<input type="checkbox" id="cert-compativel">' +
+        '<label class="form-check-label" for="cert-compativel">Experiência compatível com o curso</label>' +
+        '</div>' +
+        '<div class="form-group"><label class="form-label">Decisão</label>' +
+        '<div class="radio-group">' +
+        '<label class="radio-option"><input type="radio" name="cert-decisao" value="Favoravel" checked> Favorável</label>' +
+        '<label class="radio-option"><input type="radio" name="cert-decisao" value="Desfavoravel"> Desfavorável</label>' +
+        '</div></div>' +
+        '<div class="form-group"><label class="form-label" for="cert-horas-reconhecidas">Horas reconhecidas</label>' +
+        '<input type="number" id="cert-horas-reconhecidas" class="form-control" min="0" step="1"></div>' +
+        '<div class="form-group"><label class="form-label" for="cert-justificativa">Justificativa</label>' +
+        '<textarea id="cert-justificativa" class="form-control" rows="3" maxlength="2000"></textarea></div>';
+
+      document.getElementById('modal-certificacao-body').innerHTML = html;
+      document.getElementById('modal-certificacao-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-fechar-certificacao">Fechar</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-enviar-certificacao">Enviar Parecer</button>';
+
+      document.getElementById('btn-fechar-certificacao').addEventListener('click', fecharCertificacao);
+      document.getElementById('btn-enviar-certificacao').addEventListener('click', function () { enviarParecerCertificacao(c.id, this); });
+
+      document.getElementById('modal-certificacao').classList.add('is-open');
+    }
+
+    async function enviarParecerCertificacao(id, btn) {
+      var decisao = document.querySelector('input[name="cert-decisao"]:checked').value;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('responderCertificacaoCoordenador', {
+          id: id,
+          compativel: document.getElementById('cert-compativel').checked,
+          decisao: decisao,
+          horasReconhecidas: document.getElementById('cert-horas-reconhecidas').value.trim(),
+          justificativa: document.getElementById('cert-justificativa').value.trim(),
+        });
+        showToast('✅ Parecer enviado para a Central de Estágios.', 'success');
+        fecharCertificacao();
+        carregarCertificacoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharCertificacao() {
+      document.getElementById('modal-certificacao').classList.remove('is-open');
+    }
+    document.getElementById('modal-certificacao-fechar').addEventListener('click', fecharCertificacao);
+    document.getElementById('modal-certificacao').addEventListener('click', function (e) { if (e.target === this) fecharCertificacao(); });
 
     // Mega menu — abre/fecha o painel de Acompanhamento
     (function () {

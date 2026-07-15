@@ -954,8 +954,9 @@
       } else {
         var labels = {
           'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise do coordenador de curso.',
-          'Aguardando Admin': 'O coordenador emitiu o parecer. Aguardando verificação pelo setor de estágios.',
-          'Aguardando DEN': 'O setor de estágios encaminhou sua solicitação à DEN para parecer final.',
+          'Aguardando Central de Estágios': 'O coordenador emitiu o parecer. Aguardando verificação pela Central de Estágios.',
+          'Aguardando DEN': 'A Central de Estágios encaminhou sua solicitação à DEN para parecer.',
+          'Aguardando Central de Estágios — Decisão Final': 'A DEN emitiu seu parecer. Aguardando decisão final da Central de Estágios.',
         };
         html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
       }
