@@ -175,7 +175,7 @@
       <div class="container mega-panel-grid">
         <a href="acompanhamento-orientacoes.html" class="mega-panel-item is-current">
           <span class="mega-panel-item-title">Orientações</span>
-          <span class="mega-panel-item-desc">Seus orientandos e pendências de aceite de orientação</span>
+          <span class="mega-panel-item-desc">Seus orientandos e pendências de checklist de orientação</span>
         </a>
         <a href="acompanhamento-supervisoes.html" class="mega-panel-item">
           <span class="mega-panel-item-title">Supervisões</span>
@@ -210,7 +210,7 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Orientações</h1>
-        <p class="page-hero-desc">Seus orientandos e pendências de aceite de orientação.</p>
+        <p class="page-hero-desc">Seus orientandos e pendências de checklist de orientação.</p>
       </div>
     </section>
 
@@ -295,6 +295,20 @@
     </div>
   </main>
 
+  <!-- Modal: Checklist de Orientação -->
+  <div class="modal-backdrop" id="modal-checklist">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-checklist-titulo">Checklist</h2>
+        <button type="button" class="modal-close" id="modal-checklist-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-checklist-body"></div>
+      <div class="modal-footer" id="modal-checklist-footer"></div>
+    </div>
+  </div>
+
   <!-- Modal: Ficha NAPNE (somente leitura para o orientador) -->
   <div class="modal-backdrop" id="modal-napne">
     <div class="modal">
@@ -363,12 +377,12 @@
       API.get('listarMeusOrientandos').then(function (data) {
         _todos = Array.isArray(data) ? data : [];
 
-        var pendentesAceite = _todos.filter(function (s) { return s.status === 'Em Checklist' && s.ckOrientadorStatus !== 'aprovado'; }).length;
+        var pendentesChecklist = _todos.filter(function (s) { return s.status === 'Em Checklist' && s.ckOrientadorStatus !== 'aprovado'; }).length;
         var alertaEl = document.getElementById('alerta-aceite');
-        if (pendentesAceite > 0) {
+        if (pendentesChecklist > 0) {
           alertaEl.style.display = 'flex';
           document.getElementById('alerta-aceite-texto').textContent =
-            pendentesAceite + ' solicitaç' + (pendentesAceite > 1 ? 'ões aguardam' : 'ão aguarda') + ' seu aceite de orientação. Verifique os estágios marcados "Em Checklist" na tabela abaixo.';
+            pendentesChecklist + ' checklist' + (pendentesChecklist > 1 ? 's aguardam' : ' aguarda') + ' sua validação. Verifique os estágios marcados "Em Checklist" na tabela abaixo.';
         } else {
           alertaEl.style.display = 'none';
         }
@@ -506,12 +520,8 @@
       var links = '';
 
       if (s.id && s.status === 'Em Checklist') {
-        var precisaAceitar = s.ckOrientadorStatus !== 'aprovado';
-        var url = precisaAceitar
-          ? 'aceite-orientacao.html?id=' + encodeURIComponent(s.id)
-          : 'checklist.html?id=' + encodeURIComponent(s.id);
-        var label = precisaAceitar ? 'Aceitar orientação' : 'Ver checklist';
-        links += '<a href="' + url + '" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">' + label + '</a>';
+        var pendente = s.ckOrientadorStatus !== 'aprovado';
+        links += '<button type="button" class="btn btn-' + (pendente ? 'primary' : 'secondary') + ' btn-sm" data-checklist-id="' + escapeHtml(s.id) + '" data-checklist-nome="' + escapeHtml(s.nomeEstudante || '') + '">Checklist' + (pendente ? ' — Validar' : '') + '</button>';
       }
 
       if (s.neeDeclarado) {
@@ -522,10 +532,89 @@
     }
 
     document.getElementById('corpo-tabela').addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-nee-email]');
-      if (!btn) return;
-      abrirModalNapne(btn.dataset.neeEmail, btn.dataset.neeNome);
+      var btnNee = e.target.closest('button[data-nee-email]');
+      if (btnNee) { abrirModalNapne(btnNee.dataset.neeEmail, btnNee.dataset.neeNome); return; }
+      var btnCk = e.target.closest('button[data-checklist-id]');
+      if (btnCk) { abrirChecklist(btnCk.dataset.checklistId, btnCk.dataset.checklistNome); return; }
     });
+
+    /* ── Checklist de Orientação (validação em paralelo, sem fila) ── */
+    async function abrirChecklist(estagioId, nomeEstudante) {
+      document.getElementById('modal-checklist-titulo').textContent = 'Checklist — ' + (nomeEstudante || 'Estágio');
+      document.getElementById('modal-checklist-body').innerHTML = '<div class="empty-state"><div class="spinner" aria-hidden="true"></div><p>Carregando…</p></div>';
+      document.getElementById('modal-checklist-footer').innerHTML = '';
+      document.getElementById('modal-checklist').classList.add('is-open');
+      try {
+        var ck = await API.get('obterChecklistOrientador', { id: estagioId });
+        renderChecklist(ck, estagioId);
+      } catch (err) {
+        document.getElementById('modal-checklist-body').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar checklist: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function renderChecklist(ck, estagioId) {
+      var itens = ck.itens || [];
+      var html = '';
+      if (ck.status === 'aprovado' || ck.status === 'ajuste') {
+        html += '<div class="alert alert-' + (ck.status === 'aprovado' ? 'success' : 'warning') + '" style="margin-bottom:var(--space-4);">' +
+          '<div class="alert-content">Você já ' + (ck.status === 'aprovado' ? 'aprovou' : 'solicitou ajuste n') + 'este checklist' + (ck.data ? ' em ' + formatDateBR(ck.data) : '') + '. Pode alterar sua resposta abaixo.</div></div>';
+      }
+      html += '<div style="display:flex;flex-direction:column;gap:var(--space-3);">';
+      if (!itens.length) {
+        html += '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Nenhum item de verificação cadastrado ainda.</p>';
+      }
+      itens.forEach(function (item, idx) {
+        html += '<div class="form-check">' +
+          '<input type="checkbox" id="ck-item-' + idx + '"' + (item.checked ? ' checked' : '') + '>' +
+          '<label class="form-check-label" for="ck-item-' + idx + '">' + escapeHtml(item.label || '') + '</label>' +
+          '</div>';
+      });
+      html += '</div>';
+      html += '<div class="form-group" style="margin-top:var(--space-4);">' +
+        '<label class="form-label" for="ck-observacao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>' +
+        '<textarea id="ck-observacao" class="form-control" rows="3" maxlength="500">' + escapeHtml(ck.observacao || '') + '</textarea></div>';
+
+      document.getElementById('modal-checklist-body').innerHTML = html;
+      document.getElementById('modal-checklist-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-fechar-checklist">Fechar</button>' +
+        '<button type="button" class="btn btn-danger btn-sm" id="btn-devolver-checklist">Devolver para ajustes</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-aprovar-checklist">Aprovar</button>';
+
+      document.getElementById('btn-fechar-checklist').addEventListener('click', fecharChecklist);
+      document.getElementById('btn-devolver-checklist').addEventListener('click', function () { responderChecklist(estagioId, 'ajuste', this); });
+      document.getElementById('btn-aprovar-checklist').addEventListener('click', function () { responderChecklist(estagioId, 'aprovado', this); });
+    }
+
+    async function responderChecklist(estagioId, decisao, btn) {
+      if (decisao === 'ajuste' && !document.getElementById('ck-observacao').value.trim()) {
+        showToast('Informe uma observação explicando o ajuste solicitado.', 'error');
+        return;
+      }
+      var itens = Array.from(document.querySelectorAll('#modal-checklist-body input[type="checkbox"]')).map(function (cb) { return cb.checked; });
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = decisao === 'aprovado' ? 'Aprovando…' : 'Enviando…';
+      try {
+        await API.post('responderChecklistOrientador', {
+          id: estagioId,
+          decisao: decisao,
+          itens: itens,
+          observacao: document.getElementById('ck-observacao').value.trim(),
+        });
+        showToast(decisao === 'aprovado' ? '✅ Checklist aprovado.' : 'Ajuste solicitado ao estudante.', 'success');
+        fecharChecklist();
+        carregarOrientandos();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharChecklist() {
+      document.getElementById('modal-checklist').classList.remove('is-open');
+    }
+    document.getElementById('modal-checklist-fechar').addEventListener('click', fecharChecklist);
+    document.getElementById('modal-checklist').addEventListener('click', function (e) { if (e.target === this) fecharChecklist(); });
 
     /* ── Modal NAPNE ── */
     async function abrirModalNapne(emailAluno, nomeEstudante) {
