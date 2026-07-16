@@ -43,23 +43,40 @@
       <div class="container">
         <h1 class="page-hero-title">Diretoria de Ensino — DEN</h1>
         <p class="page-hero-desc">
-          Pareceres de Certificação de Conhecimento aguardando análise da DEN.
+          Pareceres e assinaturas aguardando análise da DEN.
         </p>
       </div>
     </section>
 
     <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
 
-      <div id="painel-carregando" class="empty-state">
-        <div class="spinner" aria-hidden="true"></div>
-        <p>Carregando…</p>
+      <div style="margin-bottom:var(--space-8);">
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          🎓 Certificações de Conhecimento
+        </h2>
+        <div id="cert-carregando" class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+        <div id="cert-vazia" class="empty-state hidden">
+          <p>Nenhuma certificação aguardando parecer da DEN no momento.</p>
+        </div>
+        <div id="lista-certificacoes-den"></div>
       </div>
 
-      <div id="lista-vazia" class="empty-state hidden">
-        <p>Nenhuma certificação aguardando parecer da DEN no momento.</p>
+      <div>
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          🔄 Conversões de Estágio Não Obrigatório
+        </h2>
+        <div id="conv-carregando" class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+        <div id="conv-vazia" class="empty-state hidden">
+          <p>Nenhuma conversão aguardando assinatura da DEN no momento.</p>
+        </div>
+        <div id="lista-conversoes-den"></div>
       </div>
-
-      <div id="lista-certificacoes-den"></div>
 
     </div>
   </main>
@@ -75,6 +92,20 @@
       </div>
       <div class="modal-body" id="modal-den-body"></div>
       <div class="modal-footer" id="modal-den-footer"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Assinatura da DEN — Conversão de Estágio Não Obrigatório -->
+  <div class="modal-backdrop" id="modal-den-conversao">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-den-conversao-titulo">Conversão de Estágio Não Obrigatório</h2>
+        <button type="button" class="modal-close" id="modal-den-conversao-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-den-conversao-body"></div>
+      <div class="modal-footer" id="modal-den-conversao-footer"></div>
     </div>
   </div>
 
@@ -102,6 +133,7 @@
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
     var _certificacoesDen = [];
+    var _conversoesDen = [];
 
     // Guarda de acesso: por enquanto exige só sessão de servidor (qualquer
     // @riogrande...). A checagem do papel "DEN" de verdade acontece no
@@ -109,20 +141,23 @@
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
       carregarCertificacoes();
+      carregarConversoes();
 
       document.getElementById('modal-den-fechar').addEventListener('click', fecharParecerDen);
       document.getElementById('modal-den').addEventListener('click', function (e) { if (e.target === this) fecharParecerDen(); });
+      document.getElementById('modal-den-conversao-fechar').addEventListener('click', fecharConversaoDen);
+      document.getElementById('modal-den-conversao').addEventListener('click', function (e) { if (e.target === this) fecharConversaoDen(); });
     });
 
     function carregarCertificacoes() {
-      document.getElementById('painel-carregando').classList.remove('hidden');
-      document.getElementById('lista-vazia').classList.add('hidden');
+      document.getElementById('cert-carregando').classList.remove('hidden');
+      document.getElementById('cert-vazia').classList.add('hidden');
       API.get('listarCertificacoesDEN').then(function (lista) {
         _certificacoesDen = Array.isArray(lista) ? lista : [];
-        document.getElementById('painel-carregando').classList.add('hidden');
+        document.getElementById('cert-carregando').classList.add('hidden');
 
         if (!_certificacoesDen.length) {
-          document.getElementById('lista-vazia').classList.remove('hidden');
+          document.getElementById('cert-vazia').classList.remove('hidden');
           document.getElementById('lista-certificacoes-den').innerHTML = '';
           return;
         }
@@ -141,7 +176,7 @@
             '</div>';
         }).join('');
       }).catch(function (err) {
-        document.getElementById('painel-carregando').classList.add('hidden');
+        document.getElementById('cert-carregando').classList.add('hidden');
         document.getElementById('lista-certificacoes-den').innerHTML =
           '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar as certificações. ' + escapeHtml(err.message) + '</div></div>';
       });
@@ -212,6 +247,108 @@
 
     function fecharParecerDen() {
       document.getElementById('modal-den').classList.remove('is-open');
+    }
+
+    /* ── Conversões de Estágio Não Obrigatório pendentes de assinatura ── */
+    function carregarConversoes() {
+      document.getElementById('conv-carregando').classList.remove('hidden');
+      document.getElementById('conv-vazia').classList.add('hidden');
+      API.get('listarConversoesDEN').then(function (lista) {
+        _conversoesDen = Array.isArray(lista) ? lista : [];
+        document.getElementById('conv-carregando').classList.add('hidden');
+
+        if (!_conversoesDen.length) {
+          document.getElementById('conv-vazia').classList.remove('hidden');
+          document.getElementById('lista-conversoes-den').innerHTML = '';
+          return;
+        }
+
+        document.getElementById('lista-conversoes-den').innerHTML = _conversoesDen.map(function (c) {
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(c.nomeEstudante || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(c.cursoConversao || '—') + ' · ' + escapeHtml(String(c.cargaHorariaTotalConvertida || 0)) + 'h</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-conv-id="' + escapeHtml(c.id || '') + '">Revisar e Assinar</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('conv-carregando').classList.add('hidden');
+        document.getElementById('lista-conversoes-den').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar as conversões. ' + escapeHtml(err.message) + '</div></div>';
+      });
+    }
+
+    document.getElementById('lista-conversoes-den').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-conv-id]');
+      if (!btn) return;
+      var item = _conversoesDen.find(function (x) { return String(x.id) === btn.dataset.convId; });
+      if (item) abrirConversaoDen(item);
+    });
+
+    function abrirConversaoDen(c) {
+      document.getElementById('modal-den-conversao-titulo').textContent = 'Conversão — ' + (c.nomeEstudante || 'Estágio Não Obrigatório');
+
+      var ataHtml = c.ataColegiadoUrl
+        ? '<p style="font-size:var(--font-size-sm);"><a href="' + escapeHtml(c.ataColegiadoUrl) + '" target="_blank" rel="noopener">Baixar ata do colegiado</a></p>'
+        : '';
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(c.cursoConversao || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Carga horária convertida</label><p>' + escapeHtml(String(c.cargaHorariaTotalConvertida || 0)) + 'h</p></div>' +
+        '</div>' +
+        ataHtml +
+        '<div class="form-group"><label class="form-label" for="conv-den-observacao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória para devolver à Coordenação)</span></label>' +
+        '<textarea id="conv-den-observacao" class="form-control" rows="3" maxlength="1000"></textarea></div>';
+
+      document.getElementById('modal-den-conversao-body').innerHTML = html;
+      document.getElementById('modal-den-conversao-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-fechar-conversao-den">Fechar</button>' +
+        '<button type="button" class="btn btn-danger btn-sm" id="btn-devolver-conversao-den">Devolver à Coordenação</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-assinar-conversao-den">Assinar e Encaminhar</button>';
+
+      document.getElementById('btn-fechar-conversao-den').addEventListener('click', fecharConversaoDen);
+      document.getElementById('btn-devolver-conversao-den').addEventListener('click', function () { devolverConversaoCoordenacao(c.id, this); });
+      document.getElementById('btn-assinar-conversao-den').addEventListener('click', function () { assinarConversaoDen(c.id, this); });
+
+      document.getElementById('modal-den-conversao').classList.add('is-open');
+    }
+
+    async function devolverConversaoCoordenacao(id, btn) {
+      var obs = document.getElementById('conv-den-observacao').value.trim();
+      if (!obs) {
+        showToast('Informe uma observação explicando o motivo da devolução.', 'error');
+        return;
+      }
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Devolvendo…';
+      try {
+        await API.post('devolverConversaoCoordenacao', { id: id, obs: obs });
+        showToast('Conversão devolvida à Coordenação.', 'success');
+        fecharConversaoDen();
+        carregarConversoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function assinarConversaoDen(id, btn) {
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Assinando…';
+      try {
+        await API.post('assinarConversaoDEN', { id: id });
+        showToast('✅ Assinado e encaminhado para a Central de Estágios.', 'success');
+        fecharConversaoDen();
+        carregarConversoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharConversaoDen() {
+      document.getElementById('modal-den-conversao').classList.remove('is-open');
     }
   </script>
 </body>

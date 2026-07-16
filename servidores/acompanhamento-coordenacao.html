@@ -229,6 +229,14 @@
         <div id="lista-certificacoes-coord"></div>
       </div>
 
+      <!-- Conversões de Estágio Não Obrigatório pendentes de análise -->
+      <div id="conversoes-section" class="hidden" style="margin-bottom:var(--space-8);">
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          🔄 Conversões de Estágio Não Obrigatório Pendentes de Análise
+        </h2>
+        <div id="lista-conversoes-coord"></div>
+      </div>
+
       <div id="painel-carregando" class="empty-state">
         <div class="spinner" aria-hidden="true"></div>
         <p>Carregando estágios…</p>
@@ -332,6 +340,20 @@
     </div>
   </div>
 
+  <!-- Modal: Análise de Conversão de Estágio Não Obrigatório -->
+  <div class="modal-backdrop" id="modal-conversao">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-conversao-titulo">Conversão de Estágio Não Obrigatório</h2>
+        <button type="button" class="modal-close" id="modal-conversao-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-conversao-body"></div>
+      <div class="modal-footer" id="modal-conversao-footer"></div>
+    </div>
+  </div>
+
   <!-- ═══════════════════════════════════════
        FOOTER
        ═══════════════════════════════════════ -->
@@ -363,7 +385,7 @@
       requireAreaAuth('servidor', '../index.html');
       carregarEstagios();
       var s = typeof getSession === 'function' ? getSession() : null;
-      if (s && s.email) { carregarPareceres(s.email); carregarCertificacoes(); }
+      if (s && s.email) { carregarPareceres(s.email); carregarCertificacoes(); carregarConversoes(); }
     });
 
     function mostrarPainel(id) {
@@ -667,6 +689,123 @@
     }
     document.getElementById('modal-certificacao-fechar').addEventListener('click', fecharCertificacao);
     document.getElementById('modal-certificacao').addEventListener('click', function (e) { if (e.target === this) fecharCertificacao(); });
+
+    /* ── Conversões de Estágio Não Obrigatório pendentes de análise ── */
+    var _conversoes = [];
+
+    function carregarConversoes() {
+      API.get('listarConversoesCoordenador').then(function (lista) {
+        _conversoes = Array.isArray(lista) ? lista : [];
+        if (!_conversoes.length) return;
+        document.getElementById('conversoes-section').classList.remove('hidden');
+        document.getElementById('lista-conversoes-coord').innerHTML = _conversoes.map(function (c) {
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(c.nomeEstudante || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(c.cursoConversao || '—') + ' · ' + escapeHtml(String(c.cargaHorariaTotalConvertida || 0)) + 'h</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-conversao-id="' + escapeHtml(c.id || '') + '">Analisar</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function () { /* falha silenciosa — não é crítico pra essa tela */ });
+    }
+
+    document.getElementById('lista-conversoes-coord').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-conversao-id]');
+      if (!btn) return;
+      var item = _conversoes.find(function (x) { return String(x.id) === btn.dataset.conversaoId; });
+      if (item) abrirConversao(item);
+    });
+
+    function abrirConversao(c) {
+      document.getElementById('modal-conversao-titulo').textContent = 'Conversão — ' + (c.nomeEstudante || 'Estágio Não Obrigatório');
+
+      var origemHtml = (c.estagiosSelecionados && c.estagiosSelecionados.length)
+        ? '<p style="font-size:var(--font-size-sm);">Estágio já registrado no sistema — <a href="#" id="link-gerar-pdf-conversao">gerar PDF dos dados</a>.</p>'
+        : (c.docEstagioManualUrl
+          ? '<p style="font-size:var(--font-size-sm);">Estágio anterior ao sistema — <a href="' + escapeHtml(c.docEstagioManualUrl) + '" target="_blank" rel="noopener">baixar documentos enviados pelo estudante</a>.</p>'
+          : '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Documentos do estágio não obrigatório não disponíveis.</p>');
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(c.cursoConversao || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Carga horária convertida</label><p>' + escapeHtml(String(c.cargaHorariaTotalConvertida || 0)) + 'h</p></div>' +
+        '</div>' +
+        origemHtml +
+        '<div class="form-group" style="margin-top:var(--space-4);"><label class="form-label required" for="conversao-ata-colegiado">Ata do Colegiado (PDF)</label>' +
+        '<div class="file-input-wrapper">' +
+        '<label class="file-input-label" for="conversao-ata-colegiado">' +
+        '<span class="file-text">Selecionar ata do colegiado (PDF)</span>' +
+        '<span class="file-selected" id="conversao-ata-doc-name"></span>' +
+        '</label>' +
+        '<input type="file" class="form-control-file" id="conversao-ata-colegiado" accept=".pdf">' +
+        '</div><span id="conversao-ata-colegiado-error" class="form-error hidden" role="alert"></span></div>' +
+        '<div class="form-group"><label class="form-label" for="conversao-observacao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória para notificar inconsistência)</span></label>' +
+        '<textarea id="conversao-observacao" class="form-control" rows="3" maxlength="1000"></textarea></div>';
+
+      document.getElementById('modal-conversao-body').innerHTML = html;
+      document.getElementById('modal-conversao-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-fechar-conversao">Fechar</button>' +
+        '<button type="button" class="btn btn-danger btn-sm" id="btn-notificar-conversao">Notificar Inconsistência</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-encaminhar-conversao">Encaminhar para DEN</button>';
+
+      validarPdf('conversao-ata-colegiado', 'conversao-ata-doc-name', 'conversao-ata-colegiado-error');
+
+      document.getElementById('btn-fechar-conversao').addEventListener('click', fecharConversao);
+      document.getElementById('btn-notificar-conversao').addEventListener('click', function () { notificarInconsistenciaConversao(c.id, this); });
+      document.getElementById('btn-encaminhar-conversao').addEventListener('click', function () { encaminharConversaoDEN(c.id, this); });
+
+      document.getElementById('modal-conversao').classList.add('is-open');
+    }
+
+    async function notificarInconsistenciaConversao(id, btn) {
+      var obs = document.getElementById('conversao-observacao').value.trim();
+      if (!obs) {
+        showToast('Informe uma observação explicando a inconsistência.', 'error');
+        return;
+      }
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('notificarInconsistenciaConversao', { id: id, obs: obs });
+        showToast('Estudante notificado da inconsistência.', 'success');
+        fecharConversao();
+        carregarConversoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function encaminharConversaoDEN(id, btn) {
+      var arquivoAta = document.getElementById('conversao-ata-colegiado').files[0];
+      if (!arquivoAta) {
+        showToast('Anexe a ata do colegiado antes de encaminhar.', 'error');
+        return;
+      }
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Encaminhando…';
+      try {
+        var ataColegiado = await new Promise(function (resolve) {
+          var r = new FileReader();
+          r.onload = function () { resolve({ nome: arquivoAta.name, base64: r.result.split(',')[1] }); };
+          r.onerror = function () { resolve(null); };
+          r.readAsDataURL(arquivoAta);
+        });
+        await API.post('encaminharConversaoDEN', { id: id, ataColegiado: ataColegiado });
+        showToast('✅ Encaminhado para a DEN.', 'success');
+        fecharConversao();
+        carregarConversoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharConversao() {
+      document.getElementById('modal-conversao').classList.remove('is-open');
+    }
+    document.getElementById('modal-conversao-fechar').addEventListener('click', fecharConversao);
+    document.getElementById('modal-conversao').addEventListener('click', function (e) { if (e.target === this) fecharConversao(); });
 
     // Mega menu — abre/fecha o painel de Acompanhamento
     (function () {

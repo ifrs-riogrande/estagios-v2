@@ -363,8 +363,54 @@
               </select>
             </div>
 
-            <div id="msg-sem-estagios" class="alert alert-error" style="display:none;" role="alert">
-              <div class="alert-content" id="msg-sem-estagios-texto"></div>
+            <div id="msg-sem-estagios" class="alert alert-warning" style="display:none;" role="alert">
+              <div class="alert-content">
+                <strong>Nenhum estágio não obrigatório concluído encontrado no sistema para este curso.</strong>
+                <p style="margin:var(--space-2) 0 0;">Se o seu estágio não obrigatório foi concluído antes da implantação do sistema, informe os dados manualmente.</p>
+                <div class="form-check" style="margin-top:var(--space-3);">
+                  <input type="checkbox" id="chk-estagio-manual">
+                  <label class="form-check-label" for="chk-estagio-manual">Adicionar estágio não obrigatório manualmente (anterior ao sistema)</label>
+                </div>
+              </div>
+            </div>
+
+            <div id="bloco-estagio-manual" style="display:none;">
+              <div class="form-group">
+                <label class="form-label required" for="manual-concedente">Concedente</label>
+                <input type="text" id="manual-concedente" class="form-control" aria-describedby="manual-concedente-error">
+                <span id="manual-concedente-error" class="form-error hidden" role="alert"></span>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label required" for="manual-data-inicio">Data de início</label>
+                  <input type="date" id="manual-data-inicio" class="form-control" aria-describedby="manual-data-inicio-error">
+                  <span id="manual-data-inicio-error" class="form-error hidden" role="alert"></span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label required" for="manual-data-fim">Data de término</label>
+                  <input type="date" id="manual-data-fim" class="form-control" aria-describedby="manual-data-fim-error">
+                  <span id="manual-data-fim-error" class="form-error hidden" role="alert"></span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label required" for="manual-carga-horaria">Carga horária total</label>
+                  <input type="number" id="manual-carga-horaria" class="form-control" min="1" step="1" aria-describedby="manual-carga-horaria-error">
+                  <span id="manual-carga-horaria-error" class="form-error hidden" role="alert"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label required" for="doc-estagio-manual">Documentos do estágio não obrigatório concluído</label>
+                <div class="file-input-wrapper">
+                  <label class="file-input-label" for="doc-estagio-manual">
+                    <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                    <span class="file-text">Selecionar documentos (PDF)</span>
+                    <span class="file-selected" id="estagio-manual-doc-name"></span>
+                    <span class="file-types">PDF — máx. 5 MB</span>
+                  </label>
+                  <input type="file" class="form-control-file" id="doc-estagio-manual" accept=".pdf" aria-describedby="doc-estagio-manual-error">
+                </div>
+                <span id="doc-estagio-manual-error" class="form-error hidden" role="alert"></span>
+                <p class="form-hint">Solicitação, termo de compromisso, adendos e relatório final — pode juntar tudo em um único PDF.</p>
+              </div>
             </div>
           </div>
 
@@ -645,6 +691,8 @@
       document.getElementById('loading-estagios').style.display = 'block';
       document.getElementById('conteudo-estagios').style.display = 'none';
       document.getElementById('msg-sem-estagios').style.display = 'none';
+      document.getElementById('chk-estagio-manual').checked = false;
+      document.getElementById('bloco-estagio-manual').style.display = 'none';
       btnEnviar.disabled = true;
 
       try {
@@ -653,8 +701,6 @@
         document.getElementById('loading-estagios').style.display = 'none';
 
         if (estagiosConcluidos.length === 0) {
-          document.getElementById('msg-sem-estagios-texto').innerHTML =
-            '<strong>Nenhum estágio não obrigatório concluído encontrado.</strong> Esta conversão exige pelo menos um estágio não obrigatório já concluído para o curso selecionado. Entre em contato com o setor de estágios se você acredita que isso é um erro.';
           document.getElementById('msg-sem-estagios').style.display = 'block';
           document.getElementById('conteudo-estagios').style.display = 'none';
           return;
@@ -668,6 +714,11 @@
           '<div class="alert alert-error"><div class="alert-content">Erro ao carregar seus estágios concluídos: ' + escapeHtml(err.message || 'tente recarregar') + '</div></div>';
       }
     }
+
+    document.getElementById('chk-estagio-manual').addEventListener('change', function () {
+      document.getElementById('bloco-estagio-manual').style.display = this.checked ? 'block' : 'none';
+      btnEnviar.disabled = !this.checked;
+    });
 
     function renderizarEstagiosConcluidos() {
       var tbody = document.getElementById('tabela-estagios-concluidos');
@@ -701,6 +752,7 @@
     // UPLOAD — validação de PDF (ver assets/js/utils.js)
     // ════════════════════════════════════════════════════════
     validarPdf('doc-matricula', 'matricula-doc-name', 'doc-matricula-error');
+    validarPdf('doc-estagio-manual', 'estagio-manual-doc-name', 'doc-estagio-manual-error');
 
     // ════════════════════════════════════════════════════════
     // VALIDAÇÃO E ENVIO
@@ -712,8 +764,18 @@
       if (!document.getElementById('vinculo-curso').value) fail('vinculo-curso', 'Selecione o curso.');
       if (!document.getElementById('semestre-atual').value) fail('semestre-atual', 'Selecione o período letivo.');
 
-      var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
-      if (idsSelecionados.length === 0) fail('estagios-selecionados', 'Selecione ao menos um estágio não obrigatório concluído.');
+      var modoManual = document.getElementById('chk-estagio-manual').checked;
+      if (modoManual) {
+        if (!document.getElementById('manual-concedente').value.trim()) fail('manual-concedente', 'Informe a concedente do estágio.');
+        if (!document.getElementById('manual-data-inicio').value) fail('manual-data-inicio', 'Informe a data de início.');
+        if (!document.getElementById('manual-data-fim').value) fail('manual-data-fim', 'Informe a data de término.');
+        if (!document.getElementById('manual-carga-horaria').value) fail('manual-carga-horaria', 'Informe a carga horária total.');
+        if (!document.getElementById('doc-estagio-manual').files.length) fail('doc-estagio-manual', 'Anexe os documentos do estágio.');
+        else if (_fileOk['doc-estagio-manual'] === false) fail('doc-estagio-manual', 'O arquivo não é um PDF válido.');
+      } else {
+        var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
+        if (idsSelecionados.length === 0) fail('estagios-selecionados', 'Selecione ao menos um estágio não obrigatório concluído, ou marque a opção de adicionar manualmente.');
+      }
 
       if (!document.getElementById('doc-matricula').files.length) fail('doc-matricula', 'Anexe o comprovante de matrícula.');
       else if (_fileOk['doc-matricula'] === false) fail('doc-matricula', 'O arquivo não é um PDF válido.');
@@ -737,9 +799,12 @@
       btnEnviar.classList.add('is-loading');
       btnEnviar.disabled = true;
 
-      var idsSelecionados = JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
-      var totalHoras = Array.from(document.querySelectorAll('.cb-estagio:checked'))
-        .reduce(function (soma, cb) { return soma + (Number(estagiosConcluidos[+cb.dataset.idx].cargaHorariaTotal) || 0); }, 0);
+      var modoManual = document.getElementById('chk-estagio-manual').checked;
+      var idsSelecionados = modoManual ? [] : JSON.parse(document.getElementById('estagios-selecionados-value').value || '[]');
+      var totalHoras = modoManual
+        ? (Number(document.getElementById('manual-carga-horaria').value) || 0)
+        : Array.from(document.querySelectorAll('.cb-estagio:checked'))
+            .reduce(function (soma, cb) { return soma + (Number(estagiosConcluidos[+cb.dataset.idx].cargaHorariaTotal) || 0); }, 0);
 
       var lerBase64 = function (file) {
         return new Promise(function (resolve) {
@@ -753,6 +818,7 @@
 
       try {
         var docMatricula = await lerBase64(document.getElementById('doc-matricula').files[0]);
+        var docEstagioManual = modoManual ? await lerBase64(document.getElementById('doc-estagio-manual').files[0]) : null;
 
         var payload = {
           cursoConversao: document.getElementById('vinculo-curso').value,
@@ -763,6 +829,13 @@
           cargaHorariaTotalConvertida: totalHoras,
           declaracaoVeracidade: document.getElementById('declaracao-veracidade').checked,
           docMatricula: docMatricula,
+          estagioManual: modoManual ? {
+            concedente: document.getElementById('manual-concedente').value.trim(),
+            dataInicio: document.getElementById('manual-data-inicio').value,
+            dataFim: document.getElementById('manual-data-fim').value,
+            cargaHorariaTotal: totalHoras,
+            docEstagio: docEstagioManual,
+          } : null,
         };
 
         // Reforço não-bloqueante: mantém o contato sincronizado com o cadastro mestre.
