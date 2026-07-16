@@ -277,6 +277,8 @@
         <div id="status-banner" class="alert" style="display:none;margin-bottom:var(--space-6);"></div>
         <div id="form-feedback" class="form-feedback" role="status" aria-live="polite"></div>
 
+        <div id="bloqueado-panel" class="hidden empty-state" style="margin-bottom:var(--space-6);"></div>
+
         <form id="form-projetos" novalidate>
 
           <!-- ── Seção 1: Seus Dados ── -->
@@ -526,9 +528,17 @@
         } catch (e) { solicitacaoAtual = null; }
         if (solicitacaoAtual) preencherFormularioExistente(solicitacaoAtual);
 
-        renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
         var editavel = !solicitacaoAtual || !solicitacaoAtual.status || solicitacaoAtual.status === 'Rascunho' || solicitacaoAtual.status === 'Devolvido';
-        setFormEditavel(editavel);
+        if (editavel) {
+          document.getElementById('bloqueado-panel').classList.add('hidden');
+          document.getElementById('form-projetos').classList.remove('hidden');
+          renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
+          setFormEditavel(true);
+        } else {
+          document.getElementById('status-banner').style.display = 'none';
+          document.getElementById('form-projetos').classList.add('hidden');
+          mostrarBloqueado(solicitacaoAtual.status);
+        }
       } catch (err) {
         showFormFeedback('form-feedback', 'error', 'Erro ao carregar', err.message || 'Não foi possível carregar seus dados. Recarregue a página.');
       }
@@ -698,34 +708,28 @@
     }
 
     // ════════════════════════════════════════════════════════
-    // STATUS / MODO SOMENTE LEITURA (Rascunho, Devolvido, Aguardando..., Encerrado)
+    // STATUS — só os estados editáveis aqui (Rascunho, Devolvido).
+    // Acompanhamento completo (Aguardando..., Encerrado) mora em
+    // acompanhamento-aproveitamento-projetos.html — solicitação e
+    // acompanhamento são páginas totalmente separadas.
     // ════════════════════════════════════════════════════════
     function renderizarStatusBanner(status) {
       var banner = document.getElementById('status-banner');
       if (!status || status === 'Rascunho') { banner.style.display = 'none'; return; }
 
-      var tipo = 'info';
-      var html = '';
-      if (status === 'Devolvido') {
-        tipo = 'warning';
-        var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
-        html = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
-          (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
-      } else if (status === 'Encerrado') {
-        tipo = 'success';
-        html = '<div class="alert-content"><strong>Aproveitamento registrado!</strong> O componente curricular foi marcado como concluído em seu histórico.</div>';
-      } else {
-        var labels = {
-          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise da coordenação de curso.',
-          'Aguardando DEN': 'A coordenação completou o requerimento. Aguardando assinatura da Diretoria de Ensino (DEN).',
-          'Aguardando Central de Estágios (Aproveitamento)': 'A DEN assinou o requerimento. Aguardando arquivamento pela Central de Estágios.',
-          'Aguardando Registro Acadêmico': 'A Central de Estágios arquivou o registro. Aguardando registro no seu histórico pelo Registro Acadêmico.',
-        };
-        html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
-      }
-      banner.className = 'alert alert-' + tipo;
-      banner.innerHTML = html;
+      var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
+      banner.className = 'alert alert-warning';
+      banner.innerHTML = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
+        (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
       banner.style.display = 'flex';
+    }
+
+    function mostrarBloqueado(status) {
+      document.getElementById('bloqueado-panel').innerHTML =
+        '<p>Você já tem uma solicitação de aproveitamento de programas/projetos em andamento.</p>' +
+        '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Status atual: <strong>' + escapeHtml(status || '—') + '</strong></p>' +
+        '<a href="acompanhamento-aproveitamento-projetos.html" class="btn btn-primary btn-sm" style="margin-top:var(--space-3);">Ir para Acompanhamento</a>';
+      document.getElementById('bloqueado-panel').classList.remove('hidden');
     }
 
     function setFormEditavel(editavel) {

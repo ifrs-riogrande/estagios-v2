@@ -265,7 +265,7 @@
   </header>
 
   <!-- ═══════════════════════════════════════
-       CONTEÚDO — em construção
+       CONTEÚDO
        ═══════════════════════════════════════ -->
   <main id="main-content">
     <section class="page-hero">
@@ -275,14 +275,28 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">O acompanhamento da sua solicitação de certificação de conhecimento será adicionado aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando…</p>
       </div>
+
+      <div id="painel-vazio" class="empty-state hidden">
+        <p>Você ainda não enviou uma solicitação de certificação de conhecimento.</p>
+        <a href="aproveitamento.html" class="btn btn-primary btn-sm" style="margin-top:var(--space-3);">Solicitar Certificação</a>
+      </div>
+
+      <div id="painel-conteudo" class="hidden">
+        <div id="status-banner" class="alert" style="margin-bottom:var(--space-6);"></div>
+
+        <div class="detail-grid">
+          <div class="detail-item"><label>Curso</label><p id="det-curso">—</p></div>
+          <div class="detail-item"><label>Carga horária informada</label><p id="det-horas">—</p></div>
+          <div class="detail-item"><label>Data de envio</label><p id="det-envio">—</p></div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -312,7 +326,71 @@
     // Guarda de acesso: só estudantes autenticados. Sem sessão válida → volta ao login central.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('estudante', '../index.html');
+      carregarCertificacao();
     });
+
+    function mostrarPainel(id) {
+      ['painel-carregando', 'painel-vazio', 'painel-conteudo'].forEach(function (p) {
+        document.getElementById(p).classList.toggle('hidden', p !== id);
+      });
+    }
+
+    async function carregarCertificacao() {
+      mostrarPainel('painel-carregando');
+      try {
+        var c = await API.get('obterMeuAproveitamento');
+        if (!c || !c.status || c.status === 'Rascunho') {
+          if (c && c.status === 'Rascunho') {
+            document.getElementById('painel-vazio').innerHTML =
+              '<p>Você tem um rascunho de certificação de conhecimento não enviado.</p>' +
+              '<a href="aproveitamento.html" class="btn btn-primary btn-sm" style="margin-top:var(--space-3);">Continuar Preenchendo</a>';
+          }
+          mostrarPainel('painel-vazio');
+          return;
+        }
+
+        document.getElementById('det-curso').textContent = c.curso || '—';
+        document.getElementById('det-horas').textContent = (c.totalHoras || 0) + 'h';
+        document.getElementById('det-envio').textContent = c.dataEnvio ? formatDateBR(c.dataEnvio) : '—';
+
+        renderizarStatusBanner(c);
+        mostrarPainel('painel-conteudo');
+      } catch (err) {
+        mostrarPainel('painel-vazio');
+      }
+    }
+
+    function renderizarStatusBanner(c) {
+      var banner = document.getElementById('status-banner');
+      var status = c.status || '';
+      var tipo = 'info';
+      var html = '';
+
+      if (status === 'Devolvido') {
+        tipo = 'warning';
+        html = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
+          (c.obsDevolucao ? '<br>Motivo: ' + escapeHtml(c.obsDevolucao) : '') +
+          '<br><a href="aproveitamento.html">Continuar preenchendo →</a></div>';
+      } else if (status === 'Deferido') {
+        tipo = 'success';
+        html = '<div class="alert-content"><strong>Solicitação deferida!</strong> Carga horária homologada: ' + escapeHtml(String(c.cargaHomologada || 0)) + ' horas. O aproveitamento foi registrado como estágio obrigatório cumprido.</div>';
+      } else if (status === 'Indeferido') {
+        tipo = 'error';
+        html = '<div class="alert-content"><strong>Solicitação indeferida.</strong>' +
+          (c.justificativa ? '<br>Justificativa: ' + escapeHtml(c.justificativa) : '') + '<br>Entre em contato com o setor de estágios para mais informações.</div>';
+      } else {
+        var labels = {
+          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise do coordenador de curso.',
+          'Aguardando Central de Estágios': 'O coordenador emitiu o parecer. Aguardando verificação pela Central de Estágios.',
+          'Aguardando DEN': 'A Central de Estágios encaminhou sua solicitação à DEN para parecer.',
+          'Aguardando Central de Estágios — Decisão Final': 'A DEN emitiu seu parecer. Aguardando decisão final da Central de Estágios.',
+        };
+        html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
+      }
+
+      banner.className = 'alert alert-' + tipo;
+      banner.innerHTML = html;
+    }
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez
     (function () {

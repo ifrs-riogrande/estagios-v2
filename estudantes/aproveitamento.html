@@ -277,6 +277,8 @@
         <div id="status-banner" class="alert" style="display:none;margin-bottom:var(--space-6);"></div>
         <div id="form-feedback" class="form-feedback" role="status" aria-live="polite"></div>
 
+        <div id="bloqueado-panel" class="hidden empty-state" style="margin-bottom:var(--space-6);"></div>
+
         <form id="form-aproveitamento" novalidate>
 
           <!-- ── Seção 1: Seus Dados ── -->
@@ -725,12 +727,20 @@
         } catch (e) { solicitacaoAtual = null; }
         if (solicitacaoAtual) preencherFormularioExistente(solicitacaoAtual);
 
-        renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
         var editavel = !solicitacaoAtual || !solicitacaoAtual.status || solicitacaoAtual.status === 'Rascunho' || solicitacaoAtual.status === 'Devolvido';
-        setFormEditavel(editavel);
-        // setFormEditavel reabilita todos os campos indiscriminadamente — reaplica o
-        // bloqueio por curso não habilitado, que tem prioridade sobre o status editável.
-        if (selVinculo.value) verificarCursoHabilitado(selVinculo.value);
+        if (editavel) {
+          document.getElementById('bloqueado-panel').classList.add('hidden');
+          document.getElementById('form-aproveitamento').classList.remove('hidden');
+          renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
+          setFormEditavel(true);
+          // setFormEditavel reabilita todos os campos indiscriminadamente — reaplica o
+          // bloqueio por curso não habilitado, que tem prioridade sobre o status editável.
+          if (selVinculo.value) verificarCursoHabilitado(selVinculo.value);
+        } else {
+          document.getElementById('status-banner').style.display = 'none';
+          document.getElementById('form-aproveitamento').classList.add('hidden');
+          mostrarBloqueado(solicitacaoAtual.status);
+        }
       } catch (err) {
         showFormFeedback('form-feedback', 'error', 'Erro ao carregar', err.message || 'Não foi possível carregar seus dados. Recarregue a página.');
       }
@@ -929,40 +939,28 @@
     validarPdf('doc-extra', 'extra-doc-name', 'doc-extra-error');
 
     // ════════════════════════════════════════════════════════
-    // STATUS / MODO SOMENTE LEITURA (Rascunho, Devolvido, Aguardando..., Deferido, Indeferido)
+    // STATUS — só os estados editáveis aqui (Rascunho, Devolvido).
+    // Acompanhamento completo (Aguardando..., Deferido, Indeferido) mora em
+    // acompanhamento-certificacao.html — solicitação e acompanhamento são
+    // páginas totalmente separadas, cada uma com sua responsabilidade.
     // ════════════════════════════════════════════════════════
     function renderizarStatusBanner(status) {
       var banner = document.getElementById('status-banner');
       if (!status || status === 'Rascunho') { banner.style.display = 'none'; return; }
 
-      var tipo = 'info';
-      var html = '';
-      if (status === 'Devolvido') {
-        tipo = 'warning';
-        var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
-        html = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
-          (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
-      } else if (status === 'Deferido') {
-        tipo = 'success';
-        var horas = (solicitacaoAtual && solicitacaoAtual.cargaHomologada) || '';
-        html = '<div class="alert-content"><strong>Solicitação deferida!</strong> Carga horária homologada: ' + escapeHtml(String(horas)) + ' horas. O aproveitamento foi registrado como estágio obrigatório cumprido.</div>';
-      } else if (status === 'Indeferido') {
-        tipo = 'error';
-        var just = (solicitacaoAtual && solicitacaoAtual.justificativa) || '';
-        html = '<div class="alert-content"><strong>Solicitação indeferida.</strong>' +
-          (just ? '<br>Justificativa: ' + escapeHtml(just) : '') + '<br>Entre em contato com o setor de estágios para mais informações.</div>';
-      } else {
-        var labels = {
-          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise do coordenador de curso.',
-          'Aguardando Central de Estágios': 'O coordenador emitiu o parecer. Aguardando verificação pela Central de Estágios.',
-          'Aguardando DEN': 'A Central de Estágios encaminhou sua solicitação à DEN para parecer.',
-          'Aguardando Central de Estágios — Decisão Final': 'A DEN emitiu seu parecer. Aguardando decisão final da Central de Estágios.',
-        };
-        html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
-      }
-      banner.className = 'alert alert-' + tipo;
-      banner.innerHTML = html;
+      var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
+      banner.className = 'alert alert-warning';
+      banner.innerHTML = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
+        (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
       banner.style.display = 'flex';
+    }
+
+    function mostrarBloqueado(status) {
+      document.getElementById('bloqueado-panel').innerHTML =
+        '<p>Você já tem uma solicitação de certificação de conhecimento em andamento.</p>' +
+        '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Status atual: <strong>' + escapeHtml(status || '—') + '</strong></p>' +
+        '<a href="acompanhamento-certificacao.html" class="btn btn-primary btn-sm" style="margin-top:var(--space-3);">Ir para Acompanhamento</a>';
+      document.getElementById('bloqueado-panel').classList.remove('hidden');
     }
 
     function setFormEditavel(editavel) {
