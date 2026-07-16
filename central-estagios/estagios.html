@@ -212,6 +212,7 @@
             <option value="Encerrado">Encerrado</option>
             <option value="Reprovado">Reprovado</option>
             <option value="Aguardando Central de Estágios (Conversão)">Aguardando Central de Estágios (Conversão)</option>
+            <option value="Aguardando Central de Estágios (Aproveitamento)">Aguardando Central de Estágios (Aproveitamento)</option>
             <option value="Aguardando Registro Acadêmico">Aguardando Registro Acadêmico</option>
           </select>
         </div>
@@ -523,8 +524,9 @@
           checklistValidadorRow('Coordenador', s.ckCoordenadorStatus, s.ckCoordenadorObs, s.ckCoordenadorData) +
           '</div>' +
           '<div class="alert alert-info"><div class="alert-content">O Setor pode concluir e enviar para assinaturas a qualquer momento, mesmo com validadores pendentes.</div></div>';
-      } else if (s.status === 'Aguardando Central de Estágios (Conversão)' || s.status === 'Aguardando Registro Acadêmico') {
-        html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Conversão de Estágio Não Obrigatório</h3>' +
+      } else if (s.status === 'Aguardando Central de Estágios (Conversão)' || s.status === 'Aguardando Central de Estágios (Aproveitamento)' || s.status === 'Aguardando Registro Acadêmico') {
+        var origemLabel = s.status === 'Aguardando Central de Estágios (Aproveitamento)' ? 'Aproveitamento de Programas/Projetos' : 'Conversão de Estágio Não Obrigatório';
+        html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">' + origemLabel + '</h3>' +
           (s.ataColegiadoUrl ? '<p style="font-size:var(--font-size-sm);margin-bottom:var(--space-3);"><a href="' + escapeHtml(s.ataColegiadoUrl) + '" target="_blank" rel="noopener">Baixar ata do colegiado</a></p>' : '') +
           (s.status === 'Aguardando Registro Acadêmico'
             ? '<div class="alert alert-info"><div class="alert-content">Estágio já arquivado. Aguardando registro no histórico pelo Registro Acadêmico.</div></div>'
@@ -538,7 +540,7 @@
       var acoesExtra = '';
       if (s.status === 'Em Checklist') {
         acoesExtra = '<button type="button" class="btn btn-primary" id="btn-concluir-checklist">Concluir e enviar para assinaturas</button>';
-      } else if (s.status === 'Aguardando Central de Estágios (Conversão)') {
+      } else if (s.status === 'Aguardando Central de Estágios (Conversão)' || s.status === 'Aguardando Central de Estágios (Aproveitamento)') {
         acoesExtra = '<button type="button" class="btn btn-danger btn-sm" id="btn-devolver-conversao">Devolver para DEN</button>' +
           '<button type="button" class="btn btn-primary btn-sm" id="btn-arquivar-conversao">Arquivar e Encaminhar para Registro Acadêmico</button>';
       }
@@ -547,24 +549,25 @@
       var btnConcluir = document.getElementById('btn-concluir-checklist');
       if (btnConcluir) btnConcluir.addEventListener('click', function () { concluirChecklist(s.id, this); });
       var btnDevolverConversao = document.getElementById('btn-devolver-conversao');
-      if (btnDevolverConversao) btnDevolverConversao.addEventListener('click', function () { devolverConversaoDEN(s.id, this); });
+      if (btnDevolverConversao) btnDevolverConversao.addEventListener('click', function () { devolverConversaoDEN(s.id, s.status, this); });
       var btnArquivarConversao = document.getElementById('btn-arquivar-conversao');
-      if (btnArquivarConversao) btnArquivarConversao.addEventListener('click', function () { arquivarConversao(s.id, this); });
+      if (btnArquivarConversao) btnArquivarConversao.addEventListener('click', function () { arquivarConversao(s.id, s.status, this); });
 
       document.getElementById('modal-estagio').classList.add('is-open');
     }
 
-    async function devolverConversaoDEN(estagioId, btn) {
+    async function devolverConversaoDEN(estagioId, status, btn) {
       var obs = document.getElementById('conversao-obs-devolucao').value.trim();
       if (!obs) {
         showToast('Informe uma observação explicando o motivo da devolução.', 'error');
         return;
       }
+      var acao = status === 'Aguardando Central de Estágios (Aproveitamento)' ? 'devolverAproveitamentoProjetosDEN' : 'devolverConversaoDEN';
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Devolvendo…';
       try {
-        await API.post('devolverConversaoDEN', { id: estagioId, obs: obs });
-        showToast('Conversão devolvida para a DEN.', 'success');
+        await API.post(acao, { id: estagioId, obs: obs });
+        showToast('Devolvido para a DEN.', 'success');
         fecharDetalhe();
         carregarEstagios();
       } catch (err) {
@@ -573,12 +576,13 @@
       }
     }
 
-    async function arquivarConversao(estagioId, btn) {
+    async function arquivarConversao(estagioId, status, btn) {
       if (!confirm('Arquivar este estágio e encaminhar para o Registro Acadêmico?')) return;
+      var acao = status === 'Aguardando Central de Estágios (Aproveitamento)' ? 'arquivarAproveitamentoProjetos' : 'arquivarConversaoEstagio';
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Arquivando…';
       try {
-        await API.post('arquivarConversaoEstagio', { id: estagioId });
+        await API.post(acao, { id: estagioId });
         showToast('✅ Arquivado e encaminhado para o Registro Acadêmico.', 'success');
         fecharDetalhe();
         carregarEstagios();
@@ -761,6 +765,7 @@
         'Encerrado': 'badge-neutral',
         'Reprovado': 'badge-error',
         'Aguardando Central de Estágios (Conversão)': 'badge-info',
+        'Aguardando Central de Estágios (Aproveitamento)': 'badge-info',
         'Aguardando Registro Acadêmico': 'badge-info',
       };
       var cls = map[status] || 'badge-neutral';

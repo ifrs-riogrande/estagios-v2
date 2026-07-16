@@ -43,23 +43,40 @@
       <div class="container">
         <h1 class="page-hero-title">Registro Acadêmico</h1>
         <p class="page-hero-desc">
-          Conversões de estágio não obrigatório aguardando registro no histórico do estudante.
+          Conversões e aproveitamentos aguardando registro no histórico do estudante.
         </p>
       </div>
     </section>
 
     <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
 
-      <div id="painel-carregando" class="empty-state">
-        <div class="spinner" aria-hidden="true"></div>
-        <p>Carregando…</p>
+      <div style="margin-bottom:var(--space-8);">
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          🔄 Conversões de Estágio Não Obrigatório
+        </h2>
+        <div id="conv-carregando" class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+        <div id="conv-vazia" class="empty-state hidden">
+          <p>Nenhuma conversão aguardando registro no momento.</p>
+        </div>
+        <div id="lista-registro-conversao"></div>
       </div>
 
-      <div id="lista-vazia" class="empty-state hidden">
-        <p>Nenhuma conversão aguardando registro no momento.</p>
+      <div>
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          📚 Aproveitamentos de Programas/Projetos
+        </h2>
+        <div id="aprov-carregando" class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+        <div id="aprov-vazia" class="empty-state hidden">
+          <p>Nenhum aproveitamento aguardando registro no momento.</p>
+        </div>
+        <div id="lista-registro-aprovprojetos"></div>
       </div>
-
-      <div id="lista-registro"></div>
 
     </div>
   </main>
@@ -101,63 +118,104 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-    var _pendentesRegistro = [];
+    var _pendentesConversao = [];
+    var _pendentesAprovProjetos = [];
 
     // Guarda de acesso: por enquanto exige só sessão de servidor (qualquer
     // @riogrande...). A checagem do papel "Registro Acadêmico" de verdade
     // acontece no backend, na ConfigAcesso — ainda não há dados reais lá.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
-      carregarPendentes();
+      carregarPendentesConversao();
+      carregarPendentesAprovProjetos();
 
       document.getElementById('modal-registro-fechar').addEventListener('click', fecharRegistro);
       document.getElementById('modal-registro').addEventListener('click', function (e) { if (e.target === this) fecharRegistro(); });
     });
 
-    function carregarPendentes() {
-      document.getElementById('painel-carregando').classList.remove('hidden');
-      document.getElementById('lista-vazia').classList.add('hidden');
+    function carregarPendentesConversao() {
+      document.getElementById('conv-carregando').classList.remove('hidden');
+      document.getElementById('conv-vazia').classList.add('hidden');
       API.get('listarConversoesRegistroAcademico').then(function (lista) {
-        _pendentesRegistro = Array.isArray(lista) ? lista : [];
-        document.getElementById('painel-carregando').classList.add('hidden');
+        _pendentesConversao = Array.isArray(lista) ? lista : [];
+        document.getElementById('conv-carregando').classList.add('hidden');
 
-        if (!_pendentesRegistro.length) {
-          document.getElementById('lista-vazia').classList.remove('hidden');
-          document.getElementById('lista-registro').innerHTML = '';
+        if (!_pendentesConversao.length) {
+          document.getElementById('conv-vazia').classList.remove('hidden');
+          document.getElementById('lista-registro-conversao').innerHTML = '';
           return;
         }
 
-        document.getElementById('lista-registro').innerHTML = _pendentesRegistro.map(function (c) {
+        document.getElementById('lista-registro-conversao').innerHTML = _pendentesConversao.map(function (c) {
           return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
             '<div>' +
             '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(c.nomeEstudante || '—') + '</div>' +
             '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(c.matricula || '—') + ' · ' + escapeHtml(c.cursoConversao || '—') + ' · ' + escapeHtml(String(c.cargaHorariaTotalConvertida || 0)) + 'h</div>' +
             '</div>' +
-            '<button type="button" class="btn btn-primary btn-sm" data-registro-id="' + escapeHtml(c.id || '') + '">Registrar no Histórico</button>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-registro-conv-id="' + escapeHtml(c.id || '') + '">Registrar no Histórico</button>' +
             '</div>';
         }).join('');
       }).catch(function (err) {
-        document.getElementById('painel-carregando').classList.add('hidden');
-        document.getElementById('lista-registro').innerHTML =
+        document.getElementById('conv-carregando').classList.add('hidden');
+        document.getElementById('lista-registro-conversao').innerHTML =
           '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar as conversões. ' + escapeHtml(err.message) + '</div></div>';
       });
     }
 
-    document.getElementById('lista-registro').addEventListener('click', function (e) {
-      var btn = e.target.closest('button[data-registro-id]');
+    function carregarPendentesAprovProjetos() {
+      document.getElementById('aprov-carregando').classList.remove('hidden');
+      document.getElementById('aprov-vazia').classList.add('hidden');
+      API.get('listarAproveitamentosProjetosRegistroAcademico').then(function (lista) {
+        _pendentesAprovProjetos = Array.isArray(lista) ? lista : [];
+        document.getElementById('aprov-carregando').classList.add('hidden');
+
+        if (!_pendentesAprovProjetos.length) {
+          document.getElementById('aprov-vazia').classList.remove('hidden');
+          document.getElementById('lista-registro-aprovprojetos').innerHTML = '';
+          return;
+        }
+
+        document.getElementById('lista-registro-aprovprojetos').innerHTML = _pendentesAprovProjetos.map(function (a) {
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(a.nomeEstudante || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(a.matricula || '—') + ' · ' + escapeHtml(a.curso || '—') + ' · ' + escapeHtml(String(a.cargaHorariaTotal || 0)) + 'h</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-registro-aprov-id="' + escapeHtml(a.id || '') + '">Registrar no Histórico</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('aprov-carregando').classList.add('hidden');
+        document.getElementById('lista-registro-aprovprojetos').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar os aproveitamentos. ' + escapeHtml(err.message) + '</div></div>';
+      });
+    }
+
+    document.getElementById('lista-registro-conversao').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-registro-conv-id]');
       if (!btn) return;
-      var item = _pendentesRegistro.find(function (x) { return String(x.id) === btn.dataset.registroId; });
-      if (item) abrirRegistro(item);
+      var item = _pendentesConversao.find(function (x) { return String(x.id) === btn.dataset.registroConvId; });
+      if (item) abrirRegistro(item, 'conversao');
     });
 
-    function abrirRegistro(c) {
-      document.getElementById('modal-registro-titulo').textContent = 'Registrar — ' + (c.nomeEstudante || 'Estágio Não Obrigatório');
+    document.getElementById('lista-registro-aprovprojetos').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-registro-aprov-id]');
+      if (!btn) return;
+      var item = _pendentesAprovProjetos.find(function (x) { return String(x.id) === btn.dataset.registroAprovId; });
+      if (item) abrirRegistro(item, 'aprovprojetos');
+    });
+
+    function abrirRegistro(c, tipo) {
+      document.getElementById('modal-registro-titulo').textContent = 'Registrar — ' + (c.nomeEstudante || (tipo === 'aprovprojetos' ? 'Aproveitamento de Programas/Projetos' : 'Conversão de Estágio Não Obrigatório'));
+
+      var curso = tipo === 'aprovprojetos' ? c.curso : c.cursoConversao;
+      var carga = tipo === 'aprovprojetos' ? c.cargaHorariaTotal : c.cargaHorariaTotalConvertida;
 
       var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
         '<div class="detail-item"><label>Estudante</label><p>' + escapeHtml(c.nomeEstudante || '—') + '</p></div>' +
         '<div class="detail-item"><label>Matrícula</label><p>' + escapeHtml(c.matricula || '—') + '</p></div>' +
-        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(c.cursoConversao || '—') + '</p></div>' +
-        '<div class="detail-item"><label>Carga horária convertida</label><p>' + escapeHtml(String(c.cargaHorariaTotalConvertida || 0)) + 'h</p></div>' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Carga horária</label><p>' + escapeHtml(String(carga || 0)) + 'h</p></div>' +
         '</div>' +
         '<div class="alert alert-info"><div class="alert-content">Ao confirmar, o componente curricular de estágio obrigatório será marcado como concluído no histórico do(a) estudante.</div></div>';
 
@@ -167,20 +225,21 @@
         '<button type="button" class="btn btn-primary btn-sm" id="btn-confirmar-registro">Registrar no Histórico</button>';
 
       document.getElementById('btn-fechar-registro').addEventListener('click', fecharRegistro);
-      document.getElementById('btn-confirmar-registro').addEventListener('click', function () { confirmarRegistro(c.id, this); });
+      document.getElementById('btn-confirmar-registro').addEventListener('click', function () { confirmarRegistro(c.id, tipo, this); });
 
       document.getElementById('modal-registro').classList.add('is-open');
     }
 
-    async function confirmarRegistro(id, btn) {
+    async function confirmarRegistro(id, tipo, btn) {
       if (!confirm('Confirmar o registro deste estágio no histórico do(a) estudante?')) return;
+      var acao = tipo === 'aprovprojetos' ? 'registrarAproveitamentoProjetosHistorico' : 'registrarConversaoHistorico';
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Registrando…';
       try {
-        await API.post('registrarConversaoHistorico', { id: id });
+        await API.post(acao, { id: id });
         showToast('✅ Registrado no histórico.', 'success');
         fecharRegistro();
-        carregarPendentes();
+        if (tipo === 'aprovprojetos') carregarPendentesAprovProjetos(); else carregarPendentesConversao();
       } catch (err) {
         showToast('Erro: ' + err.message, 'error');
         btn.disabled = false; btn.textContent = orig;

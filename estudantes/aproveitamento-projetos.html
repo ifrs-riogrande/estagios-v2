@@ -698,7 +698,7 @@
     }
 
     // ════════════════════════════════════════════════════════
-    // STATUS / MODO SOMENTE LEITURA (Rascunho, Devolvido, Aguardando..., Deferido, Indeferido)
+    // STATUS / MODO SOMENTE LEITURA (Rascunho, Devolvido, Aguardando..., Encerrado)
     // ════════════════════════════════════════════════════════
     function renderizarStatusBanner(status) {
       var banner = document.getElementById('status-banner');
@@ -711,20 +711,15 @@
         var obs = (solicitacaoAtual && solicitacaoAtual.obsDevolucao) || '';
         html = '<div class="alert-content"><strong>Solicitação devolvida para ajuste.</strong>' +
           (obs ? '<br>Motivo: ' + escapeHtml(obs) : '') + '<br>Corrija as informações e reenvie.</div>';
-      } else if (status === 'Deferido') {
+      } else if (status === 'Encerrado') {
         tipo = 'success';
-        var horas = (solicitacaoAtual && solicitacaoAtual.cargaHomologada) || '';
-        html = '<div class="alert-content"><strong>Solicitação deferida!</strong> Carga horária homologada: ' + escapeHtml(String(horas)) + ' horas. O aproveitamento foi registrado como estágio obrigatório cumprido.</div>';
-      } else if (status === 'Indeferido') {
-        tipo = 'error';
-        var just = (solicitacaoAtual && solicitacaoAtual.justificativa) || '';
-        html = '<div class="alert-content"><strong>Solicitação indeferida.</strong>' +
-          (just ? '<br>Justificativa: ' + escapeHtml(just) : '') + '<br>Entre em contato com o setor de estágios para mais informações.</div>';
+        html = '<div class="alert-content"><strong>Aproveitamento registrado!</strong> O componente curricular foi marcado como concluído em seu histórico.</div>';
       } else {
         var labels = {
-          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise do coordenador de curso.',
-          'Aguardando Admin': 'O coordenador emitiu o parecer. Aguardando verificação pelo setor de estágios.',
-          'Aguardando DEN': 'O setor de estágios encaminhou sua solicitação à DEN para parecer final.',
+          'Aguardando Coordenador': 'Sua solicitação foi enviada e está aguardando análise da coordenação de curso.',
+          'Aguardando DEN': 'A coordenação completou o requerimento. Aguardando assinatura da Diretoria de Ensino (DEN).',
+          'Aguardando Central de Estágios (Aproveitamento)': 'A DEN assinou o requerimento. Aguardando arquivamento pela Central de Estágios.',
+          'Aguardando Registro Acadêmico': 'A Central de Estágios arquivou o registro. Aguardando registro no seu histórico pelo Registro Acadêmico.',
         };
         html = '<div class="alert-content"><strong>Status: ' + escapeHtml(status) + '.</strong> ' + escapeHtml(labels[status] || '') + '</div>';
       }
