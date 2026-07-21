@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/img/fav.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Assinatura do TCE — IFRS Campus Rio Grande">
+  <title>Assinatura do TCE — SGE IFRS Campus Rio Grande</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+
+  <style>
+    .ass-public-main { padding: var(--space-8) 0; min-height: calc(100vh - 64px - 56px); }
+    .ass-public-wrap { max-width: 640px; margin: 0 auto; padding: 0 var(--space-4); }
+    .ass-public-header { margin-bottom: var(--space-6); text-align: center; }
+    .ass-public-header h1 { font-size: var(--font-size-xl); margin: 0 0 var(--space-2); }
+    .ass-public-header p { color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0; }
+  </style>
+</head>
+<body>
+
+  <header id="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="https://ifrs-riogrande.github.io/estagios-v2/" class="header-brand">
+          <span class="header-logo-wrap"><img src="../assets/img/logo-ifrs.png" alt="IFRS" class="header-logo"></span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="ass-public-main">
+    <div class="ass-public-wrap">
+      <div class="ass-public-header">
+        <h1>Assinatura do TCE</h1>
+        <p>Termo de Compromisso de Estágio — Concedente</p>
+      </div>
+
+      <div id="ass-conteudo">
+        <div class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          &copy; <span id="footer-year"></span> Central de Estágios — IFRS Campus Rio Grande
+        </span>
+        <nav class="footer-links" aria-label="Links do rodapé">
+          <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/assinaturas.js"></script>
+  <script>
+    'use strict';
+
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    var params = new URLSearchParams(window.location.search);
+    var idEstagio = params.get('id');
+    var token = params.get('token');
+
+    var el = document.getElementById('ass-conteudo');
+
+    function mostrarErro(msg) {
+      el.innerHTML = '<div class="alert alert-error"><div class="alert-content">' + escapeHtml(msg) + '</div></div>';
+    }
+
+    if (!idEstagio || !token) {
+      mostrarErro('Link inválido: faltam parâmetros necessários. Verifique se você abriu o link completo recebido por e-mail.');
+    } else {
+      carregarFluxo();
+    }
+
+    async function carregarFluxo() {
+      try {
+        var fluxo = await API.get('obterFluxoAssinaturas', { id: idEstagio, token: token });
+        renderPagina(fluxo);
+      } catch (err) {
+        mostrarErro(err.code === 'TOKEN_INVALIDO' || err.code === 'TOKEN_EXPIRADO'
+          ? 'Este link não é mais válido. Ele pode ter expirado ou já ter sido substituído por um mais recente. Entre em contato com a instituição de ensino para receber um novo link.'
+          : 'Erro ao carregar o fluxo de assinaturas: ' + err.message);
+      }
+    }
+
+    function renderPagina(fluxo) {
+      var etapaAtual = fluxo.etapas[fluxo.etapaAtual - 1];
+      var ehMinhaVez = etapaAtual && etapaAtual.ator === 'empresa' && etapaAtual.status === 'aguardando';
+
+      var html = renderTimelineAssinaturas(fluxo) + renderHistoricoRejeicoes(fluxo);
+
+      if (!ehMinhaVez) {
+        html += '<div class="alert alert-info" style="margin-top:var(--space-4);"><div class="alert-content">' +
+          (fluxo.statusGeral === 'concluido'
+            ? 'O fluxo de assinaturas já foi concluído.'
+            : 'Não é sua vez de assinar no momento — acompanhe o andamento acima.') +
+          '</div></div>';
+      }
+
+      el.innerHTML = html;
+
+      el.querySelectorAll('[data-baixar-etapa]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          baixarPdfAssinaturaEtapa({ id: idEstagio, token: token, etapa: btn.dataset.baixarEtapa });
+        });
+      });
+
+      if (ehMinhaVez) {
+        var painel = document.createElement('div');
+        painel.style.marginTop = 'var(--space-4)';
+        el.appendChild(painel);
+        montarPainelGovBr(painel, etapaAtual, {
+          onBaixar: function () { baixarPdfAssinaturaEtapa({ id: idEstagio, token: token, etapa: etapaAtual.numero }); },
+          onEnviar: async function (pdfBase64) {
+            await API.post('uploadPdfAssinado', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64, token: token });
+            showToast('✅ PDF assinado enviado.', 'success');
+            carregarFluxo();
+          },
+        });
+      }
+    }
+  </script>
+</body>
+</html>

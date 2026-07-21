@@ -321,6 +321,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/assinaturas.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
   <script>
@@ -524,6 +525,9 @@
           checklistValidadorRow('Coordenador', s.ckCoordenadorStatus, s.ckCoordenadorObs, s.ckCoordenadorData) +
           '</div>' +
           '<div class="alert alert-info"><div class="alert-content">O Setor pode concluir e enviar para assinaturas a qualquer momento, mesmo com validadores pendentes.</div></div>';
+      } else if (s.status === 'Em Assinaturas') {
+        html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Fluxo de Assinaturas do TCE</h3>' +
+          '<div id="assinaturas-container"><div class="spinner" style="margin:0 auto;"></div></div>';
       } else if (s.status === 'Aguardando Central de Estágios (Conversão)' || s.status === 'Aguardando Central de Estágios (Aproveitamento)' || s.status === 'Aguardando Registro Acadêmico') {
         var origemLabel = s.status === 'Aguardando Central de Estágios (Aproveitamento)' ? 'Aproveitamento de Programas/Projetos' : 'Conversão de Estágio Não Obrigatório';
         html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">' + origemLabel + '</h3>' +
@@ -554,6 +558,50 @@
       if (btnArquivarConversao) btnArquivarConversao.addEventListener('click', function () { arquivarConversao(s.id, s.status, this); });
 
       document.getElementById('modal-estagio').classList.add('is-open');
+
+      if (s.status === 'Em Assinaturas') carregarFluxoAssinaturasModal(s.id);
+    }
+
+    /* ── Fluxo de Assinaturas do TCE (etapas 3 e 5 — Central de Estágios) ── */
+    async function carregarFluxoAssinaturasModal(estagioId) {
+      var container = document.getElementById('assinaturas-container');
+      try {
+        var fluxo = await API.get('obterFluxoAssinaturasAdmin', { id: estagioId });
+        renderFluxoAssinaturasModal(fluxo, estagioId);
+      } catch (err) {
+        container.innerHTML = '<div class="alert alert-error"><div class="alert-content">Erro ao carregar fluxo de assinaturas: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function renderFluxoAssinaturasModal(fluxo, estagioId) {
+      var container = document.getElementById('assinaturas-container');
+      var etapaAtual = fluxo.etapas[fluxo.etapaAtual - 1];
+      var ehVezDaCentral = etapaAtual && etapaAtual.tipo === 'interno' && etapaAtual.status === 'aguardando';
+
+      container.innerHTML = renderTimelineAssinaturas(fluxo) + renderHistoricoRejeicoes(fluxo) +
+        (ehVezDaCentral ? '<div id="assinaturas-painel-acao" style="margin-top:var(--space-4);"></div>' : '');
+
+      container.querySelectorAll('[data-baixar-etapa]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          baixarPdfAssinaturaEtapa({ id: estagioId, etapa: btn.dataset.baixarEtapa });
+        });
+      });
+
+      if (ehVezDaCentral) {
+        montarPainelInterno(document.getElementById('assinaturas-painel-acao'), fluxo, etapaAtual, {
+          onAprovar: async function () {
+            await API.post('concluirEtapa', { idEstagio: estagioId, numeroEtapa: etapaAtual.numero });
+            showToast('✅ Etapa aprovada.', 'success');
+            if (etapaAtual.numero === 5) { fecharDetalhe(); carregarEstagios(); }
+            else carregarFluxoAssinaturasModal(estagioId);
+          },
+          onRejeitar: async function (motivo, retornoParaEtapa) {
+            await API.post('rejeitarEtapa', { idEstagio: estagioId, numeroEtapa: etapaAtual.numero, motivo: motivo, retornoParaEtapa: retornoParaEtapa });
+            showToast('Etapa rejeitada — fluxo retornado.', 'success');
+            carregarFluxoAssinaturasModal(estagioId);
+          },
+        });
+      }
     }
 
     async function devolverConversaoDEN(estagioId, status, btn) {

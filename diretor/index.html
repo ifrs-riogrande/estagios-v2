@@ -48,16 +48,37 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">Os documentos pendentes de assinatura do Diretor Geral serão adicionados aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando…</p>
       </div>
+
+      <div id="lista-vazia" class="empty-state hidden">
+        <p>Nenhum TCE aguardando sua assinatura no momento.</p>
+      </div>
+
+      <div id="lista-pendentes"></div>
+
     </div>
   </main>
+
+  <!-- Modal: Assinatura do TCE — Direção-Geral -->
+  <div class="modal-backdrop" id="modal-assinatura">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-assinatura-titulo">Assinatura do TCE</h2>
+        <button type="button" class="modal-close" id="modal-assinatura-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-assinatura-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-fechar-assinatura">Fechar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
        FOOTER
@@ -77,17 +98,109 @@
 
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
+  <script src="../assets/js/assinaturas.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    var _pendentes = [];
 
     // Guarda de acesso: por enquanto exige só sessão de servidor (qualquer
     // @riogrande...). A checagem do papel "Diretor Geral" de verdade
     // acontece no backend, na ConfigAcesso — ainda não há dados reais lá.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarPendentes();
+      document.getElementById('modal-assinatura-fechar').addEventListener('click', fecharModal);
+      document.getElementById('btn-fechar-assinatura').addEventListener('click', fecharModal);
+      document.getElementById('modal-assinatura').addEventListener('click', function (e) { if (e.target === this) fecharModal(); });
     });
+
+    function carregarPendentes() {
+      document.getElementById('painel-carregando').classList.remove('hidden');
+      document.getElementById('lista-vazia').classList.add('hidden');
+      API.get('listarFluxosPendentesAtor', { ator: 'direcao' }).then(function (lista) {
+        _pendentes = Array.isArray(lista) ? lista : [];
+        document.getElementById('painel-carregando').classList.add('hidden');
+
+        if (!_pendentes.length) {
+          document.getElementById('lista-vazia').classList.remove('hidden');
+          document.getElementById('lista-pendentes').innerHTML = '';
+          return;
+        }
+
+        document.getElementById('lista-pendentes').innerHTML = _pendentes.map(function (p) {
+          var prazoHtml = '';
+          if (p.prazoVencimento) {
+            var dias = Math.round((new Date(p.prazoVencimento) - new Date()) / 86400000);
+            var cls = dias < 0 ? 'badge-error' : dias <= 3 ? 'badge-warning' : 'badge-neutral';
+            prazoHtml = '<span class="badge ' + cls + '" style="margin-left:var(--space-2);">Prazo: ' + escapeHtml(formatDateBR(p.prazoVencimento)) + '</span>';
+          }
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(p.nomeEstudante || '—') + prazoHtml + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(p.curso || '—') + ' · ' + escapeHtml(p.empresa || '—') + ' · ' + escapeHtml(p.tipoEstagio || '—') + '</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-id="' + escapeHtml(p.id || '') + '">Ir para Assinatura</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('painel-carregando').classList.add('hidden');
+        document.getElementById('lista-pendentes').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar os TCEs pendentes. ' + escapeHtml(err.message) + '</div></div>';
+      });
+    }
+
+    document.getElementById('lista-pendentes').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+      abrirAssinatura(btn.dataset.id);
+    });
+
+    async function abrirAssinatura(idEstagio) {
+      document.getElementById('modal-assinatura-titulo').textContent = 'Assinatura do TCE';
+      document.getElementById('modal-assinatura-body').innerHTML = '<div class="spinner" style="margin:0 auto;"></div>';
+      document.getElementById('modal-assinatura').classList.add('is-open');
+      try {
+        var fluxo = await API.get('obterFluxoAssinaturas', { id: idEstagio });
+        renderAssinatura(fluxo, idEstagio);
+      } catch (err) {
+        document.getElementById('modal-assinatura-body').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function renderAssinatura(fluxo, idEstagio) {
+      var etapaAtual = fluxo.etapas[fluxo.etapaAtual - 1];
+      var ehMinhaVez = etapaAtual && etapaAtual.ator === 'direcao' && etapaAtual.status === 'aguardando';
+
+      var body = document.getElementById('modal-assinatura-body');
+      body.innerHTML = renderTimelineAssinaturas(fluxo) + renderHistoricoRejeicoes(fluxo) +
+        (ehMinhaVez ? '<div id="assinatura-painel-govbr" style="margin-top:var(--space-4);"></div>' : '');
+
+      body.querySelectorAll('[data-baixar-etapa]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          baixarPdfAssinaturaEtapa({ id: idEstagio, etapa: btn.dataset.baixarEtapa });
+        });
+      });
+
+      if (ehMinhaVez) {
+        montarPainelGovBr(document.getElementById('assinatura-painel-govbr'), etapaAtual, {
+          onBaixar: function () { baixarPdfAssinaturaEtapa({ id: idEstagio, etapa: etapaAtual.numero }); },
+          onEnviar: async function (pdfBase64) {
+            await API.post('uploadPdfAssinado', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64 });
+            showToast('✅ PDF assinado enviado.', 'success');
+            fecharModal();
+            carregarPendentes();
+          },
+        });
+      }
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-assinatura').classList.remove('is-open');
+    }
   </script>
 </body>
 </html>
