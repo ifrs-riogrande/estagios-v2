@@ -301,10 +301,57 @@
           <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">Fluxo de Assinaturas do TCE</h2>
           <div id="assinaturas-container"></div>
         </div>
+
+        <div id="secao-adendos" class="hidden" style="margin-top:var(--space-8);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4);">
+            <h2 style="font-size:var(--font-size-lg);font-weight:700;margin:0;">Adendos</h2>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-solicitar-adendo">+ Solicitar Adendo</button>
+          </div>
+          <div id="adendos-vazio" class="empty-state hidden"><p>Nenhum adendo solicitado ainda.</p></div>
+          <div id="lista-adendos"></div>
+        </div>
       </div>
 
     </div>
   </main>
+
+  <!-- Modal: Solicitar Adendo -->
+  <div class="modal-backdrop" id="modal-adendo">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Solicitar Adendo</h2>
+        <button type="button" class="modal-close" id="modal-adendo-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label required" for="adendo-tipo">Tipo de Adendo</label>
+          <select id="adendo-tipo" class="form-control">
+            <option value="">Selecione o tipo...</option>
+          </select>
+        </div>
+        <div id="adendo-campos-dinamicos"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar-adendo">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-enviar-adendo">Enviar Solicitação</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Adendo — status / assinatura -->
+  <div class="modal-backdrop" id="modal-adendo-status">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-adendo-status-titulo">Adendo</h2>
+        <button type="button" class="modal-close" id="modal-adendo-status-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-adendo-status-body"></div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
        FOOTER
@@ -325,6 +372,7 @@
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/assinaturas.js"></script>
+  <script src="../assets/js/adendo-config.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
   <script>
@@ -342,11 +390,14 @@
       });
     }
 
+    var _idEstagio = null;
+
     async function carregarEstagio() {
       mostrarPainel('painel-carregando');
       try {
         var s = await API.get('obterMeuEstagio');
         if (!s || !s.id) { mostrarPainel('painel-vazio'); return; }
+        _idEstagio = s.id;
 
         document.getElementById('det-status').innerHTML = badgeStatusEstagio(s.status);
         document.getElementById('det-curso').textContent = s.curso || '—';
@@ -358,6 +409,11 @@
         if (s.status === 'Em Assinaturas' || s.status === 'Ativo' || s.status === 'Encerrado') {
           document.getElementById('secao-assinaturas').classList.remove('hidden');
           carregarFluxoAssinaturas(s.id);
+        }
+
+        if (s.status === 'Ativo') {
+          document.getElementById('secao-adendos').classList.remove('hidden');
+          carregarAdendos(s.id);
         }
 
         mostrarPainel('painel-conteudo');
@@ -409,6 +465,139 @@
           },
         });
       }
+    }
+
+    /* ── Adendos ── */
+    var _adendos = [];
+
+    document.addEventListener('DOMContentLoaded', function () {
+      populateSelect('adendo-tipo', ADENDO_TIPOS.map(function (t) { return { value: t, label: t }; }), 'Selecione o tipo...');
+      document.getElementById('adendo-tipo').addEventListener('change', function () {
+        renderCamposAdendo(this.value, document.getElementById('adendo-campos-dinamicos'));
+      });
+      document.getElementById('btn-solicitar-adendo').addEventListener('click', abrirModalAdendo);
+      document.getElementById('modal-adendo-fechar').addEventListener('click', fecharModalAdendo);
+      document.getElementById('btn-cancelar-adendo').addEventListener('click', fecharModalAdendo);
+      document.getElementById('modal-adendo').addEventListener('click', function (e) { if (e.target === this) fecharModalAdendo(); });
+      document.getElementById('btn-enviar-adendo').addEventListener('click', enviarAdendo);
+      document.getElementById('modal-adendo-status-fechar').addEventListener('click', fecharModalAdendoStatus);
+      document.getElementById('modal-adendo-status').addEventListener('click', function (e) { if (e.target === this) fecharModalAdendoStatus(); });
+    });
+
+    async function carregarAdendos(idEstagio) {
+      try {
+        _adendos = await API.get('listarMeusAdendos', { idEstagio: idEstagio });
+        _adendos = Array.isArray(_adendos) ? _adendos : [];
+        if (!_adendos.length) {
+          document.getElementById('adendos-vazio').classList.remove('hidden');
+          document.getElementById('lista-adendos').innerHTML = '';
+          return;
+        }
+        document.getElementById('adendos-vazio').classList.add('hidden');
+        document.getElementById('lista-adendos').innerHTML = _adendos.map(function (a) {
+          var acao = a.status === 'Em Assinatura'
+            ? '<button type="button" class="btn btn-primary btn-sm" data-ver-adendo="' + escapeHtml(a.idAdendo) + '">Ver Assinatura</button>'
+            : '';
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(a.tipoAdendo || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(a.dataSolicitacao ? formatDateBR(a.dataSolicitacao) : '') + ' · ' + badgeStatusAdendo(a.status) + '</div>' +
+            (a.status === 'Reprovado' && a.obs ? '<div style="font-size:var(--font-size-sm);color:var(--color-error);margin-top:4px;">Motivo: ' + escapeHtml(a.obs) + '</div>' : '') +
+            '</div>' + acao + '</div>';
+        }).join('');
+      } catch (err) { /* falha silenciosa — não é crítico pra essa tela */ }
+    }
+
+    function badgeStatusAdendo(status) {
+      var map = { 'Pendente': 'badge-warning', 'Em Assinatura': 'badge-info', 'Assinado': 'badge-success', 'Reprovado': 'badge-error' };
+      return '<span class="badge ' + (map[status] || 'badge-neutral') + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    document.getElementById('lista-adendos').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-ver-adendo]');
+      if (!btn) return;
+      abrirAdendoStatus(btn.dataset.verAdendo);
+    });
+
+    function abrirModalAdendo() {
+      document.getElementById('adendo-tipo').value = '';
+      document.getElementById('adendo-campos-dinamicos').innerHTML = '';
+      document.getElementById('modal-adendo').classList.add('is-open');
+    }
+
+    function fecharModalAdendo() {
+      document.getElementById('modal-adendo').classList.remove('is-open');
+    }
+
+    async function enviarAdendo() {
+      var tipo = document.getElementById('adendo-tipo').value;
+      if (!tipo) { showToast('Selecione o tipo de adendo.', 'error'); return; }
+      var containerEl = document.getElementById('adendo-campos-dinamicos');
+      var erro = validarCamposAdendo(tipo, containerEl);
+      if (erro) { showToast(erro, 'error'); return; }
+
+      var btn = document.getElementById('btn-enviar-adendo');
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('solicitarAdendo', {
+          idEstagio: _idEstagio,
+          tipoAdendo: tipo,
+          dados: coletarCamposAdendo(tipo, containerEl),
+        });
+        showToast('✅ Adendo solicitado. Aguarde a análise da Central de Estágios.', 'success');
+        fecharModalAdendo();
+        carregarAdendos(_idEstagio);
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function abrirAdendoStatus(idAdendo) {
+      var a = _adendos.find(function (x) { return x.idAdendo === idAdendo; });
+      document.getElementById('modal-adendo-status-titulo').textContent = 'Adendo — ' + (a ? a.tipoAdendo : '');
+      document.getElementById('modal-adendo-status-body').innerHTML = '<div class="spinner" style="margin:0 auto;"></div>';
+      document.getElementById('modal-adendo-status').classList.add('is-open');
+      try {
+        var fluxo = await API.get('obterFluxoAdendo', { idEstagio: _idEstagio, idAdendo: idAdendo });
+        renderFluxoAdendoStatus(fluxo, idAdendo);
+      } catch (err) {
+        document.getElementById('modal-adendo-status-body').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function renderFluxoAdendoStatus(fluxo, idAdendo) {
+      var body = document.getElementById('modal-adendo-status-body');
+      var etapaAtual = fluxo.etapas[fluxo.etapaAtual - 1];
+      var ehMinhaVez = etapaAtual && etapaAtual.ator === 'estudante' && etapaAtual.status === 'aguardando';
+
+      body.innerHTML = renderTimelineAssinaturas(fluxo) + renderHistoricoRejeicoes(fluxo) +
+        (ehMinhaVez ? '<div id="adendo-painel-govbr" style="margin-top:var(--space-4);"></div>' : '');
+
+      body.querySelectorAll('[data-baixar-etapa]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          baixarPdfAssinaturaEtapa({ id: _idEstagio, idAdendo: idAdendo, etapa: btn.dataset.baixarEtapa });
+        });
+      });
+
+      if (ehMinhaVez) {
+        montarPainelGovBr(document.getElementById('adendo-painel-govbr'), etapaAtual, {
+          onBaixar: function () { baixarPdfAssinaturaEtapa({ id: _idEstagio, idAdendo: idAdendo, etapa: etapaAtual.numero }); },
+          onEnviar: async function (pdfBase64) {
+            await API.post('uploadPdfAssinadoAdendo', { idEstagio: _idEstagio, idAdendo: idAdendo, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64 });
+            showToast('✅ PDF assinado enviado.', 'success');
+            fecharModalAdendoStatus();
+            carregarAdendos(_idEstagio);
+          },
+        });
+      }
+    }
+
+    function fecharModalAdendoStatus() {
+      document.getElementById('modal-adendo-status').classList.remove('is-open');
     }
 
     // Mega menu — Solicitações e Acompanhamentos, só um painel aberto por vez

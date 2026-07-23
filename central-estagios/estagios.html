@@ -517,6 +517,13 @@
         '<div class="detail-item"><label>Fim</label><p>' + escapeHtml(fim) + '</p></div>' +
         '</div>';
 
+      if (s.status === 'Ativo') {
+        html += '<div id="adendos-secao" style="margin-bottom:var(--space-6);">' +
+          '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Adendos</h3>' +
+          '<div id="adendos-lista"><div class="spinner" style="margin:0 auto;"></div></div>' +
+          '</div>';
+      }
+
       if (s.status === 'Em Checklist') {
         html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Checklist</h3>' +
           '<div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-5);">' +
@@ -560,6 +567,125 @@
       document.getElementById('modal-estagio').classList.add('is-open');
 
       if (s.status === 'Em Assinaturas') carregarFluxoAssinaturasModal(s.id);
+      if (s.status === 'Ativo') carregarAdendosModal(s.id);
+    }
+
+    /* ── Adendos (aprovação da Central + acompanhamento do fluxo de assinaturas) ── */
+    var _adendosAtuais = [];
+
+    async function carregarAdendosModal(idEstagio) {
+      var container = document.getElementById('adendos-lista');
+      try {
+        _adendosAtuais = await API.get('listarAdendosEstagio', { idEstagio: idEstagio });
+        _adendosAtuais = Array.isArray(_adendosAtuais) ? _adendosAtuais : [];
+        if (!_adendosAtuais.length) {
+          container.innerHTML = '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Nenhum adendo solicitado ainda.</p>';
+          return;
+        }
+        container.innerHTML = _adendosAtuais.map(function (a) {
+          var acoes = '';
+          if (a.status === 'Pendente') {
+            acoes = '<button type="button" class="btn btn-danger btn-sm" data-reprovar-adendo="' + escapeHtml(a.idAdendo) + '">Reprovar</button>' +
+              '<button type="button" class="btn btn-primary btn-sm" data-aprovar-adendo="' + escapeHtml(a.idAdendo) + '">Aprovar</button>';
+          } else if (a.status === 'Em Assinatura') {
+            acoes = '<button type="button" class="btn btn-secondary btn-sm" data-ver-adendo="' + escapeHtml(a.idAdendo) + '">Ver Assinatura</button>';
+          }
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(a.tipoAdendo || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(a.dataSolicitacao ? formatDateBR(a.dataSolicitacao) : '') + ' · ' + badgeStatusAdendo(a.status) + '</div>' +
+            '</div><div style="display:flex;gap:var(--space-2);">' + acoes + '</div></div>';
+        }).join('');
+
+        container.querySelectorAll('[data-aprovar-adendo]').forEach(function (btn) {
+          btn.addEventListener('click', function () { aprovarAdendo(idEstagio, btn.dataset.aprovarAdendo, btn); });
+        });
+        container.querySelectorAll('[data-reprovar-adendo]').forEach(function (btn) {
+          btn.addEventListener('click', function () { reprovarAdendoPrompt(idEstagio, btn.dataset.reprovarAdendo); });
+        });
+        container.querySelectorAll('[data-ver-adendo]').forEach(function (btn) {
+          btn.addEventListener('click', function () { abrirAdendoAssinaturaModal(idEstagio, btn.dataset.verAdendo); });
+        });
+      } catch (err) {
+        container.innerHTML = '<div class="alert alert-error"><div class="alert-content">Erro ao carregar adendos: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function badgeStatusAdendo(status) {
+      var map = { 'Pendente': 'badge-warning', 'Em Assinatura': 'badge-info', 'Assinado': 'badge-success', 'Reprovado': 'badge-error' };
+      return '<span class="badge ' + (map[status] || 'badge-neutral') + '">' + escapeHtml(status || '—') + '</span>';
+    }
+
+    async function aprovarAdendo(idEstagio, idAdendo, btn) {
+      if (!confirm('Aprovar este adendo e iniciar o fluxo de assinaturas?')) return;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Aprovando…';
+      try {
+        await API.post('aprovarAdendo', { idEstagio: idEstagio, idAdendo: idAdendo });
+        showToast('✅ Adendo aprovado — fluxo de assinaturas iniciado.', 'success');
+        carregarAdendosModal(idEstagio);
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function reprovarAdendoPrompt(idEstagio, idAdendo) {
+      var motivo = prompt('Motivo da reprovação:');
+      if (!motivo || !motivo.trim()) return;
+      try {
+        await API.post('reprovarAdendo', { idEstagio: idEstagio, idAdendo: idAdendo, motivoReprovacao: motivo.trim() });
+        showToast('Adendo reprovado.', 'success');
+        carregarAdendosModal(idEstagio);
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      }
+    }
+
+    async function abrirAdendoAssinaturaModal(idEstagio, idAdendo) {
+      var a = _adendosAtuais.find(function (x) { return x.idAdendo === idAdendo; });
+      document.getElementById('modal-estagio-titulo').textContent = 'Assinatura — ' + (a ? a.tipoAdendo : 'Adendo');
+      document.getElementById('modal-estagio-body').innerHTML = '<div class="spinner" style="margin:0 auto;"></div>';
+      document.getElementById('modal-estagio-footer').innerHTML = '<button type="button" class="btn btn-secondary" id="btn-voltar-adendo">Voltar</button>';
+      document.getElementById('btn-voltar-adendo').addEventListener('click', function () { abrirDetalhe(_atualDetalhe); });
+      try {
+        var fluxo = await API.get('obterFluxoAdendoAdmin', { idEstagio: idEstagio, idAdendo: idAdendo });
+        renderAdendoAssinaturaModal(fluxo, idEstagio, idAdendo);
+      } catch (err) {
+        document.getElementById('modal-estagio-body').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Erro ao carregar: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function renderAdendoAssinaturaModal(fluxo, idEstagio, idAdendo) {
+      var body = document.getElementById('modal-estagio-body');
+      var etapaAtual = fluxo.etapas[fluxo.etapaAtual - 1];
+      var ehVezDaCentral = etapaAtual && etapaAtual.tipo === 'interno' && etapaAtual.status === 'aguardando';
+
+      body.innerHTML = renderTimelineAssinaturas(fluxo) + renderHistoricoRejeicoes(fluxo) +
+        (ehVezDaCentral ? '<div id="adendo-ass-painel-acao" style="margin-top:var(--space-4);"></div>' : '');
+
+      body.querySelectorAll('[data-baixar-etapa]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          baixarPdfAssinaturaEtapa({ id: idEstagio, idAdendo: idAdendo, etapa: btn.dataset.baixarEtapa });
+        });
+      });
+
+      if (ehVezDaCentral) {
+        montarPainelInterno(document.getElementById('adendo-ass-painel-acao'), fluxo, etapaAtual, {
+          onAprovar: async function () {
+            await API.post('concluirEtapaAdendo', { idEstagio: idEstagio, idAdendo: idAdendo, numeroEtapa: etapaAtual.numero });
+            showToast('✅ Etapa aprovada.', 'success');
+            if (etapaAtual.numero === 5) abrirDetalhe(_atualDetalhe);
+            else abrirAdendoAssinaturaModal(idEstagio, idAdendo);
+          },
+          onRejeitar: async function (motivo, retornoParaEtapa) {
+            await API.post('rejeitarEtapaAdendo', { idEstagio: idEstagio, idAdendo: idAdendo, numeroEtapa: etapaAtual.numero, motivo: motivo, retornoParaEtapa: retornoParaEtapa });
+            showToast('Etapa rejeitada — fluxo retornado.', 'success');
+            abrirAdendoAssinaturaModal(idEstagio, idAdendo);
+          },
+        });
+      }
     }
 
     /* ── Fluxo de Assinaturas do TCE (etapas 3 e 5 — Central de Estágios) ── */
