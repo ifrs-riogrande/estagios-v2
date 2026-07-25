@@ -521,6 +521,10 @@
         html += '<div id="adendos-secao" style="margin-bottom:var(--space-6);">' +
           '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Adendos</h3>' +
           '<div id="adendos-lista"><div class="spinner" style="margin:0 auto;"></div></div>' +
+          '</div>' +
+          '<div id="parecerfinal-secao" style="margin-bottom:var(--space-6);">' +
+          '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Parecer Final de Estágio</h3>' +
+          '<div id="parecerfinal-conteudo"><div class="spinner" style="margin:0 auto;"></div></div>' +
           '</div>';
       }
 
@@ -567,7 +571,7 @@
       document.getElementById('modal-estagio').classList.add('is-open');
 
       if (s.status === 'Em Assinaturas') carregarFluxoAssinaturasModal(s.id);
-      if (s.status === 'Ativo') carregarAdendosModal(s.id);
+      if (s.status === 'Ativo') { carregarAdendosModal(s.id); carregarParecerFinalModal(s.id); }
     }
 
     /* ── Adendos (aprovação da Central + acompanhamento do fluxo de assinaturas) ── */
@@ -685,6 +689,127 @@
             abrirAdendoAssinaturaModal(idEstagio, idAdendo);
           },
         });
+      }
+    }
+
+    /* ── Parecer Final de Estágio (Coordenador → DEN/DEX → Central) ── */
+    async function carregarParecerFinalModal(idEstagio) {
+      var container = document.getElementById('parecerfinal-conteudo');
+      try {
+        var p = await API.get('obterParecerFinal', { id: idEstagio });
+        renderParecerFinalModal(p, idEstagio);
+      } catch (err) {
+        if (err.code === 'NOT_FOUND') {
+          container.innerHTML = '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">Nenhum parecer final iniciado ainda.</p>' +
+            '<button type="button" class="btn btn-primary btn-sm" id="btn-iniciar-parecer-final">Iniciar Parecer Final</button>';
+          document.getElementById('btn-iniciar-parecer-final').addEventListener('click', function () { iniciarParecerFinal(idEstagio, this); });
+          return;
+        }
+        container.innerHTML = '<div class="alert alert-error"><div class="alert-content">Erro ao carregar parecer final: ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    async function iniciarParecerFinal(idEstagio, btn) {
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Iniciando…';
+      try {
+        await API.post('iniciarParecerFinal', { idEstagio: idEstagio });
+        showToast('✅ Parecer final iniciado — Coordenador notificado.', 'success');
+        carregarParecerFinalModal(idEstagio);
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function renderParecerFinalModal(p, idEstagio) {
+      var container = document.getElementById('parecerfinal-conteudo');
+      var labels = {
+        aguardando_coordenador: 'Aguardando parecer do Coordenador.',
+        aguardando_diretoria: 'Aguardando parecer da ' + (p.tipoDiretoria === 'DEX' ? 'DEX' : 'DEN') + '.',
+        aguardando_admin: 'Pareceres recebidos — aguardando decisão final da Central.',
+        aprovado: 'Parecer final aprovado.',
+      };
+
+      var pareceresHtml = '';
+      if (p.parecerCoordenador) {
+        pareceresHtml += '<div style="border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3);">' +
+          '<h4 style="font-size:var(--font-size-sm);font-weight:700;margin:0 0 var(--space-2);">Parecer do Coordenador</h4>' +
+          '<div style="font-size:var(--font-size-sm);margin-bottom:4px;">' + (p.parecerCoordenador.resultado === 'aprovado' ? 'Aprovado' : 'Reprovado') + '</div>' +
+          (p.parecerCoordenador.texto ? '<div style="font-size:var(--font-size-sm);">' + escapeHtml(p.parecerCoordenador.texto) + '</div>' : '') + '</div>';
+      }
+      if (p.parecerDiretoria) {
+        pareceresHtml += '<div style="border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3);">' +
+          '<h4 style="font-size:var(--font-size-sm);font-weight:700;margin:0 0 var(--space-2);">Parecer da ' + (p.tipoDiretoria === 'DEX' ? 'DEX' : 'DEN') + '</h4>' +
+          '<div style="font-size:var(--font-size-sm);margin-bottom:4px;">' + (p.parecerDiretoria.resultado === 'aprovado' ? 'Aprovado' : 'Reprovado') + '</div>' +
+          (p.parecerDiretoria.texto ? '<div style="font-size:var(--font-size-sm);">' + escapeHtml(p.parecerDiretoria.texto) + '</div>' : '') + '</div>';
+      }
+
+      var html = '<div class="alert alert-info" style="margin-bottom:var(--space-4);"><div class="alert-content">' + escapeHtml(labels[p.statusGeral] || p.statusGeral) + '</div></div>' + pareceresHtml;
+
+      if (p.statusGeral === 'aguardando_admin') {
+        html += '<div class="form-group"><label class="form-label" for="parecerfinal-motivo-reprovacao">Motivo <span style="font-weight:400;color:var(--color-text-muted);">(obrigatório para reprovar)</span></label>' +
+          '<textarea id="parecerfinal-motivo-reprovacao" class="form-control" rows="3" maxlength="500"></textarea></div>' +
+          '<div style="display:flex;gap:var(--space-2);">' +
+          '<button type="button" class="btn btn-danger btn-sm" id="btn-reprovar-parecer-final">Reprovar (novo ciclo)</button>' +
+          '<button type="button" class="btn btn-primary btn-sm" id="btn-aprovar-parecer-final">Aprovar e Gerar PDF</button>' +
+          '</div>';
+      } else if (p.statusGeral === 'aprovado') {
+        html += (p.pdfUrl ? '<p style="margin-bottom:var(--space-3);"><a href="' + escapeHtml(p.pdfUrl) + '" target="_blank" rel="noopener">Baixar PDF do Parecer Final</a></p>' : '') +
+          '<button type="button" class="btn btn-primary btn-sm" id="btn-concluir-estagio">Marcar Estágio como Concluído</button>';
+      }
+
+      container.innerHTML = html;
+
+      var btnAprovar = document.getElementById('btn-aprovar-parecer-final');
+      if (btnAprovar) btnAprovar.addEventListener('click', function () { aprovarParecerFinal(idEstagio, this); });
+      var btnReprovar = document.getElementById('btn-reprovar-parecer-final');
+      if (btnReprovar) btnReprovar.addEventListener('click', function () { reprovarParecerFinal(idEstagio, this); });
+      var btnConcluir = document.getElementById('btn-concluir-estagio');
+      if (btnConcluir) btnConcluir.addEventListener('click', function () { concluirEstagioParecer(idEstagio, this); });
+    }
+
+    async function aprovarParecerFinal(idEstagio, btn) {
+      if (!confirm('Aprovar o parecer final e gerar o PDF?')) return;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Aprovando…';
+      try {
+        await API.post('aprovarParecerAdmin', { idEstagio: idEstagio });
+        showToast('✅ Parecer final aprovado.', 'success');
+        carregarParecerFinalModal(idEstagio);
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function reprovarParecerFinal(idEstagio, btn) {
+      var motivo = document.getElementById('parecerfinal-motivo-reprovacao').value.trim();
+      if (!motivo) { showToast('Informe o motivo da reprovação.', 'error'); return; }
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('reprovarParecerAdmin', { idEstagio: idEstagio, motivo: motivo });
+        showToast('Parecer reprovado — novo ciclo iniciado com o Coordenador.', 'success');
+        carregarParecerFinalModal(idEstagio);
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function concluirEstagioParecer(idEstagio, btn) {
+      if (!confirm('Marcar este estágio como concluído? O status do estágio mudará para Encerrado.')) return;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Concluindo…';
+      try {
+        await API.post('concluirEstagio', { idEstagio: idEstagio });
+        showToast('✅ Estágio concluído.', 'success');
+        fecharDetalhe();
+        carregarEstagios();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
       }
     }
 

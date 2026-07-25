@@ -92,6 +92,20 @@
         <div id="lista-aprovprojetos-den"></div>
       </div>
 
+      <div>
+        <h2 style="font-size:var(--font-size-lg);font-weight:700;margin-bottom:var(--space-4);">
+          🎓 Pareceres Finais de Estágio (Obrigatório)
+        </h2>
+        <div id="parecerfinal-carregando" class="empty-state">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Carregando…</p>
+        </div>
+        <div id="parecerfinal-vazia" class="empty-state hidden">
+          <p>Nenhum parecer final aguardando a DEN no momento.</p>
+        </div>
+        <div id="lista-parecerfinal-den"></div>
+      </div>
+
     </div>
   </main>
 
@@ -137,6 +151,20 @@
     </div>
   </div>
 
+  <!-- Modal: Parecer Final de Estágio (DEN) -->
+  <div class="modal-backdrop" id="modal-parecerfinal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-parecerfinal-titulo">Parecer Final de Estágio</h2>
+        <button type="button" class="modal-close" id="modal-parecerfinal-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-parecerfinal-body"></div>
+      <div class="modal-footer" id="modal-parecerfinal-footer"></div>
+    </div>
+  </div>
+
   <!-- ═══════════════════════════════════════
        FOOTER
        ═══════════════════════════════════════ -->
@@ -172,6 +200,7 @@
       carregarCertificacoes();
       carregarConversoes();
       carregarAproveitamentosProjetos();
+      carregarPareceresFinaisDen();
 
       document.getElementById('modal-den-fechar').addEventListener('click', fecharParecerDen);
       document.getElementById('modal-den').addEventListener('click', function (e) { if (e.target === this) fecharParecerDen(); });
@@ -179,6 +208,8 @@
       document.getElementById('modal-den-conversao').addEventListener('click', function (e) { if (e.target === this) fecharConversaoDen(); });
       document.getElementById('modal-den-aprovprojetos-fechar').addEventListener('click', fecharAproveitamentoProjetosDen);
       document.getElementById('modal-den-aprovprojetos').addEventListener('click', function (e) { if (e.target === this) fecharAproveitamentoProjetosDen(); });
+      document.getElementById('modal-parecerfinal-fechar').addEventListener('click', fecharParecerFinalDen);
+      document.getElementById('modal-parecerfinal').addEventListener('click', function (e) { if (e.target === this) fecharParecerFinalDen(); });
     });
 
     function carregarCertificacoes() {
@@ -483,6 +514,101 @@
 
     function fecharAproveitamentoProjetosDen() {
       document.getElementById('modal-den-aprovprojetos').classList.remove('is-open');
+    }
+
+    /* ── Pareceres Finais de Estágio (Obrigatório) ── */
+    var _pareceresFinaisDen = [];
+
+    function carregarPareceresFinaisDen() {
+      document.getElementById('parecerfinal-carregando').classList.remove('hidden');
+      document.getElementById('parecerfinal-vazia').classList.add('hidden');
+      API.get('listarPareceresPendentes', { papel: 'diretoria', ref: 'DEN' }).then(function (lista) {
+        _pareceresFinaisDen = Array.isArray(lista) ? lista : [];
+        document.getElementById('parecerfinal-carregando').classList.add('hidden');
+
+        if (!_pareceresFinaisDen.length) {
+          document.getElementById('parecerfinal-vazia').classList.remove('hidden');
+          document.getElementById('lista-parecerfinal-den').innerHTML = '';
+          return;
+        }
+
+        document.getElementById('lista-parecerfinal-den').innerHTML = _pareceresFinaisDen.map(function (p) {
+          return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+            '<div>' +
+            '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(p.nomeAluno || '—') + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">' + escapeHtml(p.curso || '—') + ' · ' + escapeHtml(String(p.totalHoras || 0)) + 'h</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary btn-sm" data-parecerfinal-id="' + escapeHtml(p.idEstagio) + '">Preencher Parecer</button>' +
+            '</div>';
+        }).join('');
+      }).catch(function (err) {
+        document.getElementById('parecerfinal-carregando').classList.add('hidden');
+        document.getElementById('lista-parecerfinal-den').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar os pareceres. ' + escapeHtml(err.message) + '</div></div>';
+      });
+    }
+
+    document.getElementById('lista-parecerfinal-den').addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-parecerfinal-id]');
+      if (!btn) return;
+      var item = _pareceresFinaisDen.find(function (x) { return String(x.idEstagio) === btn.dataset.parecerfinalId; });
+      if (item) abrirParecerFinalDen(item);
+    });
+
+    function abrirParecerFinalDen(p) {
+      document.getElementById('modal-parecerfinal-titulo').textContent = 'Parecer Final — ' + (p.nomeAluno || 'Estágio');
+
+      var parecerCoordHtml = p.parecerCoordenador
+        ? '<div style="border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-4);">' +
+          '<h4 style="font-size:var(--font-size-sm);font-weight:700;margin:0 0 var(--space-2);">Parecer do Coordenador</h4>' +
+          '<div style="font-size:var(--font-size-sm);margin-bottom:4px;">' + (p.parecerCoordenador.resultado === 'aprovado' ? 'Aprovado' : 'Reprovado') + '</div>' +
+          (p.parecerCoordenador.texto ? '<div style="font-size:var(--font-size-sm);">' + escapeHtml(p.parecerCoordenador.texto) + '</div>' : '') +
+          '</div>'
+        : '';
+
+      var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
+        '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(p.curso || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Total de Horas</label><p>' + escapeHtml(String(p.totalHoras || 0)) + 'h</p></div>' +
+        '</div>' +
+        parecerCoordHtml +
+        '<div class="form-group"><label class="form-label">Resultado</label>' +
+        '<div class="radio-group">' +
+        '<label class="radio-option"><input type="radio" name="parecerfinal-resultado" value="aprovado" checked> Aprovado</label>' +
+        '<label class="radio-option"><input type="radio" name="parecerfinal-resultado" value="reprovado"> Reprovado</label>' +
+        '</div></div>' +
+        '<div class="form-group"><label class="form-label required" for="parecerfinal-texto">Parecer</label>' +
+        '<textarea id="parecerfinal-texto" class="form-control" rows="4" maxlength="2000"></textarea></div>';
+
+      document.getElementById('modal-parecerfinal-body').innerHTML = html;
+      document.getElementById('modal-parecerfinal-footer').innerHTML =
+        '<button type="button" class="btn btn-secondary" id="btn-fechar-parecerfinal">Fechar</button>' +
+        '<button type="button" class="btn btn-primary btn-sm" id="btn-enviar-parecerfinal">Enviar Parecer</button>';
+
+      document.getElementById('btn-fechar-parecerfinal').addEventListener('click', fecharParecerFinalDen);
+      document.getElementById('btn-enviar-parecerfinal').addEventListener('click', function () { enviarParecerDiretoria(p.idEstagio, this); });
+
+      document.getElementById('modal-parecerfinal').classList.add('is-open');
+    }
+
+    async function enviarParecerDiretoria(idEstagio, btn) {
+      var texto = document.getElementById('parecerfinal-texto').value.trim();
+      if (!texto) { showToast('Preencha o texto do parecer.', 'error'); return; }
+      var resultado = document.querySelector('input[name="parecerfinal-resultado"]:checked').value;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try {
+        await API.post('salvarParecerDiretoria', { idEstagio: idEstagio, resultado: resultado, texto: texto });
+        showToast('✅ Parecer enviado para a Central de Estágios.', 'success');
+        fecharParecerFinalDen();
+        carregarPareceresFinaisDen();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharParecerFinalDen() {
+      document.getElementById('modal-parecerfinal').classList.remove('is-open');
     }
   </script>
 </body>
