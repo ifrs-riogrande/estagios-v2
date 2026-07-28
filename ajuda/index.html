@@ -16,6 +16,15 @@
 
   <!-- Google Identity Services (só pra exibir o perfil se já houver sessão — esta página não exige login) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    .faq-item { border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-bottom: var(--space-3); overflow: hidden; }
+    .faq-item summary { padding: var(--space-4); font-weight: 600; font-size: var(--font-size-sm); cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; font-size: 20px; color: var(--color-text-muted); font-weight: 400; }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-item p { padding: 0 var(--space-4) var(--space-4); margin: 0; font-size: var(--font-size-sm); color: var(--color-text-muted); }
+  </style>
 </head>
 <body>
 
@@ -48,14 +57,29 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091.907-.16 1.855-.749 2.556l-.892 1.062"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">Estamos preparando perguntas frequentes, tutoriais e contatos de suporte. Volte em breve.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);max-width:760px;">
+
+      <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-8);">
+        <h2 class="form-section-title" style="margin-bottom:var(--space-3);">Fale com a Central de Estágios</h2>
+        <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:var(--space-2);">Dúvidas que não estão aqui? Entre em contato:</p>
+        <p style="font-size:var(--font-size-sm);">📧 <a href="mailto:estagios@riogrande.ifrs.edu.br">estagios@riogrande.ifrs.edu.br</a></p>
       </div>
+
+      <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Para Estudantes</h2>
+      <details class="faq-item"><summary>Como solicito um estágio?</summary><p>Acesse Solicitações → Estágio no menu do topo, preencha o formulário com os dados do curso, concedente, orientador e período, e envie. Você pode acompanhar o andamento em Acompanhamentos → Acompanhar Estágio.</p></details>
+      <details class="faq-item"><summary>Como acompanho o status da minha solicitação?</summary><p>Cada tipo de solicitação (Estágio, Certificação de Conhecimento, Conversão, Aproveitamento de Programas/Projetos) tem sua própria página em Acompanhamentos, mostrando o status atual e o que falta até a conclusão.</p></details>
+      <details class="faq-item"><summary>Minha solicitação foi devolvida — o que faço?</summary><p>Acesse a página de acompanhamento correspondente e clique em "Continuar Preenchendo". O motivo da devolução aparece lá; corrija as informações e reenvie.</p></details>
+      <details class="faq-item"><summary>Como solicito um adendo ao meu TCE (prorrogação, troca de orientador etc.)?</summary><p>Com o estágio ativo, acesse Acompanhar Estágio → seção Adendos → "+ Solicitar Adendo", escolha o tipo e preencha os dados. A Central de Estágios analisa e, se aprovado, inicia o fluxo de assinaturas.</p></details>
+      <details class="faq-item"><summary>Preciso assinar documentos fora do sistema?</summary><p>Sim — assinaturas do TCE e de adendos usam o gov.br (assinador.iti.br): você baixa o PDF, assina no site do governo e reenvia o arquivo assinado na mesma tela.</p></details>
+
+      <h2 class="form-section-title" style="margin:var(--space-8) 0 var(--space-4);">Para Servidores (Orientador, Supervisor, Coordenador)</h2>
+      <details class="faq-item"><summary>Como preencho meu perfil de orientador/supervisor/coordenador?</summary><p>Acesse Perfil no menu do topo e marque os papéis que você exerce na Seção 2. Cada papel revela os campos específicos necessários; o setor de estágios valida o cadastro depois.</p></details>
+      <details class="faq-item"><summary>Onde vejo as pendências de checklist dos meus estágios?</summary><p>Em Acompanhamento → Orientações/Supervisões/Coordenação, conforme seu papel. Pendências de validação aparecem destacadas com o botão "Checklist — Validar".</p></details>
+      <details class="faq-item"><summary>Como emito uma declaração de orientação/supervisão?</summary><p>Acesse Serviços → Declarações, escolha o tipo e o período desejado, e gere o PDF diretamente pelo sistema.</p></details>
+
+      <h2 class="form-section-title" style="margin:var(--space-8) 0 var(--space-4);">Sobre o Sistema</h2>
+      <details class="faq-item"><summary>Como faço login?</summary><p>Use seu e-mail institucional (@riogrande.ifrs.edu.br para servidores, @aluno.riogrande.ifrs.edu.br para estudantes) na tela inicial. O sistema identifica automaticamente sua área de acesso.</p></details>
+      <details class="faq-item"><summary>Meus dados estão seguros?</summary><p>Sim. Dados sensíveis (CPF, telefone, informações de NEE) são mascarados nas telas e tratados conforme a Lei Geral de Proteção de Dados (LGPD).</p></details>
     </div>
   </main>
 

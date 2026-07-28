@@ -360,6 +360,12 @@
         popularFiltrosDinamicos();
         verificarPendentes();
         aplicarFiltros();
+
+        var verId = new URLSearchParams(window.location.search).get('ver');
+        if (verId) {
+          var alvo = _dados.find(function (x) { return String(x.id) === verId; });
+          if (alvo) abrirDetalhe(alvo);
+        }
       } catch (err) {
         setTabelaErro('Não foi possível carregar os estágios. ' + escapeHtml(err.message));
       }

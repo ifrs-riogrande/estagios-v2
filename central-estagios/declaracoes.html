@@ -143,13 +143,60 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A emissão e gestão de declarações será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-6);">
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" id="toggle-emitir">
+          <h2 class="form-section-title" style="margin:0;">Emitir Declaração</h2>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" id="chevron-emitir"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </div>
+        <div id="form-emitir-wrap" class="hidden" style="margin-top:var(--space-5);">
+          <div class="form-group"><label class="form-label required" for="dec-email-servidor">E-mail do servidor</label><input type="email" id="dec-email-servidor" class="form-control"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label required">Função</label>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="dec-funcao" value="orientador" checked> Orientador</label>
+                <label class="radio-option"><input type="radio" name="dec-funcao" value="supervisor"> Supervisor</label>
+                <label class="radio-option"><input type="radio" name="dec-funcao" value="ambos"> Ambos</label>
+              </div>
+            </div>
+            <div class="form-group"><label class="form-label required">Modalidade</label>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="dec-modalidade" value="obrigatorio" checked> Obrigatório</label>
+                <label class="radio-option"><input type="radio" name="dec-modalidade" value="nao-obrigatorio"> Não Obrigatório</label>
+                <label class="radio-option"><input type="radio" name="dec-modalidade" value="ambos"> Ambos</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="dec-periodo-inicio">Início do período <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label><input type="date" id="dec-periodo-inicio" class="form-control"></div>
+            <div class="form-group"><label class="form-label" for="dec-periodo-fim">Fim do período <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label><input type="date" id="dec-periodo-fim" class="form-control"></div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-emitir-declaracao">Emitir Declaração</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding:var(--space-5);">
+        <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Histórico Geral</h2>
+        <div class="filters">
+          <div class="form-group" style="flex:2;min-width:220px;"><label class="form-label" for="dec-busca">Buscar</label><input type="search" id="dec-busca" class="form-control" placeholder="Nome ou e-mail do servidor…"></div>
+          <div class="form-group"><label class="form-label" for="dec-filtro-funcao">Função</label>
+            <select id="dec-filtro-funcao" class="form-control">
+              <option value="">Todas</option>
+              <option value="orientador">Orientador</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="ambos">Ambos</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table" aria-label="Histórico de declarações">
+            <thead><tr><th>Data</th><th>Servidor</th><th>Função</th><th>Modalidade</th><th>Período</th><th style="text-align:center;">Estágios</th><th>Emitido por</th></tr></thead>
+            <tbody id="tbody-declaracoes">
+              <tr><td colspan="7" style="text-align:center;padding:var(--space-8);"><div class="spinner" style="margin:0 auto;"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
@@ -174,9 +221,87 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _declaracoes = [];
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarDeclaracoes();
+
+      document.getElementById('toggle-emitir').addEventListener('click', function () {
+        document.getElementById('form-emitir-wrap').classList.toggle('hidden');
+        document.getElementById('chevron-emitir').style.transform =
+          document.getElementById('form-emitir-wrap').classList.contains('hidden') ? '' : 'rotate(180deg)';
+      });
+      document.getElementById('btn-emitir-declaracao').addEventListener('click', emitirDeclaracao);
+      document.getElementById('dec-busca').addEventListener('input', filtrarDeclaracoes);
+      document.getElementById('dec-filtro-funcao').addEventListener('change', filtrarDeclaracoes);
     });
+
+    async function emitirDeclaracao() {
+      var email = document.getElementById('dec-email-servidor').value.trim();
+      if (!email) { showToast('Informe o e-mail do servidor.', 'error'); return; }
+      var btn = document.getElementById('btn-emitir-declaracao');
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Emitindo…';
+      try {
+        await API.post('gerarDeclaracaoAdmin', {
+          emailServidor: email,
+          funcao: document.querySelector('input[name="dec-funcao"]:checked').value,
+          modalidade: document.querySelector('input[name="dec-modalidade"]:checked').value,
+          periodoInicio: document.getElementById('dec-periodo-inicio').value,
+          periodoFim: document.getElementById('dec-periodo-fim').value,
+        });
+        showToast('✅ Declaração emitida e enviada ao servidor.', 'success');
+        document.getElementById('dec-email-servidor').value = '';
+        carregarDeclaracoes();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    async function carregarDeclaracoes() {
+      try {
+        _declaracoes = await API.get('listarDeclaracoesAdmin');
+        _declaracoes = Array.isArray(_declaracoes) ? _declaracoes : [];
+        filtrarDeclaracoes();
+      } catch (err) {
+        document.getElementById('tbody-declaracoes').innerHTML =
+          '<tr><td colspan="7" style="text-align:center;color:var(--color-error);">Erro: ' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    function filtrarDeclaracoes() {
+      var busca = document.getElementById('dec-busca').value.toLowerCase().trim();
+      var funcao = document.getElementById('dec-filtro-funcao').value;
+      var filtradas = _declaracoes.filter(function (d) {
+        if (funcao && d.funcao !== funcao) return false;
+        if (busca && [d.nomeServidor, d.emailServidor].join(' ').toLowerCase().indexOf(busca) === -1) return false;
+        return true;
+      });
+      renderDeclaracoes(filtradas);
+    }
+
+    function renderDeclaracoes(lista) {
+      var tb = document.getElementById('tbody-declaracoes');
+      if (!lista.length) {
+        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);">Nenhuma declaração encontrada.</td></tr>';
+        return;
+      }
+      tb.innerHTML = lista.map(function (d) {
+        var periodo = (d.periodoInicio || d.periodoFim) ? (formatDateBR(d.periodoInicio) + ' – ' + formatDateBR(d.periodoFim)) : 'Todos os períodos';
+        return '<tr>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + (d.dataSolicitacao ? formatDateBR(d.dataSolicitacao) : '—') + '</td>' +
+          '<td>' + escapeHtml(d.nomeServidor || d.emailServidor || '—') + '</td>' +
+          '<td style="font-size:12px;">' + escapeHtml(d.funcao || '—') + '</td>' +
+          '<td style="font-size:12px;">' + escapeHtml(d.modalidade || '—') + '</td>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + periodo + '</td>' +
+          '<td style="text-align:center;">' + (d.totalEstagios || 0) + '</td>' +
+          '<td style="font-size:12px;">' + escapeHtml(d.emitidoPor || '—') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
 
     (function () {
       var triggers = Array.prototype.slice.call(document.querySelectorAll('.mega-nav-trigger'));

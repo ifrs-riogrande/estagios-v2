@@ -48,16 +48,87 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">O acompanhamento de estudantes e as fichas de necessidades educacionais específicas serão adicionados aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando…</p>
+      </div>
+
+      <div id="conteudo-napne" class="hidden">
+        <div id="stats-napne" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-4);margin-bottom:var(--space-6);"></div>
+
+        <div class="filters">
+          <div class="form-group" style="flex:2;min-width:220px;"><label class="form-label" for="napne-busca">Buscar</label><input type="search" id="napne-busca" class="form-control" placeholder="Nome do estudante…"></div>
+          <div class="form-group"><label class="form-label" for="napne-filtro-ficha">Ficha</label>
+            <select id="napne-filtro-ficha" class="form-control">
+              <option value="">Todas</option>
+              <option value="preenchida">Preenchida</option>
+              <option value="pendente">Pendente</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="lista-napne"></div>
       </div>
     </div>
   </main>
+
+  <!-- Modal: Ficha NEE -->
+  <div class="modal-backdrop" id="modal-ficha-napne">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-ficha-titulo">Ficha NEE</h2>
+        <button type="button" class="modal-close" id="modal-ficha-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-ficha-body">
+        <div class="alert alert-info" style="margin-bottom:var(--space-4);"><div class="alert-content">Dados sensíveis (LGPD, art. 5º, II) — acesso restrito ao NAPNE e compartilhado apenas com o orientador do estágio, na medida do necessário para as adaptações.</div></div>
+
+        <div class="form-group">
+          <label class="form-label required">Estudante possui NEE?</label>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="napne-tem-nee" value="Sim" checked> Sim</label>
+            <label class="radio-option"><input type="radio" name="napne-tem-nee" value="Não"> Não</label>
+          </div>
+        </div>
+
+        <div id="napne-campos-nee">
+          <div class="form-group">
+            <label class="form-label">Tipo(s) de NEE</label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--space-2);">
+              <div class="form-check"><input type="checkbox" id="nee-tea"><label class="form-check-label" for="nee-tea">TEA</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-tdah"><label class="form-check-label" for="nee-tdah">TDAH</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-tag"><label class="form-check-label" for="nee-tag">TAG</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-toc"><label class="form-check-label" for="nee-toc">TOC</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-tod"><label class="form-check-label" for="nee-tod">TOD</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-dislexia"><label class="form-check-label" for="nee-dislexia">Dislexia</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-discalculia"><label class="form-check-label" for="nee-discalculia">Discalculia</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-def-fisica"><label class="form-check-label" for="nee-def-fisica">Def. Física</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-def-visual"><label class="form-check-label" for="nee-def-visual">Def. Visual</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-def-auditiva"><label class="form-check-label" for="nee-def-auditiva">Def. Auditiva</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-def-intelectual"><label class="form-check-label" for="nee-def-intelectual">Def. Intelectual</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-altas-habilidades"><label class="form-check-label" for="nee-altas-habilidades">Altas Habilidades</label></div>
+              <div class="form-check"><input type="checkbox" id="nee-outro"><label class="form-check-label" for="nee-outro">Outro</label></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="napne-adaptacoes">Adaptações necessárias</label>
+            <textarea id="napne-adaptacoes" class="form-control" rows="3" maxlength="1000"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="napne-obs-orientador">Observações para o(a) orientador(a)</label>
+            <textarea id="napne-obs-orientador" class="form-control" rows="3" maxlength="1000"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar-ficha">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-salvar-ficha">Salvar Ficha</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════
        FOOTER
@@ -82,12 +153,136 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var _estagiosNapne = [];
+    var _fichaAtual = null;
+    var NEE_TIPOS = ['tea', 'tdah', 'tag', 'toc', 'tod', 'dislexia', 'discalculia', 'def-fisica', 'def-visual', 'def-auditiva', 'def-intelectual', 'altas-habilidades', 'outro'];
+
     // Guarda de acesso: por enquanto exige só sessão de servidor (qualquer
     // @riogrande...). A checagem do papel "NAPNE" de verdade acontece no
     // backend, na ConfigAcesso — ainda não há dados reais lá.
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarNapne();
+
+      document.getElementById('napne-busca').addEventListener('input', filtrarNapne);
+      document.getElementById('napne-filtro-ficha').addEventListener('change', filtrarNapne);
+      document.getElementById('modal-ficha-fechar').addEventListener('click', fecharFichaNapne);
+      document.getElementById('btn-cancelar-ficha').addEventListener('click', fecharFichaNapne);
+      document.getElementById('modal-ficha-napne').addEventListener('click', function (e) { if (e.target === this) fecharFichaNapne(); });
+      document.getElementById('btn-salvar-ficha').addEventListener('click', salvarFichaNapne);
+      document.querySelectorAll('input[name="napne-tem-nee"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+          document.getElementById('napne-campos-nee').classList.toggle('hidden', this.value !== 'Sim');
+        });
+      });
     });
+
+    async function carregarNapne() {
+      try {
+        _estagiosNapne = await API.get('listarEstagiosNapne');
+        _estagiosNapne = Array.isArray(_estagiosNapne) ? _estagiosNapne : [];
+
+        var total = _estagiosNapne.length;
+        var preenchidas = _estagiosNapne.filter(function (e) { return e.fichaPreenchida; }).length;
+        document.getElementById('stats-napne').innerHTML = [
+          { label: 'Estágios NEE Ativos', valor: total },
+          { label: 'Fichas Preenchidas', valor: preenchidas },
+          { label: 'Fichas Pendentes', valor: total - preenchidas },
+        ].map(function (c) {
+          return '<div class="card" style="padding:var(--space-4);text-align:center;"><div style="font-size:28px;font-weight:700;">' + c.valor + '</div>' +
+            '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:4px;">' + escapeHtml(c.label) + '</div></div>';
+        }).join('');
+
+        document.getElementById('painel-carregando').classList.add('hidden');
+        document.getElementById('conteudo-napne').classList.remove('hidden');
+        filtrarNapne();
+      } catch (err) {
+        document.getElementById('painel-carregando').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar. ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    function filtrarNapne() {
+      var busca = document.getElementById('napne-busca').value.toLowerCase().trim();
+      var filtroFicha = document.getElementById('napne-filtro-ficha').value;
+      var filtrados = _estagiosNapne.filter(function (e) {
+        if (busca && (e.nomeEstudante || '').toLowerCase().indexOf(busca) === -1) return false;
+        if (filtroFicha === 'preenchida' && !e.fichaPreenchida) return false;
+        if (filtroFicha === 'pendente' && e.fichaPreenchida) return false;
+        return true;
+      });
+      renderNapne(filtrados);
+    }
+
+    function renderNapne(lista) {
+      var container = document.getElementById('lista-napne');
+      if (!lista.length) {
+        container.innerHTML = '<div class="empty-state"><p>Nenhum estágio encontrado.</p></div>';
+        return;
+      }
+      container.innerHTML = lista.map(function (e) {
+        var tags = (e.tiposNee || []).map(function (t) { return '<span class="badge badge-info" style="margin-right:4px;">' + escapeHtml(t) + '</span>'; }).join('');
+        return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
+          '<div>' +
+          '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(e.nomeEstudante || '—') + '</div>' +
+          '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:4px;">' + escapeHtml(e.curso || '—') + '</div>' +
+          (tags || '<span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">Nenhum tipo informado ainda</span>') +
+          '</div>' +
+          '<button type="button" class="btn ' + (e.fichaPreenchida ? 'btn-secondary' : 'btn-primary') + ' btn-sm" data-napne-id="' + escapeHtml(e.idEstagio) + '">' + (e.fichaPreenchida ? 'Editar Ficha' : 'Preencher Ficha') + '</button>' +
+          '</div>';
+      }).join('');
+
+      container.querySelectorAll('[data-napne-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrirFichaNapne(btn.dataset.napneId); });
+      });
+    }
+
+    async function abrirFichaNapne(idEstagio) {
+      var item = _estagiosNapne.find(function (e) { return e.idEstagio === idEstagio; });
+      document.getElementById('modal-ficha-titulo').textContent = 'Ficha NEE — ' + (item ? item.nomeEstudante : '');
+      _fichaAtual = { idEstagio: idEstagio };
+      try {
+        var ficha = await API.get('obterFichaNapne', { idEstagio: idEstagio });
+        ficha = ficha || {};
+        document.querySelector('input[name="napne-tem-nee"][value="' + (ficha.temNee === false ? 'Não' : 'Sim') + '"]').checked = true;
+        document.getElementById('napne-campos-nee').classList.toggle('hidden', ficha.temNee === false);
+        NEE_TIPOS.forEach(function (t) {
+          document.getElementById('nee-' + t).checked = (ficha.tiposNee || []).indexOf(t) !== -1;
+        });
+        document.getElementById('napne-adaptacoes').value = ficha.adaptacoes || '';
+        document.getElementById('napne-obs-orientador').value = ficha.obsOrientador || '';
+      } catch (err) { /* ficha nova — mantém campos em branco */ }
+      document.getElementById('modal-ficha-napne').classList.add('is-open');
+    }
+
+    async function salvarFichaNapne() {
+      var btn = document.getElementById('btn-salvar-ficha');
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Salvando…';
+      try {
+        var temNee = document.querySelector('input[name="napne-tem-nee"]:checked').value === 'Sim';
+        var tiposNee = temNee ? NEE_TIPOS.filter(function (t) { return document.getElementById('nee-' + t).checked; }) : [];
+        await API.post('salvarFichaNapne', {
+          idEstagio: _fichaAtual.idEstagio,
+          temNee: temNee,
+          tiposNee: tiposNee,
+          adaptacoes: document.getElementById('napne-adaptacoes').value.trim(),
+          obsOrientador: document.getElementById('napne-obs-orientador').value.trim(),
+        });
+        showToast('✅ Ficha salva.', 'success');
+        fecharFichaNapne();
+        carregarNapne();
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
+
+    function fecharFichaNapne() {
+      document.getElementById('modal-ficha-napne').classList.remove('is-open');
+      _fichaAtual = null;
+    }
   </script>
 </body>
 </html>

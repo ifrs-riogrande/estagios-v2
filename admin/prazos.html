@@ -54,14 +54,63 @@
       </div>
     </section>
 
-    <div class="container">
-      <div class="construcao">
-        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="construcao__icon">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <h2 class="construcao__titulo">Em construção</h2>
-        <p class="construcao__desc">A configuração de prazos será adicionada aqui.</p>
+    <div class="container" style="padding-top:var(--space-6);padding-bottom:var(--space-12);">
+
+      <div id="painel-carregando" class="empty-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Carregando…</p>
       </div>
+
+      <form id="form-prazos" class="hidden" novalidate>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Checklist de Estágio <span style="font-weight:400;font-size:var(--font-size-sm);color:var(--color-text-muted);">(dias úteis pra cada validador responder)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-checklist-orientador">Orientador</label><input type="number" id="pz-checklist-orientador" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-checklist-supervisor">Supervisor</label><input type="number" id="pz-checklist-supervisor" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-checklist-coordenador">Coordenador</label><input type="number" id="pz-checklist-coordenador" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Assinaturas do TCE <span style="font-weight:400;font-size:var(--font-size-sm);color:var(--color-text-muted);">(dias úteis por etapa)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-ass-estudante">Estudante</label><input type="number" id="pz-ass-estudante" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-ass-empresa">Empresa</label><input type="number" id="pz-ass-empresa" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-ass-centralRevisao">Central (revisão)</label><input type="number" id="pz-ass-centralRevisao" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-ass-direcao">Direção-Geral</label><input type="number" id="pz-ass-direcao" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-ass-centralFinal">Central (finalização)</label><input type="number" id="pz-ass-centralFinal" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Solicitação de Estágio <span style="font-weight:400;font-size:var(--font-size-sm);color:var(--color-text-muted);">(dias corridos)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-sol-minimoInicio">Antecedência mínima pro início do estágio</label><input type="number" id="pz-sol-minimoInicio" class="form-control" min="0"></div>
+            <div class="form-group"><label class="form-label" for="pz-sol-validadeTokenOrientador">Validade do convite ao orientador</label><input type="number" id="pz-sol-validadeTokenOrientador" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Convênios <span style="font-weight:400;font-size:var(--font-size-sm);color:var(--color-text-muted);">(dias corridos)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-conv-prazoEmpresa">Prazo da empresa</label><input type="number" id="pz-conv-prazoEmpresa" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-conv-prazoSetor">Prazo do setor</label><input type="number" id="pz-conv-prazoSetor" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Alertas do Dashboard <span style="font-weight:400;font-size:var(--font-size-sm);color:var(--color-text-muted);">(dias corridos de antecedência)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-dash-alertaTermino">Término de estágio próximo</label><input type="number" id="pz-dash-alertaTermino" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-dash-alertaContratoSubstituto">Contrato de substituto vencendo</label><input type="number" id="pz-dash-alertaContratoSubstituto" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="btn-salvar-prazos">Salvar Prazos</button>
+        </div>
+      </form>
     </div>
   </main>
 
@@ -85,9 +134,63 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+    var PRAZOS_CAMPOS = {
+      checklist:  ['orientador', 'supervisor', 'coordenador'],
+      assinaturas:['estudante', 'empresa', 'centralRevisao', 'direcao', 'centralFinal'],
+      solicitacao:['minimoInicio', 'validadeTokenOrientador'],
+      convenios:  ['prazoEmpresa', 'prazoSetor'],
+      dashboard:  ['alertaTermino', 'alertaContratoSubstituto'],
+    };
+    var PRAZOS_PREFIXO = { checklist: 'checklist', assinaturas: 'ass', solicitacao: 'sol', convenios: 'conv', dashboard: 'dash' };
+
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
+      carregarPrazos();
+      document.getElementById('form-prazos').addEventListener('submit', salvarPrazos);
     });
+
+    async function carregarPrazos() {
+      try {
+        var prazos = await API.get('obterPrazos');
+        prazos = prazos || {};
+        Object.keys(PRAZOS_CAMPOS).forEach(function (grupo) {
+          PRAZOS_CAMPOS[grupo].forEach(function (campo) {
+            var el = document.getElementById('pz-' + PRAZOS_PREFIXO[grupo] + '-' + campo);
+            if (el && prazos[grupo] && prazos[grupo][campo] !== undefined) el.value = prazos[grupo][campo];
+          });
+        });
+        document.getElementById('painel-carregando').classList.add('hidden');
+        document.getElementById('form-prazos').classList.remove('hidden');
+      } catch (err) {
+        document.getElementById('painel-carregando').innerHTML =
+          '<div class="alert alert-error"><div class="alert-content">Não foi possível carregar os prazos. ' + escapeHtml(err.message) + '</div></div>';
+      }
+    }
+
+    async function salvarPrazos(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btn-salvar-prazos');
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Salvando…';
+
+      var prazos = {};
+      Object.keys(PRAZOS_CAMPOS).forEach(function (grupo) {
+        prazos[grupo] = {};
+        PRAZOS_CAMPOS[grupo].forEach(function (campo) {
+          var el = document.getElementById('pz-' + PRAZOS_PREFIXO[grupo] + '-' + campo);
+          prazos[grupo][campo] = el ? parseInt(el.value, 10) || 0 : 0;
+        });
+      });
+
+      try {
+        await API.post('salvarPrazos', { prazos: prazos });
+        showToast('✅ Prazos salvos.', 'success');
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
+    }
   </script>
 </body>
 </html>
