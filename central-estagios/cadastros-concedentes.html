@@ -563,10 +563,10 @@
         '<div class="detail-item detail-item--full"><label>Convênio e Documentos</label>' +
         '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:4px;align-items:center;">' +
           (e.possuiConvenio ? '<span class="badge badge-neutral">Convênio IFRS: ' + escapeHtml(e.possuiConvenio) + '</span>' : '') +
-          (e.driveConvenio ? '<a href="' + escapeHtml(e.driveConvenio) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 Convênio</a>' : '') +
-          (e.driveCdnEmpresa ? '<a href="' + escapeHtml(e.driveCdnEmpresa) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 CDN Empresa</a>' : '') +
-          (e.driveCdnSignatario ? '<a href="' + escapeHtml(e.driveCdnSignatario) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 CDN Signatário</a>' : '') +
-          (e.driveDocs ? '<a href="' + escapeHtml(e.driveDocs) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📁 Abrir pasta ↗</a>' : '') +
+          (safeUrl(e.driveConvenio) ? '<a href="' + escapeHtml(safeUrl(e.driveConvenio)) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 Convênio</a>' : '') +
+          (safeUrl(e.driveCdnEmpresa) ? '<a href="' + escapeHtml(safeUrl(e.driveCdnEmpresa)) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 CDN Empresa</a>' : '') +
+          (safeUrl(e.driveCdnSignatario) ? '<a href="' + escapeHtml(safeUrl(e.driveCdnSignatario)) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📄 CDN Signatário</a>' : '') +
+          (safeUrl(e.driveDocs) ? '<a href="' + escapeHtml(safeUrl(e.driveDocs)) + '" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">📁 Abrir pasta ↗</a>' : '') +
         '</div></div>'
       ) : '';
 

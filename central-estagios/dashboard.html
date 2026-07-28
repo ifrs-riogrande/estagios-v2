@@ -386,6 +386,9 @@
       var map = {
         'Pendente': 'badge-warning', 'Em análise': 'badge-info', 'Em Checklist': 'badge-info',
         'Em Assinaturas': 'badge-warning', 'Ativo': 'badge-success', 'Encerrado': 'badge-neutral', 'Reprovado': 'badge-error',
+        'Aguardando Central de Estágios (Conversão)': 'badge-info',
+        'Aguardando Central de Estágios (Aproveitamento)': 'badge-info',
+        'Aguardando Registro Acadêmico': 'badge-info',
       };
       return '<span class="badge ' + (map[status] || 'badge-neutral') + '">' + escapeHtml(status || '—') + '</span>';
     }

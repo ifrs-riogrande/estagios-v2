@@ -343,6 +343,7 @@
                 <span class="file-selected" id="doc-avulso-nome-arquivo"></span>
               </label>
               <input type="file" class="form-control-file" id="doc-avulso-arquivo" accept=".pdf">
+              <span id="doc-avulso-arquivo-error" class="form-error hidden" role="alert"></span>
             </div>
             <button type="button" class="btn btn-secondary btn-sm" id="btn-enviar-doc-avulso">Enviar</button>
           </div>
@@ -790,8 +791,8 @@
 
     /* ── Documentos ── */
     function docItem(titulo, meta, url, enviado) {
-      var acao = url
-        ? '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Abrir ↗</a>'
+      var acao = safeUrl(url)
+        ? '<a href="' + escapeHtml(safeUrl(url)) + '" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">Abrir ↗</a>'
         : (enviado === false ? '<span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">Não enviado</span>' : '<span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">Em preparação</span>');
       return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-2);padding:var(--space-3) var(--space-4);">' +
         '<div><div style="font-weight:600;font-size:var(--font-size-sm);">📄 ' + escapeHtml(titulo) + '</div>' +
@@ -821,7 +822,7 @@
       } catch (err) { /* falha silenciosa */ }
     }
 
-    validarPdf('doc-avulso-arquivo', 'doc-avulso-nome-arquivo', null);
+    validarPdf('doc-avulso-arquivo', 'doc-avulso-nome-arquivo', 'doc-avulso-arquivo-error');
 
     document.getElementById('btn-enviar-doc-avulso').addEventListener('click', async function () {
       var nome = document.getElementById('doc-avulso-nome').value.trim();

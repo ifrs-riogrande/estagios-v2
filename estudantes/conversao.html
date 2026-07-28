@@ -614,7 +614,7 @@
       document.getElementById('dados-nome').value = dados.nome || '';
       document.getElementById('dados-cpf').value = dados.cpf || '';
       document.getElementById('dados-rg').value = dados.rg || '';
-      document.getElementById('dados-nascimento').value = dados.dataNasc || '';
+      document.getElementById('dados-nascimento').value = dados.dataNasc ? formatDateBR(dados.dataNasc) : '';
       document.getElementById('dados-telefone').value = dados.telefone || '';
       document.getElementById('dados-whatsapp').checked = dados.whatsapp !== false;
       document.getElementById('dados-whatsapp-label').textContent = dados.whatsapp !== false ? 'Sim' : 'Não';

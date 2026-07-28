@@ -724,13 +724,13 @@
       var s = typeof getSession === 'function' ? getSession() : null;
       var el = document.getElementById('perfil-avatar');
       if (!el || !s) return;
-      if (s.picture) {
-        el.innerHTML = '<img src="' + s.picture + '" alt="Foto de perfil" referrerpolicy="no-referrer" '
+      if (s.picture && safeUrl(s.picture)) {
+        el.innerHTML = '<img src="' + escapeHtml(safeUrl(s.picture)) + '" alt="Foto de perfil" referrerpolicy="no-referrer" '
           + 'style="width:64px;height:64px;border-radius:50%;border:2px solid var(--color-border);object-fit:cover;display:block;">';
       } else if (s.name) {
         el.innerHTML = '<div style="width:64px;height:64px;border-radius:50%;background:var(--color-primary);color:#fff;'
           + 'display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:600;">'
-          + s.name.charAt(0).toUpperCase() + '</div>';
+          + escapeHtml(s.name.charAt(0).toUpperCase()) + '</div>';
       }
     })();
   </script>

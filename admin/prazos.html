@@ -169,6 +169,29 @@
 
     async function salvarPrazos(e) {
       e.preventDefault();
+
+      var primeiroInvalido = null;
+      Object.keys(PRAZOS_CAMPOS).forEach(function (grupo) {
+        PRAZOS_CAMPOS[grupo].forEach(function (campo) {
+          var el = document.getElementById('pz-' + PRAZOS_PREFIXO[grupo] + '-' + campo);
+          if (!el) return;
+          var min = el.min !== '' ? parseInt(el.min, 10) : null;
+          var valor = parseInt(el.value, 10);
+          if (isNaN(valor) || (min !== null && valor < min)) {
+            el.classList.add('is-invalid');
+            if (!primeiroInvalido) primeiroInvalido = el;
+          } else {
+            el.classList.remove('is-invalid');
+          }
+        });
+      });
+      if (primeiroInvalido) {
+        showToast('Verifique os campos destacados — o valor mínimo permitido não foi respeitado.', 'error');
+        primeiroInvalido.focus();
+        primeiroInvalido.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       var btn = document.getElementById('btn-salvar-prazos');
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Salvando…';

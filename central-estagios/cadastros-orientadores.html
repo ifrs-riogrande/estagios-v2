@@ -388,11 +388,11 @@
         document.getElementById('btn-excluir').addEventListener('click', renderExcluir);
         if (o.status === 'Pendente') {
           document.getElementById('btn-rejeitar').addEventListener('click', renderRejeicao);
-          document.getElementById('btn-aprovar').addEventListener('click', function () { aprovarCadastro('Ativo'); });
+          document.getElementById('btn-aprovar').addEventListener('click', function () { aprovarCadastro('Ativo', this); });
         } else if (o.status === 'Ativo') {
-          document.getElementById('btn-inativar').addEventListener('click', function () { alterarStatus('inativarOrientador'); });
+          document.getElementById('btn-inativar').addEventListener('click', function () { alterarStatus('inativarOrientador', this); });
         } else if (o.status === 'Inativo') {
-          document.getElementById('btn-reativar').addEventListener('click', function () { alterarStatus('reativarOrientador'); });
+          document.getElementById('btn-reativar').addEventListener('click', function () { alterarStatus('reativarOrientador', this); });
         }
       }
     }
@@ -478,12 +478,17 @@
       finally { btn.classList.remove('is-loading'); btn.disabled = false; }
     }
 
-    async function aprovarCadastro(novoStatus) {
+    async function aprovarCadastro(novoStatus, btn) {
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Aprovando…';
       try {
         await API.post('aprovarCadastroServidor', { tipo: 'orientador', email: _atual.email, novoStatus: novoStatus });
         showToast('Orientador aprovado e ativado.', 'success');
         fechar(); carregar();
-      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
     }
 
     /* ── Excluir ── */
@@ -511,14 +516,19 @@
     }
 
     /* ── Inativar / Reativar ── */
-    async function alterarStatus(action) {
+    async function alterarStatus(action, btn) {
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = action === 'inativarOrientador' ? 'Inativando…' : 'Reativando…';
       try {
         await API.post(action, { email: _atual.email });
         showToast(action === 'inativarOrientador' ? 'Orientador inativado.' : 'Orientador reativado.', 'success');
         await carregar();
         var novo = _dados.find(function (x) { return x.email === _atual.email; });
         if (novo) { _atual = novo; renderVisualizacao(); } else fechar();
-      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
+      }
     }
 
     function fechar() {

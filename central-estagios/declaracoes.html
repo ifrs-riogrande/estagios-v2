@@ -292,11 +292,11 @@
       tb.innerHTML = lista.map(function (d) {
         var periodo = (d.periodoInicio || d.periodoFim) ? (formatDateBR(d.periodoInicio) + ' – ' + formatDateBR(d.periodoFim)) : 'Todos os períodos';
         return '<tr>' +
-          '<td style="font-size:12px;white-space:nowrap;">' + (d.dataSolicitacao ? formatDateBR(d.dataSolicitacao) : '—') + '</td>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + escapeHtml(d.dataSolicitacao ? formatDateBR(d.dataSolicitacao) : '—') + '</td>' +
           '<td>' + escapeHtml(d.nomeServidor || d.emailServidor || '—') + '</td>' +
           '<td style="font-size:12px;">' + escapeHtml(d.funcao || '—') + '</td>' +
           '<td style="font-size:12px;">' + escapeHtml(d.modalidade || '—') + '</td>' +
-          '<td style="font-size:12px;white-space:nowrap;">' + periodo + '</td>' +
+          '<td style="font-size:12px;white-space:nowrap;">' + escapeHtml(periodo) + '</td>' +
           '<td style="text-align:center;">' + (d.totalEstagios || 0) + '</td>' +
           '<td style="font-size:12px;">' + escapeHtml(d.emitidoPor || '—') + '</td>' +
           '</tr>';

@@ -395,7 +395,7 @@
         '<div class="detail-item"><label>Status</label><p>' + badgeStatus(a.status) + '</p></div>' +
         '<div class="detail-item"><label>Matrícula</label><p>' + escapeHtml(a.matricula || '—') + '</p></div>' +
         '<div class="detail-item"><label>CPF</label><p>' + escapeHtml(a.cpf || '—') + '</p></div>' +
-        '<div class="detail-item"><label>Data de Nascimento</label><p>' + escapeHtml(a.dataNascimento || '—') + '</p></div>' +
+        '<div class="detail-item"><label>Data de Nascimento</label><p>' + escapeHtml(a.dataNascimento ? formatDateBR(a.dataNascimento) : '—') + '</p></div>' +
         '<div class="detail-item"><label>Curso</label><p>' + escapeHtml(a.curso || '—') + '</p></div>' +
         '<div class="detail-item"><label>Modalidade</label><p>' + escapeHtml(a.modalidade || '—') + '</p></div>' +
         '<div class="detail-item"><label>Turno / Semestre</label><p>' + escapeHtml((a.turno || '—') + ' · ' + (a.semestre || '—')) + '</p></div>' +

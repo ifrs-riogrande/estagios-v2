@@ -489,9 +489,9 @@
       var btnEditar = document.getElementById('btn-editar'); if (btnEditar) btnEditar.addEventListener('click', renderEdicao);
       var btnExcluir = document.getElementById('btn-excluir'); if (btnExcluir) btnExcluir.addEventListener('click', renderExcluir);
       var btnRecusar = document.getElementById('btn-recusar'); if (btnRecusar) btnRecusar.addEventListener('click', renderRecusa);
-      var btnValidar = document.getElementById('btn-validar'); if (btnValidar) btnValidar.addEventListener('click', function () { acaoSimples('validarSupervisor', 'Supervisor validado com sucesso.'); });
-      var btnInativar = document.getElementById('btn-inativar'); if (btnInativar) btnInativar.addEventListener('click', function () { acaoSimples('inativarSupervisor', 'Supervisor inativado.'); });
-      var btnReativar = document.getElementById('btn-reativar'); if (btnReativar) btnReativar.addEventListener('click', function () { acaoSimples('reativarSupervisor', 'Supervisor reativado.'); });
+      var btnValidar = document.getElementById('btn-validar'); if (btnValidar) btnValidar.addEventListener('click', function () { acaoSimples('validarSupervisor', 'Supervisor validado com sucesso.', this); });
+      var btnInativar = document.getElementById('btn-inativar'); if (btnInativar) btnInativar.addEventListener('click', function () { acaoSimples('inativarSupervisor', 'Supervisor inativado.', this); });
+      var btnReativar = document.getElementById('btn-reativar'); if (btnReativar) btnReativar.addEventListener('click', function () { acaoSimples('reativarSupervisor', 'Supervisor reativado.', this); });
     }
 
     /* ── Editar ── */
@@ -630,12 +630,16 @@
     }
 
     /* ── Ações simples ── */
-    async function acaoSimples(action, successMsg) {
+    async function acaoSimples(action, successMsg, btn) {
+      btn.classList.add('is-loading'); btn.disabled = true;
       try {
         await API.post(action, { cpf: _atual.cpf });
         showToast(successMsg, 'success');
         fechar(); carregar();
-      } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+      } catch (err) {
+        showToast('Erro: ' + err.message, 'error');
+        btn.classList.remove('is-loading'); btn.disabled = false;
+      }
     }
 
     function fechar() {

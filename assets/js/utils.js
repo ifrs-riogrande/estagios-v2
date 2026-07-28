@@ -9,9 +9,8 @@
  * Escapa texto para uso seguro dentro de HTML (previne XSS).
  */
 function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.appendChild(document.createTextNode(String(text ?? '')));
-  return div.innerHTML;
+  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(text ?? '').replace(/[&<>"']/g, (c) => ESCAPES[c]);
 }
 
 /**

@@ -525,15 +525,19 @@
       }
 
       if (s.neeDeclarado) {
-        links += '<button type="button" class="btn btn-secondary btn-sm" data-nee-email="' + escapeHtml(s.emailEstudante || '') + '" data-nee-nome="' + escapeHtml(s.nomeEstudante || '') + '">NEE</button>';
+        links += '<button type="button" class="btn btn-secondary btn-sm" data-nee-id="' + escapeHtml(s.id || '') + '">NEE</button>';
       }
 
       return links;
     }
 
     document.getElementById('corpo-tabela').addEventListener('click', function (e) {
-      var btnNee = e.target.closest('button[data-nee-email]');
-      if (btnNee) { abrirModalNapne(btnNee.dataset.neeEmail, btnNee.dataset.neeNome); return; }
+      var btnNee = e.target.closest('button[data-nee-id]');
+      if (btnNee) {
+        var item = _todos.find(function (x) { return String(x.id) === btnNee.dataset.neeId; });
+        if (item) abrirModalNapne(item.emailEstudante, item.nomeEstudante);
+        return;
+      }
       var btnCk = e.target.closest('button[data-checklist-id]');
       if (btnCk) { abrirChecklist(btnCk.dataset.checklistId, btnCk.dataset.checklistNome); return; }
     });

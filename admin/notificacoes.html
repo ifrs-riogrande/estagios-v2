@@ -170,7 +170,9 @@
         document.getElementById('notif-email-obrigatorio').value = cfg.obrigatorio || '';
         document.getElementById('notif-email-nao-obrigatorio').value = cfg.naoObrigatorio || '';
         document.getElementById('notif-email-erros').value = cfg.erros || '';
-      } catch (err) { /* falha silenciosa */ }
+      } catch (err) {
+        showToast('Não foi possível carregar os destinatários salvos — os campos podem estar desatualizados. Confira antes de salvar.', 'error');
+      }
     }
 
     async function salvarDestinatarios() {
@@ -201,7 +203,9 @@
       try {
         var resp = await API.get('obterConfigNotificacoes');
         cfg = (resp && resp.lembretes) || {};
-      } catch (err) { /* segue com defaults */ }
+      } catch (err) {
+        showToast('Não foi possível carregar os lembretes salvos — os valores abaixo são apenas padrões, não a configuração real. Confira antes de salvar.', 'error');
+      }
 
       container.innerHTML = FLUXOS_LEMBRETE.map(function (f) {
         var c = cfg[f.id] || {};

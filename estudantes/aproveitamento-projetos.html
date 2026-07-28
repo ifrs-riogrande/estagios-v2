@@ -548,7 +548,7 @@
       document.getElementById('dados-nome').value = dados.nome || '';
       document.getElementById('dados-cpf').value = dados.cpf || '';
       document.getElementById('dados-rg').value = dados.rg || '';
-      document.getElementById('dados-nascimento').value = dados.dataNasc || '';
+      document.getElementById('dados-nascimento').value = dados.dataNasc ? formatDateBR(dados.dataNasc) : '';
       document.getElementById('dados-telefone').value = dados.telefone || '';
       document.getElementById('dados-whatsapp').checked = dados.whatsapp !== false;
       document.getElementById('dados-whatsapp-label').textContent = dados.whatsapp !== false ? 'Sim' : 'Não';
@@ -868,9 +868,10 @@
         await API.post('enviarAproveitamentoProjetos', payload);
 
         showFormFeedback('form-feedback', 'success', 'Solicitação enviada!', 'Sua solicitação foi encaminhada ao coordenador do curso. Você receberá atualizações por e-mail.');
-        setFormEditavel(false);
         solicitacaoAtual = Object.assign({}, solicitacaoAtual, { status: 'Aguardando Coordenador' });
-        renderizarStatusBanner('Aguardando Coordenador');
+        document.getElementById('status-banner').style.display = 'none';
+        document.getElementById('form-projetos').classList.add('hidden');
+        mostrarBloqueado('Aguardando Coordenador');
       } catch (err) {
         if (err.code === 'TIMEOUT' || err.code === 'NETWORK') {
           showFormFeedback('form-feedback', 'warning', 'Tempo de resposta excedido', 'A solicitação pode já ter sido registrada. Aguarde alguns minutos e verifique seu e-mail de confirmação.');

@@ -216,7 +216,7 @@
 
     async function carregarDadosPapel() {
       var dados = {};
-      try { dados = await API.get('obterDiretorGeral'); } catch (err) { dados = {}; }
+      try { dados = await API.get('obterDiretorGeral'); } catch (err) { dados = {}; showToast('Não foi possível carregar o cadastro atual — os campos podem estar em branco por erro de carregamento, não por ausência de cadastro.', 'error'); }
       preencherFormulario(dados || {});
       document.getElementById('loading-papel').style.display = 'none';
       document.getElementById('form-papel').style.display = 'block';

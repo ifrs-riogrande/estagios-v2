@@ -465,7 +465,7 @@
               <div class="alert-content" id="msg-modalidade-texto"></div>
             </div>
             <div class="form-group">
-              <label class="form-label required" for="tipo-estagio">
+              <label class="form-label required">
                 Tipo de estágio solicitado
                 <span class="tooltip-help" aria-label="Estágio obrigatório: constituído como componente curricular integrante do Projeto Pedagógico do Curso. Estágio não obrigatório: atividade opcional e complementar à formação acadêmica-profissional.">?</span>
               </label>
@@ -961,7 +961,7 @@
     function preencherSeusDados(dados) {
       document.getElementById('dados-nome').value = dados.nome || '';
       document.getElementById('dados-cpf').value = dados.cpf || '';
-      document.getElementById('dados-nascimento').value = dados.dataNasc || '';
+      document.getElementById('dados-nascimento').value = dados.dataNasc ? formatDateBR(dados.dataNasc) : '';
       document.getElementById('dados-telefone').value = dados.telefone || '';
       document.getElementById('dados-whatsapp').checked = dados.whatsapp !== false;
       document.getElementById('dados-whatsapp-label').textContent = dados.whatsapp !== false ? 'Sim' : 'Não';

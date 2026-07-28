@@ -523,7 +523,7 @@
         '<div class="detail-item"><label>Fim</label><p>' + escapeHtml(fim) + '</p></div>' +
         '</div>';
 
-      if (s.status === 'Ativo') {
+      if (s.status === 'Ativo' || s.status === 'Encerrado') {
         html += '<div id="adendos-secao" style="margin-bottom:var(--space-6);">' +
           '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">Adendos</h3>' +
           '<div id="adendos-lista"><div class="spinner" style="margin:0 auto;"></div></div>' +
@@ -548,7 +548,7 @@
       } else if (s.status === 'Aguardando Central de Estágios (Conversão)' || s.status === 'Aguardando Central de Estágios (Aproveitamento)' || s.status === 'Aguardando Registro Acadêmico') {
         var origemLabel = s.status === 'Aguardando Central de Estágios (Aproveitamento)' ? 'Aproveitamento de Programas/Projetos' : 'Conversão de Estágio Não Obrigatório';
         html += '<h3 class="form-section-title" style="margin-bottom:var(--space-4);">' + origemLabel + '</h3>' +
-          (s.ataColegiadoUrl ? '<p style="font-size:var(--font-size-sm);margin-bottom:var(--space-3);"><a href="' + escapeHtml(s.ataColegiadoUrl) + '" target="_blank" rel="noopener">Baixar ata do colegiado</a></p>' : '') +
+          (safeUrl(s.ataColegiadoUrl) ? '<p style="font-size:var(--font-size-sm);margin-bottom:var(--space-3);"><a href="' + escapeHtml(safeUrl(s.ataColegiadoUrl)) + '" target="_blank" rel="noopener noreferrer">Baixar ata do colegiado</a></p>' : '') +
           (s.status === 'Aguardando Registro Acadêmico'
             ? '<div class="alert alert-info"><div class="alert-content">Estágio já arquivado. Aguardando registro no histórico pelo Registro Acadêmico.</div></div>'
             : '<div class="form-group"><label class="form-label" for="conversao-obs-devolucao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória para devolver à DEN)</span></label>' +
@@ -577,7 +577,7 @@
       document.getElementById('modal-estagio').classList.add('is-open');
 
       if (s.status === 'Em Assinaturas') carregarFluxoAssinaturasModal(s.id);
-      if (s.status === 'Ativo') { carregarAdendosModal(s.id); carregarParecerFinalModal(s.id); }
+      if (s.status === 'Ativo' || s.status === 'Encerrado') { carregarAdendosModal(s.id); carregarParecerFinalModal(s.id); }
     }
 
     /* ── Adendos (aprovação da Central + acompanhamento do fluxo de assinaturas) ── */
@@ -611,7 +611,7 @@
           btn.addEventListener('click', function () { aprovarAdendo(idEstagio, btn.dataset.aprovarAdendo, btn); });
         });
         container.querySelectorAll('[data-reprovar-adendo]').forEach(function (btn) {
-          btn.addEventListener('click', function () { reprovarAdendoPrompt(idEstagio, btn.dataset.reprovarAdendo); });
+          btn.addEventListener('click', function () { reprovarAdendoPrompt(idEstagio, btn.dataset.reprovarAdendo, btn); });
         });
         container.querySelectorAll('[data-ver-adendo]').forEach(function (btn) {
           btn.addEventListener('click', function () { abrirAdendoAssinaturaModal(idEstagio, btn.dataset.verAdendo); });
@@ -640,15 +640,18 @@
       }
     }
 
-    async function reprovarAdendoPrompt(idEstagio, idAdendo) {
+    async function reprovarAdendoPrompt(idEstagio, idAdendo, btn) {
       var motivo = prompt('Motivo da reprovação:');
       if (!motivo || !motivo.trim()) return;
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Reprovando…';
       try {
         await API.post('reprovarAdendo', { idEstagio: idEstagio, idAdendo: idAdendo, motivoReprovacao: motivo.trim() });
         showToast('Adendo reprovado.', 'success');
         carregarAdendosModal(idEstagio);
       } catch (err) {
         showToast('Erro: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = orig;
       }
     }
 
@@ -761,7 +764,7 @@
           '<button type="button" class="btn btn-primary btn-sm" id="btn-aprovar-parecer-final">Aprovar e Gerar PDF</button>' +
           '</div>';
       } else if (p.statusGeral === 'aprovado') {
-        html += (p.pdfUrl ? '<p style="margin-bottom:var(--space-3);"><a href="' + escapeHtml(p.pdfUrl) + '" target="_blank" rel="noopener">Baixar PDF do Parecer Final</a></p>' : '') +
+        html += (safeUrl(p.pdfUrl) ? '<p style="margin-bottom:var(--space-3);"><a href="' + escapeHtml(safeUrl(p.pdfUrl)) + '" target="_blank" rel="noopener noreferrer">Baixar PDF do Parecer Final</a></p>' : '') +
           '<button type="button" class="btn btn-primary btn-sm" id="btn-concluir-estagio">Marcar Estágio como Concluído</button>';
       }
 
@@ -906,7 +909,7 @@
         '<strong style="font-size:var(--font-size-sm);">' + label + '</strong>' +
         '<span class="badge ' + cls + '">' + statusLabel + '</span>' +
         '</div>' +
-        (data ? '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:2px;">' + formatDateBR(data) + '</div>' : '') +
+        (data ? '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-top:2px;">' + escapeHtml(formatDateBR(data)) + '</div>' : '') +
         (obs ? '<div style="font-size:var(--font-size-sm);margin-top:var(--space-2);">' + escapeHtml(obs) + '</div>' : '') +
         '</div>';
     }

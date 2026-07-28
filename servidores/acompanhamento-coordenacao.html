@@ -819,8 +819,8 @@
 
       var origemHtml = (c.estagiosSelecionados && c.estagiosSelecionados.length)
         ? '<p style="font-size:var(--font-size-sm);">Estágio já registrado no sistema — <a href="#" id="link-gerar-pdf-conversao">gerar PDF dos dados</a>.</p>'
-        : (c.docEstagioManualUrl
-          ? '<p style="font-size:var(--font-size-sm);">Estágio anterior ao sistema — <a href="' + escapeHtml(c.docEstagioManualUrl) + '" target="_blank" rel="noopener">baixar documentos enviados pelo estudante</a>.</p>'
+        : (safeUrl(c.docEstagioManualUrl)
+          ? '<p style="font-size:var(--font-size-sm);">Estágio anterior ao sistema — <a href="' + escapeHtml(safeUrl(c.docEstagioManualUrl)) + '" target="_blank" rel="noopener noreferrer">baixar documentos enviados pelo estudante</a>.</p>'
           : '<p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Documentos do estágio não obrigatório não disponíveis.</p>');
 
       var html = '<div class="detail-grid" style="margin-bottom:var(--space-5);">' +
@@ -850,8 +850,27 @@
       document.getElementById('btn-fechar-conversao').addEventListener('click', fecharConversao);
       document.getElementById('btn-notificar-conversao').addEventListener('click', function () { notificarInconsistenciaConversao(c.id, this); });
       document.getElementById('btn-encaminhar-conversao').addEventListener('click', function () { encaminharConversaoDEN(c.id, this); });
+      var linkGerarPdf = document.getElementById('link-gerar-pdf-conversao');
+      if (linkGerarPdf) linkGerarPdf.addEventListener('click', function (e) { e.preventDefault(); gerarPdfDadosConversao(c.id, this); });
 
       document.getElementById('modal-conversao').classList.add('is-open');
+    }
+
+    async function gerarPdfDadosConversao(id, link) {
+      var orig = link.textContent;
+      link.textContent = 'Gerando…';
+      try {
+        var resp = await API.get('gerarPdfDadosConversao', { id: id });
+        if (resp && safeUrl(resp.pdfUrl)) {
+          window.open(safeUrl(resp.pdfUrl), '_blank', 'noopener');
+        } else {
+          showToast('PDF gerado, mas nenhum link foi retornado.', 'error');
+        }
+      } catch (err) {
+        showToast('Erro ao gerar PDF: ' + err.message, 'error');
+      } finally {
+        link.textContent = orig;
+      }
     }
 
     async function notificarInconsistenciaConversao(id, btn) {
@@ -938,7 +957,7 @@
         ? '<ul style="margin:0 0 var(--space-4);padding-left:var(--space-5);font-size:var(--font-size-sm);">' +
           a.projetos.map(function (p) {
             return '<li>' + escapeHtml(p.nome || '—') + ' (' + escapeHtml(p.tipo || '—') + ', ' + escapeHtml(String(p.horas || 0)) + 'h)' +
-              (p.documentoUrl ? ' — <a href="' + escapeHtml(p.documentoUrl) + '" target="_blank" rel="noopener">documento</a>' : '') +
+              (safeUrl(p.documentoUrl) ? ' — <a href="' + escapeHtml(safeUrl(p.documentoUrl)) + '" target="_blank" rel="noopener noreferrer">documento</a>' : '') +
               '</li>';
           }).join('') + '</ul>'
         : '';

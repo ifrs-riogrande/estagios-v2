@@ -221,12 +221,14 @@
         return;
       }
       container.innerHTML = lista.map(function (e) {
-        var tags = (e.tiposNee || []).map(function (t) { return '<span class="badge badge-info" style="margin-right:4px;">' + escapeHtml(t) + '</span>'; }).join('');
+        var statusFicha = e.fichaPreenchida
+          ? '<span class="badge badge-success">Ficha preenchida</span>'
+          : '<span class="badge badge-warning">Ficha pendente</span>';
         return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-3);padding:var(--space-4);">' +
           '<div>' +
           '<div style="font-weight:600;margin-bottom:2px;">' + escapeHtml(e.nomeEstudante || '—') + '</div>' +
           '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:4px;">' + escapeHtml(e.curso || '—') + '</div>' +
-          (tags || '<span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">Nenhum tipo informado ainda</span>') +
+          statusFicha +
           '</div>' +
           '<button type="button" class="btn ' + (e.fichaPreenchida ? 'btn-secondary' : 'btn-primary') + ' btn-sm" data-napne-id="' + escapeHtml(e.idEstagio) + '">' + (e.fichaPreenchida ? 'Editar Ficha' : 'Preencher Ficha') + '</button>' +
           '</div>';
@@ -241,6 +243,15 @@
       var item = _estagiosNapne.find(function (e) { return e.idEstagio === idEstagio; });
       document.getElementById('modal-ficha-titulo').textContent = 'Ficha NEE — ' + (item ? item.nomeEstudante : '');
       _fichaAtual = { idEstagio: idEstagio };
+
+      // Reseta os campos antes de carregar, pra não herdar dados da última ficha aberta.
+      document.querySelector('input[name="napne-tem-nee"][value="Sim"]').checked = true;
+      document.getElementById('napne-campos-nee').classList.remove('hidden');
+      NEE_TIPOS.forEach(function (t) { document.getElementById('nee-' + t).checked = false; });
+      document.getElementById('napne-adaptacoes').value = '';
+      document.getElementById('napne-obs-orientador').value = '';
+      document.getElementById('btn-salvar-ficha').disabled = false;
+
       try {
         var ficha = await API.get('obterFichaNapne', { idEstagio: idEstagio });
         ficha = ficha || {};
@@ -251,7 +262,13 @@
         });
         document.getElementById('napne-adaptacoes').value = ficha.adaptacoes || '';
         document.getElementById('napne-obs-orientador').value = ficha.obsOrientador || '';
-      } catch (err) { /* ficha nova — mantém campos em branco */ }
+      } catch (err) {
+        if (err.code !== 'NOT_FOUND') {
+          showToast('Erro ao carregar a ficha existente — o formulário foi bloqueado pra evitar sobrescrever dados reais. Tente novamente.', 'error');
+          document.getElementById('btn-salvar-ficha').disabled = true;
+        }
+        // NOT_FOUND = ficha realmente nova — mantém campos em branco.
+      }
       document.getElementById('modal-ficha-napne').classList.add('is-open');
     }
 

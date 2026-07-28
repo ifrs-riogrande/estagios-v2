@@ -23,7 +23,7 @@
     var style = document.createElement('style');
     style.id  = 'sge-bell-styles';
     style.textContent = [
-      '.sge-bell-wrap{position:relative;display:inline-flex;align-items:center;margin-right:8px}',
+      '.sge-bell-wrap{position:relative;display:inline-flex;margin-right:8px}',
       '.sge-bell-btn svg{width:18px;height:18px;flex-shrink:0}',
       '.sge-bell-badge{position:absolute;top:-5px;right:-7px;min-width:16px;height:16px;background:#ef4444;color:#fff;border-radius:99px;font-size:10px;font-weight:700;line-height:16px;text-align:center;padding:0 4px;pointer-events:none;display:none}',
       '.sge-bell-badge.has-count{display:block}',
@@ -160,8 +160,8 @@
     var list = document.getElementById('sge-bell-list');
     if (list) list.innerHTML = '<div class="sge-bell-loading">Carregando…</div>';
 
-    // Carrega notificações pessoais
-    var pNotifs = API.get('listarNotificacoes', { authToken: token })
+    // Carrega notificações pessoais (POST, nunca GET — o authToken não deve ir na URL)
+    var pNotifs = API.post('listarNotificacoes', { authToken: token })
       .then(function (data) {
         _notifs = (data && data.notificacoes) || [];
       })
@@ -170,7 +170,7 @@
       });
 
     // Tenta carregar alertas admin — falha silenciosamente para não-admin
-    var pAlertas = API.get('listarAlertasAdmin', { authToken: token })
+    var pAlertas = API.post('listarAlertasAdmin', { authToken: token })
       .then(function (data) {
         _alertas = (data && data.alertas) || [];
       })
