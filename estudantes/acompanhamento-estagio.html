@@ -545,11 +545,16 @@
       });
 
       if (ehMinhaVez) {
-        montarPainelGovBr(document.getElementById('assinaturas-painel-govbr'), etapaAtual, {
+        montarPainelGovBr(document.getElementById('assinaturas-painel-govbr'), fluxo, etapaAtual, {
           onBaixar: function () { baixarPdfAssinaturaEtapa({ id: idEstagio, etapa: etapaAtual.numero }); },
           onEnviar: async function (pdfBase64) {
             await API.post('uploadPdfAssinado', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64 });
             showToast('✅ PDF assinado enviado.', 'success');
+            carregarFluxoAssinaturas(idEstagio);
+          },
+          onRejeitar: async function (motivo, retornoParaEtapa) {
+            await API.post('rejeitarEtapa', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, motivo: motivo, retornoParaEtapa: retornoParaEtapa });
+            showToast('Documento recusado. Fluxo retornado para etapa anterior.', 'success');
             carregarFluxoAssinaturas(idEstagio);
           },
         });
@@ -673,13 +678,18 @@
       });
 
       if (ehMinhaVez) {
-        montarPainelGovBr(document.getElementById('adendo-painel-govbr'), etapaAtual, {
+        montarPainelGovBr(document.getElementById('adendo-painel-govbr'), fluxo, etapaAtual, {
           onBaixar: function () { baixarPdfAssinaturaEtapa({ id: _idEstagio, idAdendo: idAdendo, etapa: etapaAtual.numero }); },
           onEnviar: async function (pdfBase64) {
             await API.post('uploadPdfAssinadoAdendo', { idEstagio: _idEstagio, idAdendo: idAdendo, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64 });
             showToast('✅ PDF assinado enviado.', 'success');
             fecharModalAdendoStatus();
             carregarAdendos(_idEstagio);
+          },
+          onRejeitar: async function (motivo, retornoParaEtapa) {
+            await API.post('rejeitarEtapaAdendo', { idEstagio: _idEstagio, idAdendo: idAdendo, numeroEtapa: etapaAtual.numero, motivo: motivo, retornoParaEtapa: retornoParaEtapa });
+            showToast('Documento recusado. Fluxo retornado para etapa anterior.', 'success');
+            abrirAdendoStatus(idAdendo);
           },
         });
       }

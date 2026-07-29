@@ -459,9 +459,10 @@
     function renderChecklist(ck, estagioId) {
       var itens = ck.itens || [];
       var html = '';
-      if (ck.status === 'aprovado' || ck.status === 'ajuste') {
-        html += '<div class="alert alert-' + (ck.status === 'aprovado' ? 'success' : 'warning') + '" style="margin-bottom:var(--space-4);">' +
-          '<div class="alert-content">Você já ' + (ck.status === 'aprovado' ? 'aprovou' : 'solicitou ajuste n') + 'este checklist' + (ck.data ? ' em ' + formatDateBR(ck.data) : '') + '. Pode alterar sua resposta abaixo.</div></div>';
+      if (ck.status === 'aprovado' || ck.status === 'ajuste' || ck.status === 'recusado') {
+        var rotulo = ck.status === 'aprovado' ? 'aprovou' : ck.status === 'ajuste' ? 'solicitou ajuste n' : 'recusou a função n';
+        html += '<div class="alert alert-' + (ck.status === 'aprovado' ? 'success' : ck.status === 'ajuste' ? 'warning' : 'error') + '" style="margin-bottom:var(--space-4);">' +
+          '<div class="alert-content">Você já ' + rotulo + 'este checklist' + (ck.data ? ' em ' + formatDateBR(ck.data) : '') + '. Pode alterar sua resposta abaixo.</div></div>';
       }
       html += '<div style="display:flex;flex-direction:column;gap:var(--space-3);">';
       if (!itens.length) {
@@ -475,25 +476,28 @@
       });
       html += '</div>';
       html += '<div class="form-group" style="margin-top:var(--space-4);">' +
-        '<label class="form-label" for="ck-observacao">Observação <span style="font-weight:400;color:var(--color-text-muted);">(opcional)</span></label>' +
+        '<label class="form-label" for="ck-observacao">Observação / Justificativa <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória para devolver ou recusar a função)</span></label>' +
         '<textarea id="ck-observacao" class="form-control" rows="3" maxlength="500">' + escapeHtml(ck.observacao || '') + '</textarea></div>';
 
       document.getElementById('modal-checklist-body').innerHTML = html;
       document.getElementById('modal-checklist-footer').innerHTML =
         '<button type="button" class="btn btn-secondary" id="btn-fechar-checklist">Fechar</button>' +
+        '<button type="button" class="btn btn-danger btn-sm" id="btn-recusar-checklist">Recusar função de supervisor</button>' +
         '<button type="button" class="btn btn-danger btn-sm" id="btn-devolver-checklist">Devolver para ajustes</button>' +
         '<button type="button" class="btn btn-primary btn-sm" id="btn-aprovar-checklist">Aprovar</button>';
 
       document.getElementById('btn-fechar-checklist').addEventListener('click', fecharChecklist);
       document.getElementById('btn-devolver-checklist').addEventListener('click', function () { responderChecklist(estagioId, 'ajuste', this); });
       document.getElementById('btn-aprovar-checklist').addEventListener('click', function () { responderChecklist(estagioId, 'aprovado', this); });
+      document.getElementById('btn-recusar-checklist').addEventListener('click', function () { responderChecklist(estagioId, 'recusado', this); });
     }
 
     async function responderChecklist(estagioId, decisao, btn) {
-      if (decisao === 'ajuste' && !document.getElementById('ck-observacao').value.trim()) {
-        showToast('Informe uma observação explicando o ajuste solicitado.', 'error');
+      if ((decisao === 'ajuste' || decisao === 'recusado') && !document.getElementById('ck-observacao').value.trim()) {
+        showToast(decisao === 'ajuste' ? 'Informe uma observação explicando o ajuste solicitado.' : 'Informe a justificativa da recusa.', 'error');
         return;
       }
+      if (decisao === 'recusado' && !confirm('Recusar a função de supervisor(a) deste estágio? O estudante precisará escolher outro supervisor.')) return;
       var itens = Array.from(document.querySelectorAll('#modal-checklist-body input[type="checkbox"]')).map(function (cb) { return cb.checked; });
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = decisao === 'aprovado' ? 'Aprovando…' : 'Enviando…';
@@ -504,7 +508,7 @@
           itens: itens,
           observacao: document.getElementById('ck-observacao').value.trim(),
         });
-        showToast(decisao === 'aprovado' ? '✅ Checklist aprovado.' : 'Ajuste solicitado ao estudante.', 'success');
+        showToast(decisao === 'aprovado' ? '✅ Checklist aprovado.' : decisao === 'recusado' ? 'Função de supervisor recusada para este estágio.' : 'Ajuste solicitado ao estudante.', 'success');
         fecharChecklist();
         carregarSupervisionados();
       } catch (err) {

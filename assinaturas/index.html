@@ -126,11 +126,16 @@
         var painel = document.createElement('div');
         painel.style.marginTop = 'var(--space-4)';
         el.appendChild(painel);
-        montarPainelGovBr(painel, etapaAtual, {
+        montarPainelGovBr(painel, fluxo, etapaAtual, {
           onBaixar: function () { baixarPdfAssinaturaEtapa({ id: idEstagio, token: token, etapa: etapaAtual.numero }); },
           onEnviar: async function (pdfBase64) {
             await API.post('uploadPdfAssinado', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64, token: token });
             showToast('✅ PDF assinado enviado.', 'success');
+            carregarFluxo();
+          },
+          onRejeitar: async function (motivo, retornoParaEtapa) {
+            await API.post('rejeitarEtapa', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, motivo: motivo, retornoParaEtapa: retornoParaEtapa, token: token });
+            showToast('Documento recusado. Fluxo retornado para etapa anterior.', 'success');
             carregarFluxo();
           },
         });

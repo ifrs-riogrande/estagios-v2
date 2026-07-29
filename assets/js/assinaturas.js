@@ -50,8 +50,18 @@ function renderHistoricoRejeicoes(fluxo) {
  * Monta o painel gov.br (baixar → assinar externamente → enviar assinado)
  * dentro de containerEl, pra uma etapa 'aguardando' do tipo 'govbr'.
  * opts.onBaixar() e opts.onEnviar(pdfBase64, nomeArquivo) são async.
+ * opts.onRejeitar(motivo, retornoParaEtapa), se fornecido, habilita o botão
+ * "Recusar documento recebido" — mitigação pro problema de documento sem
+ * assinatura/incorreto sendo versionado adiante sem ninguém poder barrar
+ * (antes só a Central, via montarPainelInterno, conseguia rejeitar).
  */
-function montarPainelGovBr(containerEl, etapa, opts) {
+function montarPainelGovBr(containerEl, fluxo, etapa, opts) {
+  var etapasAnteriores = (fluxo.etapas || []).filter(function (e) { return e.numero < etapa.numero; });
+  var opcoesRetorno = etapasAnteriores.map(function (e) {
+    return '<option value="' + e.numero + '">' + e.numero + '. ' + escapeHtml(e.label) + '</option>';
+  }).join('');
+  var podeRejeitar = typeof opts.onRejeitar === 'function' && etapasAnteriores.length > 0;
+
   containerEl.innerHTML =
     '<div class="alert alert-info" style="margin-bottom:var(--space-4);"><div class="alert-content">' +
       '<strong>É a sua vez de assinar.</strong> Siga os 3 passos abaixo.' +
@@ -70,9 +80,20 @@ function montarPainelGovBr(containerEl, etapa, opts) {
       '<input type="file" class="form-control-file" id="ass-doc-assinado" accept=".pdf">' +
     '</div>' +
     '<span id="ass-doc-assinado-error" class="form-error hidden" role="alert"></span>' +
-    '<div style="margin-top:var(--space-4);">' +
+    '<div style="margin-top:var(--space-4);display:flex;gap:var(--space-2);flex-wrap:wrap;">' +
       '<button type="button" class="btn btn-primary btn-sm" id="ass-btn-enviar">Enviar PDF Assinado</button>' +
-    '</div>';
+      (podeRejeitar ? '<button type="button" class="btn btn-danger btn-sm" id="ass-btn-rejeitar-toggle">Recusar documento recebido</button>' : '') +
+    '</div>' +
+    (podeRejeitar ?
+      '<div class="hidden" id="ass-rejeitar-panel" style="margin-top:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-4);">' +
+        '<div class="alert alert-warning" style="margin-bottom:var(--space-4);"><div class="alert-content">Use esta opção se o documento recebido para assinatura estiver sem assinatura da etapa anterior ou com conteúdo incorreto — não é pra desacordo com o conteúdo do estágio em si.</div></div>' +
+        '<div class="form-group"><label class="form-label required" for="ass-rejeitar-motivo">Motivo da recusa</label>' +
+        '<textarea id="ass-rejeitar-motivo" class="form-control" rows="3" maxlength="500"></textarea></div>' +
+        '<div class="form-group"><label class="form-label required" for="ass-rejeitar-retorno">Retornar para etapa</label>' +
+        '<select id="ass-rejeitar-retorno" class="form-control">' + opcoesRetorno + '</select></div>' +
+        '<button type="button" class="btn btn-danger btn-sm" id="ass-btn-confirmar-rejeicao">Confirmar Recusa</button>' +
+      '</div>'
+      : '');
 
   validarPdf('ass-doc-assinado', 'ass-doc-nome', 'ass-doc-assinado-error');
 
@@ -96,6 +117,22 @@ function montarPainelGovBr(containerEl, etapa, opts) {
       btn.disabled = false; btn.textContent = orig;
     }
   });
+
+  if (podeRejeitar) {
+    containerEl.querySelector('#ass-btn-rejeitar-toggle').addEventListener('click', function () {
+      containerEl.querySelector('#ass-rejeitar-panel').classList.toggle('hidden');
+    });
+    containerEl.querySelector('#ass-btn-confirmar-rejeicao').addEventListener('click', async function () {
+      var btn = this;
+      var motivo = containerEl.querySelector('#ass-rejeitar-motivo').value.trim();
+      if (!motivo) { showToast('Informe o motivo da recusa.', 'error'); return; }
+      var retorno = parseInt(containerEl.querySelector('#ass-rejeitar-retorno').value, 10);
+      var orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Enviando…';
+      try { await opts.onRejeitar(motivo, retorno); }
+      catch (err) { showToast('Erro: ' + err.message, 'error'); btn.disabled = false; btn.textContent = orig; }
+    });
+  }
 }
 
 /**

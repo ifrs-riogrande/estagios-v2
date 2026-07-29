@@ -186,11 +186,17 @@
       });
 
       if (ehMinhaVez) {
-        montarPainelGovBr(document.getElementById('assinatura-painel-govbr'), etapaAtual, {
+        montarPainelGovBr(document.getElementById('assinatura-painel-govbr'), fluxo, etapaAtual, {
           onBaixar: function () { baixarPdfAssinaturaEtapa({ id: idEstagio, etapa: etapaAtual.numero }); },
           onEnviar: async function (pdfBase64) {
             await API.post('uploadPdfAssinado', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, pdfBase64: pdfBase64 });
             showToast('✅ PDF assinado enviado.', 'success');
+            fecharModal();
+            carregarPendentes();
+          },
+          onRejeitar: async function (motivo, retornoParaEtapa) {
+            await API.post('rejeitarEtapa', { idEstagio: idEstagio, numeroEtapa: etapaAtual.numero, motivo: motivo, retornoParaEtapa: retornoParaEtapa });
+            showToast('Documento recusado. Fluxo retornado para etapa anterior.', 'success');
             fecharModal();
             carregarPendentes();
           },

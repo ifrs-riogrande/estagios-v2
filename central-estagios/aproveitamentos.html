@@ -403,10 +403,11 @@
           '<div class="radio-group">' +
           '<label class="radio-option"><input type="radio" name="aprov-decisao-final" value="Deferido" checked> Deferir</label>' +
           '<label class="radio-option"><input type="radio" name="aprov-decisao-final" value="Indeferido"> Indeferir</label>' +
+          '<label class="radio-option"><input type="radio" name="aprov-decisao-final" value="DevolverInformacoes"> Devolver solicitando mais informações/documentos</label>' +
           '</div></div>' +
           '<div class="form-group"><label class="form-label" for="aprov-carga-homologada">Carga horária homologada <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória se deferido)</span></label>' +
           '<input type="number" id="aprov-carga-homologada" class="form-control" min="0" step="1"></div>' +
-          '<div class="form-group"><label class="form-label" for="aprov-justificativa-final">Justificativa</label>' +
+          '<div class="form-group"><label class="form-label" for="aprov-justificativa-final">Justificativa <span style="font-weight:400;color:var(--color-text-muted);">(obrigatória se indeferir ou devolver)</span></label>' +
           '<textarea id="aprov-justificativa-final" class="form-control" rows="3" maxlength="2000"></textarea></div>';
       }
 
@@ -469,16 +470,21 @@
     async function concluirDecisaoFinal(id, btn) {
       var decisao = document.querySelector('input[name="aprov-decisao-final"]:checked').value;
       var carga = document.getElementById('aprov-carga-homologada').value.trim();
+      var justificativa = document.getElementById('aprov-justificativa-final').value.trim();
       if (decisao === 'Deferido' && !carga) {
         showToast('Informe a carga horária homologada para deferir.', 'error');
         return;
       }
-      var justificativa = document.getElementById('aprov-justificativa-final').value.trim();
+      if ((decisao === 'Indeferido' || decisao === 'DevolverInformacoes') && !justificativa) {
+        showToast('Informe a justificativa.', 'error');
+        return;
+      }
+      if (decisao === 'DevolverInformacoes' && !confirm('Devolver para o Coordenador solicitando mais informações/documentos? Isso reabre o ciclo de parecer.')) return;
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Concluindo…';
       try {
         await API.post('decidirCertificacaoFinal', { id: id, decisao: decisao, cargaHomologada: carga, justificativa: justificativa });
-        showToast(decisao === 'Deferido' ? '✅ Certificação deferida.' : 'Certificação indeferida.', 'success');
+        showToast(decisao === 'Deferido' ? '✅ Certificação deferida.' : decisao === 'Indeferido' ? 'Certificação indeferida.' : 'Devolvida ao Coordenador solicitando mais informações/documentos.', 'success');
         fecharDetalhe();
         carregar();
       } catch (err) {
