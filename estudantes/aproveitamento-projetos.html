@@ -359,6 +359,9 @@
                 <input type="text" id="matricula-projetos" class="form-control" readonly placeholder="Preenchida automaticamente" style="background:var(--color-bg);cursor:not-allowed;">
               </div>
             </div>
+            <div id="msg-curso-bloqueio" class="alert alert-error" style="display:none;margin-bottom:var(--space-4);" role="alert">
+              <div class="alert-content" id="msg-curso-bloqueio-texto"></div>
+            </div>
             <div class="form-group">
               <label class="form-label required" for="semestre-atual">Período letivo que está cursando</label>
               <select id="semestre-atual" class="form-control" required aria-required="true" disabled>
@@ -447,6 +450,7 @@
     var dadosEstudante = null;
     var solicitacaoAtual = null;
     var cursosPorNome = {};
+    var configCursos = {};
     var _projUid = 0;
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -497,9 +501,10 @@
     // ════════════════════════════════════════════════════════
     async function iniciar() {
       try {
-        var resultados = await Promise.all([API.get('obterMeuCadastro'), API.get('listarCursos')]);
+        var resultados = await Promise.all([API.get('obterMeuCadastro'), API.get('listarCursos'), API.get('obterConfigCursos')]);
         dadosEstudante = resultados[0];
         (resultados[1] || []).forEach(function (c) { cursosPorNome[c.nome] = c; });
+        configCursos = resultados[2] || {};
 
         preencherSeusDados(dadosEstudante);
 
@@ -534,6 +539,9 @@
           document.getElementById('form-projetos').classList.remove('hidden');
           renderizarStatusBanner(solicitacaoAtual ? solicitacaoAtual.status : null);
           setFormEditavel(true);
+          // setFormEditavel reabilita todos os campos indiscriminadamente — reaplica o
+          // bloqueio por curso não habilitado, que tem prioridade sobre o status editável.
+          if (selVinculo.value) verificarCursoHabilitado(selVinculo.value);
         } else {
           document.getElementById('status-banner').style.display = 'none';
           document.getElementById('form-projetos').classList.add('hidden');
@@ -598,6 +606,7 @@
         document.getElementById('matricula-projetos').value = '';
         selSem.innerHTML = '<option value="">Selecione o curso primeiro...</option>';
         selSem.disabled = true;
+        document.getElementById('msg-curso-bloqueio').style.display = 'none';
         return;
       }
 
@@ -610,8 +619,28 @@
       selSem.innerHTML = '<option value="">Selecione...</option>' + opcoes.map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join('');
       selSem.disabled = false;
 
+      verificarCursoHabilitado(cursoNome);
       clearFieldError('vinculo-curso');
     });
+
+    function verificarCursoHabilitado(curso) {
+      var msgEl = document.getElementById('msg-curso-bloqueio');
+      var textoEl = document.getElementById('msg-curso-bloqueio-texto');
+      var habilitado = true;
+      if (configCursos && Array.isArray(configCursos.aproveitamentoProjetos)) {
+        habilitado = configCursos.aproveitamentoProjetos.indexOf(curso) !== -1;
+      }
+      if (!habilitado) {
+        textoEl.innerHTML = '<strong>Curso não habilitado.</strong> O curso <em>' + escapeHtml(curso) + '</em> não está habilitado para Aproveitamento de Programas/Projetos. Entre em contato com a coordenação do curso para mais informações.';
+        msgEl.style.display = 'block';
+        btnEnviar.disabled = true;
+        btnRascunho.disabled = true;
+      } else {
+        msgEl.style.display = 'none';
+        btnEnviar.disabled = false;
+        btnRascunho.disabled = false;
+      }
+    }
 
     // ════════════════════════════════════════════════════════
     // SEÇÃO 2 — Programas/Projetos (lista dinâmica de cards, sem re-render —

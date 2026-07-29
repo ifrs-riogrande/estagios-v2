@@ -50,7 +50,7 @@
     <section class="page-hero">
       <div class="container">
         <h1 class="page-hero-title">Cursos</h1>
-        <p class="page-hero-desc">Gerencie a lista de cursos e defina quais estão habilitados para estágio obrigatório, estágio não obrigatório e certificação de conhecimento.</p>
+        <p class="page-hero-desc">Gerencie a lista de cursos e defina quais estão habilitados para estágio obrigatório, estágio não obrigatório, certificação de conhecimento e aproveitamento de programas/projetos.</p>
       </div>
     </section>
 
@@ -151,6 +151,13 @@
                 <button type="button" class="btn btn-ghost btn-sm" data-marcar="cert" data-valor="false">Desmarcar todos</button>
               </div>
             </div>
+            <div style="flex:1;min-width:220px;">
+              <p style="font-size:var(--font-size-xs);font-weight:600;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2);">Aproveitamento de Programas/Projetos</p>
+              <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="aprov" data-valor="true">Marcar todos</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-marcar="aprov" data-valor="false">Desmarcar todos</button>
+              </div>
+            </div>
           </div>
 
           <div class="table-wrapper">
@@ -161,6 +168,7 @@
                   <th class="check-col">Obrigatório</th>
                   <th class="check-col">Não Obrigatório</th>
                   <th class="check-col">Certificação</th>
+                  <th class="check-col">Aprov. Programas/Projetos</th>
                 </tr>
               </thead>
               <tbody id="tabela-hab"></tbody>
@@ -539,25 +547,28 @@
       var obrigSet = (config.obrigatorio    == null) ? null : new Set(config.obrigatorio);
       var naoSet   = (config.naoObrigatorio == null) ? null : new Set(config.naoObrigatorio);
       var certSet  = (config.certificacao   == null) ? null : new Set(config.certificacao);
+      var aprovSet = (config.aproveitamentoProjetos == null) ? null : new Set(config.aproveitamentoProjetos);
       var tbody = document.getElementById('tabela-hab');
       var html = '';
       var grupoAtual = '';
       cursosHab.forEach(function (c, idx) {
         if (c.grupo !== grupoAtual) {
           grupoAtual = c.grupo;
-          html += '<tr class="table-group-row"><td colspan="4">' + escapeHtml(c.grupo) + '</td></tr>';
+          html += '<tr class="table-group-row"><td colspan="5">' + escapeHtml(c.grupo) + '</td></tr>';
         }
         var chkObrig = (obrigSet === null || obrigSet.has(c.nome)) ? 'checked' : '';
         var chkNao   = (naoSet   === null || naoSet.has(c.nome))   ? 'checked' : '';
         var chkCert  = (certSet  === null || certSet.has(c.nome))  ? 'checked' : '';
+        var chkAprov = (aprovSet === null || aprovSet.has(c.nome)) ? 'checked' : '';
         html += '<tr>' +
           '<td>' + escapeHtml(c.nome) + '</td>' +
           '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-obrig" data-idx="' + idx + '" ' + chkObrig + ' aria-label="Obrigatório para ' + escapeHtml(c.nome) + '"></div></td>' +
           '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-nao" data-idx="' + idx + '" ' + chkNao + ' aria-label="Não Obrigatório para ' + escapeHtml(c.nome) + '"></div></td>' +
           '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-cert" data-idx="' + idx + '" ' + chkCert + ' aria-label="Certificação de Conhecimento para ' + escapeHtml(c.nome) + '"></div></td>' +
+          '<td class="check-col"><div class="form-check"><input type="checkbox" class="cb-aprov" data-idx="' + idx + '" ' + chkAprov + ' aria-label="Aproveitamento de Programas/Projetos para ' + escapeHtml(c.nome) + '"></div></td>' +
           '</tr>';
       });
-      tbody.innerHTML = html || '<tr><td colspan="4"><div class="empty-state" style="padding:var(--space-8);"><p>Nenhum curso ativo cadastrado. Adicione cursos na aba <strong>Lista de Cursos</strong>.</p></div></td></tr>';
+      tbody.innerHTML = html || '<tr><td colspan="5"><div class="empty-state" style="padding:var(--space-8);"><p>Nenhum curso ativo cadastrado. Adicione cursos na aba <strong>Lista de Cursos</strong>.</p></div></td></tr>';
       if (config.obrigatorio == null && config.naoObrigatorio == null) {
         document.getElementById('ultima-atualizacao').textContent = 'Nenhuma configuração salva ainda — todos os cursos estão habilitados para todas as modalidades.';
       }
@@ -567,7 +578,7 @@
       btn.addEventListener('click', function () {
         var tipo = btn.dataset.marcar;
         var marcar = btn.dataset.valor === 'true';
-        var cls = tipo === 'obrig' ? '.cb-obrig' : (tipo === 'nao' ? '.cb-nao' : '.cb-cert');
+        var cls = tipo === 'obrig' ? '.cb-obrig' : (tipo === 'nao' ? '.cb-nao' : (tipo === 'cert' ? '.cb-cert' : '.cb-aprov'));
         document.querySelectorAll(cls).forEach(function (cb) { cb.checked = marcar; });
       });
     });
@@ -581,9 +592,10 @@
         var obrigatorio    = Array.from(document.querySelectorAll('.cb-obrig:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
         var naoObrigatorio = Array.from(document.querySelectorAll('.cb-nao:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
         var certificacao   = Array.from(document.querySelectorAll('.cb-cert:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
-        await API.post('salvarConfigCursos', { obrigatorio: obrigatorio, naoObrigatorio: naoObrigatorio, certificacao: certificacao });
+        var aproveitamentoProjetos = Array.from(document.querySelectorAll('.cb-aprov:checked')).map(function (cb) { return cursosHab[+cb.dataset.idx].nome; });
+        await API.post('salvarConfigCursos', { obrigatorio: obrigatorio, naoObrigatorio: naoObrigatorio, certificacao: certificacao, aproveitamentoProjetos: aproveitamentoProjetos });
         fb.style.display = 'block';
-        fb.innerHTML = '<div class="alert alert-success"><div class="alert-content"><strong>Configuração salva com sucesso!</strong> ' + obrigatorio.length + ' para Obrigatório · ' + naoObrigatorio.length + ' para Não Obrigatório · ' + certificacao.length + ' para Certificação de Conhecimento.</div></div>';
+        fb.innerHTML = '<div class="alert alert-success"><div class="alert-content"><strong>Configuração salva com sucesso!</strong> ' + obrigatorio.length + ' para Obrigatório · ' + naoObrigatorio.length + ' para Não Obrigatório · ' + certificacao.length + ' para Certificação de Conhecimento · ' + aproveitamentoProjetos.length + ' para Aproveitamento de Programas/Projetos.</div></div>';
         var agora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
         document.getElementById('ultima-atualizacao').textContent = 'Última atualização: ' + agora;
       } catch (err) {
