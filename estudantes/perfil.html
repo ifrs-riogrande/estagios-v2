@@ -328,6 +328,18 @@
               <span id="cad-doc-identidade-error" class="form-error hidden" role="alert"></span>
               <span class="form-hint">Usado em todas as solicitações de estágio e certificação — não precisa reenviar a cada solicitação.</span>
             </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cad-nee">Possui necessidade educacional específica (NEE)? <span class="tooltip-help" aria-label="Ex: TEA, TDAH, deficiência física/visual/auditiva/intelectual, altas habilidades, entre outras.">?</span></label>
+              <div class="toggle-switch-group">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="cad-nee">
+                  <span class="toggle-track"></span>
+                </label>
+                <span id="cad-nee-label" class="toggle-switch-label">Não</span>
+              </div>
+              <span class="form-hint">Ao marcar "Sim", o NAPNE é avisado para preencher sua ficha de acompanhamento — isso não bloqueia nenhuma solicitação de estágio; a ficha pode ser preenchida a qualquer momento.</span>
+            </div>
           </div>
 
           <!-- Seção 2: Contato -->
@@ -526,6 +538,9 @@
     });
 
     // ── Seção 4 — Dados Acadêmicos: lista de vínculos (curso + matrícula + e-mail) ──
+    // TODO: quando esta página ganhar lógica real de load/submit, ler este valor de
+    // obterPrazos().cadastroAluno.maxVinculos (configurável em admin/prazos.html) em vez
+    // de uma constante fixa — hoje os dois lados usam 6 como default coincidente.
     var MAX_VINCULOS = 6;
 
     async function carregarCursosCadastro() {
@@ -657,6 +672,11 @@
     // Toggle "É WhatsApp?" — atualiza o texto Sim/Não ao lado do switch
     document.getElementById('cad-whatsapp').addEventListener('change', function (e) {
       document.getElementById('cad-whatsapp-label').textContent = e.target.checked ? 'Sim' : 'Não';
+    });
+
+    // Toggle "Possui NEE?" — mesmo padrão do WhatsApp
+    document.getElementById('cad-nee').addEventListener('change', function (e) {
+      document.getElementById('cad-nee-label').textContent = e.target.checked ? 'Sim' : 'Não';
     });
 
     // Avatar da sessão no cabeçalho da página (mesma lógica visual da v1)

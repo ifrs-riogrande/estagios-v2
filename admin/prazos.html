@@ -107,6 +107,28 @@
           </div>
         </div>
 
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Avaliações de Estágio</h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-aval-periodicidadeMeses">Periodicidade das avaliações intermediárias (meses)</label><input type="number" id="pz-aval-periodicidadeMeses" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Validação de Cadastros <span style="font-weight:400;font-size:var(--font-size-sm);color:var(--color-text-muted);">(dias úteis)</span></h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-valcad-empresa">Cadastro de empresa</label><input type="number" id="pz-valcad-empresa" class="form-control" min="1"></div>
+            <div class="form-group"><label class="form-label" for="pz-valcad-supervisor">Cadastro de supervisor</label><input type="number" id="pz-valcad-supervisor" class="form-control" min="1"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:var(--space-5);margin-bottom:var(--space-5);">
+          <h2 class="form-section-title" style="margin-bottom:var(--space-4);">Cadastro do Estudante</h2>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="pz-cadaluno-maxVinculos">Máximo de vínculos acadêmicos (cursos) simultâneos</label><input type="number" id="pz-cadaluno-maxVinculos" class="form-control" min="1"></div>
+          </div>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" id="btn-salvar-prazos">Salvar Prazos</button>
         </div>
@@ -140,8 +162,11 @@
       solicitacao:['minimoInicio', 'validadeTokenOrientador'],
       convenios:  ['prazoEmpresa', 'prazoSetor'],
       dashboard:  ['alertaTermino', 'alertaContratoSubstituto'],
+      avaliacoes: ['periodicidadeMeses'],
+      validacaoCadastros: ['empresa', 'supervisor'],
+      cadastroAluno: ['maxVinculos'],
     };
-    var PRAZOS_PREFIXO = { checklist: 'checklist', assinaturas: 'ass', solicitacao: 'sol', convenios: 'conv', dashboard: 'dash' };
+    var PRAZOS_PREFIXO = { checklist: 'checklist', assinaturas: 'ass', solicitacao: 'sol', convenios: 'conv', dashboard: 'dash', avaliacoes: 'aval', validacaoCadastros: 'valcad', cadastroAluno: 'cadaluno' };
 
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');

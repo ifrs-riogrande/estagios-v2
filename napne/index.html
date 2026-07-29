@@ -153,7 +153,7 @@
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-    var _estagiosNapne = [];
+    var _alunosNee = [];
     var _fichaAtual = null;
     var NEE_TIPOS = ['tea', 'tdah', 'tag', 'toc', 'tod', 'dislexia', 'discalculia', 'def-fisica', 'def-visual', 'def-auditiva', 'def-intelectual', 'altas-habilidades', 'outro'];
 
@@ -179,13 +179,13 @@
 
     async function carregarNapne() {
       try {
-        _estagiosNapne = await API.get('listarEstagiosNapne');
-        _estagiosNapne = Array.isArray(_estagiosNapne) ? _estagiosNapne : [];
+        _alunosNee = await API.get('listarEstudantesNee');
+        _alunosNee = Array.isArray(_alunosNee) ? _alunosNee : [];
 
-        var total = _estagiosNapne.length;
-        var preenchidas = _estagiosNapne.filter(function (e) { return e.fichaPreenchida; }).length;
+        var total = _alunosNee.length;
+        var preenchidas = _alunosNee.filter(function (e) { return e.fichaPreenchida; }).length;
         document.getElementById('stats-napne').innerHTML = [
-          { label: 'Estágios NEE Ativos', valor: total },
+          { label: 'Estudantes com NEE', valor: total },
           { label: 'Fichas Preenchidas', valor: preenchidas },
           { label: 'Fichas Pendentes', valor: total - preenchidas },
         ].map(function (c) {
@@ -205,7 +205,7 @@
     function filtrarNapne() {
       var busca = document.getElementById('napne-busca').value.toLowerCase().trim();
       var filtroFicha = document.getElementById('napne-filtro-ficha').value;
-      var filtrados = _estagiosNapne.filter(function (e) {
+      var filtrados = _alunosNee.filter(function (e) {
         if (busca && (e.nomeEstudante || '').toLowerCase().indexOf(busca) === -1) return false;
         if (filtroFicha === 'preenchida' && !e.fichaPreenchida) return false;
         if (filtroFicha === 'pendente' && e.fichaPreenchida) return false;
@@ -217,10 +217,11 @@
     function renderNapne(lista) {
       var container = document.getElementById('lista-napne');
       if (!lista.length) {
-        container.innerHTML = '<div class="empty-state"><p>Nenhum estágio encontrado.</p></div>';
+        container.innerHTML = '<div class="empty-state"><p>Nenhum estudante encontrado.</p></div>';
         return;
       }
       container.innerHTML = lista.map(function (e) {
+        var idx = _alunosNee.indexOf(e);
         var statusFicha = e.fichaPreenchida
           ? '<span class="badge badge-success">Ficha preenchida</span>'
           : '<span class="badge badge-warning">Ficha pendente</span>';
@@ -230,19 +231,19 @@
           '<div style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:4px;">' + escapeHtml(e.curso || '—') + '</div>' +
           statusFicha +
           '</div>' +
-          '<button type="button" class="btn ' + (e.fichaPreenchida ? 'btn-secondary' : 'btn-primary') + ' btn-sm" data-napne-id="' + escapeHtml(e.idEstagio) + '">' + (e.fichaPreenchida ? 'Editar Ficha' : 'Preencher Ficha') + '</button>' +
+          '<button type="button" class="btn ' + (e.fichaPreenchida ? 'btn-secondary' : 'btn-primary') + ' btn-sm" data-napne-idx="' + idx + '">' + (e.fichaPreenchida ? 'Editar Ficha' : 'Preencher Ficha') + '</button>' +
           '</div>';
       }).join('');
 
-      container.querySelectorAll('[data-napne-id]').forEach(function (btn) {
-        btn.addEventListener('click', function () { abrirFichaNapne(btn.dataset.napneId); });
+      container.querySelectorAll('[data-napne-idx]').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrirFichaNapne(+btn.dataset.napneIdx); });
       });
     }
 
-    async function abrirFichaNapne(idEstagio) {
-      var item = _estagiosNapne.find(function (e) { return e.idEstagio === idEstagio; });
+    async function abrirFichaNapne(idx) {
+      var item = _alunosNee[idx];
       document.getElementById('modal-ficha-titulo').textContent = 'Ficha NEE — ' + (item ? item.nomeEstudante : '');
-      _fichaAtual = { idEstagio: idEstagio };
+      _fichaAtual = { emailAluno: item.emailAluno };
 
       // Reseta os campos antes de carregar, pra não herdar dados da última ficha aberta.
       document.querySelector('input[name="napne-tem-nee"][value="Sim"]').checked = true;
@@ -253,7 +254,7 @@
       document.getElementById('btn-salvar-ficha').disabled = false;
 
       try {
-        var ficha = await API.get('obterFichaNapne', { idEstagio: idEstagio });
+        var ficha = await API.get('obterFichaNapne', { emailAluno: item.emailAluno });
         ficha = ficha || {};
         document.querySelector('input[name="napne-tem-nee"][value="' + (ficha.temNee === false ? 'Não' : 'Sim') + '"]').checked = true;
         document.getElementById('napne-campos-nee').classList.toggle('hidden', ficha.temNee === false);
@@ -280,7 +281,7 @@
         var temNee = document.querySelector('input[name="napne-tem-nee"]:checked').value === 'Sim';
         var tiposNee = temNee ? NEE_TIPOS.filter(function (t) { return document.getElementById('nee-' + t).checked; }) : [];
         await API.post('salvarFichaNapne', {
-          idEstagio: _fichaAtual.idEstagio,
+          emailAluno: _fichaAtual.emailAluno,
           temNee: temNee,
           tiposNee: tiposNee,
           adaptacoes: document.getElementById('napne-adaptacoes').value.trim(),
