@@ -58,9 +58,8 @@
 
       <div class="page-tabs" role="tablist">
         <button class="page-tab is-active" role="tab" aria-selected="true" aria-controls="tab-destinatarios" id="btn-tab-destinatarios" type="button">Destinatários</button>
-        <button class="page-tab" role="tab" aria-selected="false" aria-controls="tab-lembretes" id="btn-tab-lembretes" type="button">Lembretes Automáticos</button>
+        <button class="page-tab" role="tab" aria-selected="false" aria-controls="tab-eventos" id="btn-tab-eventos" type="button">Eventos de Notificação</button>
         <button class="page-tab" role="tab" aria-selected="false" aria-controls="tab-reenvios" id="btn-tab-reenvios" type="button">Reenvios</button>
-        <button class="page-tab" role="tab" aria-selected="false" aria-controls="tab-emails" id="btn-tab-emails" type="button">E-mails do Sistema</button>
       </div>
 
       <!-- Aba: Destinatários -->
@@ -74,9 +73,13 @@
         </div>
       </div>
 
-      <!-- Aba: Lembretes Automáticos -->
-      <div class="tab-panel" id="tab-lembretes" role="tabpanel" aria-labelledby="btn-tab-lembretes">
-        <div id="lista-lembretes"><div class="spinner" style="margin:0 auto;"></div></div>
+      <!-- Aba: Eventos de Notificação -->
+      <div class="tab-panel" id="tab-eventos" role="tabpanel" aria-labelledby="btn-tab-eventos">
+        <div class="alert alert-info" style="margin-bottom:var(--space-5);">
+          <div class="alert-content">Todo evento do sistema que pode gerar um aviso está listado aqui — inclusive os que hoje só notificam por dentro do sistema (sino). Marque "E-mail" em qualquer um pra também enviar e-mail nesse evento, além do aviso interno.</div>
+        </div>
+        <div class="form-group" style="max-width:320px;"><label class="form-label" for="eventos-busca">Buscar evento</label><input type="search" id="eventos-busca" class="form-control" placeholder="Nome do evento…"></div>
+        <div id="lista-eventos"><div class="spinner" style="margin:0 auto;"></div></div>
       </div>
 
       <!-- Aba: Reenvios -->
@@ -87,22 +90,25 @@
           <div id="lista-reenvios" style="margin-top:var(--space-4);"></div>
         </div>
       </div>
-
-      <!-- Aba: E-mails do Sistema -->
-      <div class="tab-panel" id="tab-emails" role="tabpanel" aria-labelledby="btn-tab-emails">
-        <div style="display:flex;gap:var(--space-5);flex-wrap:wrap;">
-          <div style="flex:0 0 220px;">
-            <div id="lista-templates" class="card" style="padding:var(--space-3);"></div>
-          </div>
-          <div style="flex:1;min-width:280px;">
-            <div id="editor-template" class="card" style="padding:var(--space-5);">
-              <p style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Selecione um template ao lado.</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
+
+  <!-- Modal: editor de evento de notificação -->
+  <div class="modal-backdrop" id="modal-evento">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-evento-titulo">Evento</h2>
+        <button type="button" class="modal-close" id="modal-evento-fechar" aria-label="Fechar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-evento-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancelar-evento">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-salvar-evento">Salvar</button>
+      </div>
+    </div>
+  </div>
 
   <footer id="app-footer">
     <div class="container">
@@ -121,31 +127,22 @@
   <script src="../assets/js/api.js"></script>
   <script src="../assets/js/notifications-bell.js"></script>
   <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/notificacoes-config.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
-
-    var FLUXOS_LEMBRETE = [
-      { id: 'checklist', label: 'Checklist de Estágio' },
-      { id: 'assinaturas', label: 'Assinaturas do TCE' },
-      { id: 'avaliacoes', label: 'Avaliações de Estágio' },
-      { id: 'adendo', label: 'Adendos ao TCE' },
-    ];
-
-    var TEMPLATES_EMAIL = [
-      { id: 'boas-vindas', label: 'Boas-vindas ao Sistema' },
-      { id: 'devolucao', label: 'Solicitação Devolvida' },
-      { id: 'aprovacao', label: 'Solicitação Aprovada' },
-      { id: 'lembrete-pendencia', label: 'Lembrete de Pendência' },
-    ];
 
     document.addEventListener('DOMContentLoaded', function () {
       requireAreaAuth('servidor', '../index.html');
       initTabsNotificacoes();
       carregarDestinatarios();
-      carregarLembretes();
-      renderListaTemplates();
+      carregarEventos();
       document.getElementById('btn-salvar-destinatarios').addEventListener('click', salvarDestinatarios);
       document.getElementById('btn-buscar-reenvios').addEventListener('click', buscarReenvios);
+      document.getElementById('eventos-busca').addEventListener('input', filtrarEventos);
+      document.getElementById('modal-evento-fechar').addEventListener('click', fecharModalEvento);
+      document.getElementById('btn-cancelar-evento').addEventListener('click', fecharModalEvento);
+      document.getElementById('modal-evento').addEventListener('click', function (e) { if (e.target === this) fecharModalEvento(); });
+      document.getElementById('btn-salvar-evento').addEventListener('click', salvarEditorEvento);
     });
 
     function initTabsNotificacoes() {
@@ -196,59 +193,83 @@
       }
     }
 
-    /* ── Lembretes Automáticos ── */
-    async function carregarLembretes() {
-      var container = document.getElementById('lista-lembretes');
-      var cfg = {};
+    /* ── Eventos de Notificação (motor genérico — assets/js/notificacoes-config.js) ── */
+    var _configEventos = {};
+    var _eventoAtual = null;
+
+    async function carregarEventos() {
+      var container = document.getElementById('lista-eventos');
       try {
         var resp = await API.get('obterConfigNotificacoes');
-        cfg = (resp && resp.lembretes) || {};
+        _configEventos = (resp && resp.eventos) || {};
       } catch (err) {
-        showToast('Não foi possível carregar os lembretes salvos — os valores abaixo são apenas padrões, não a configuração real. Confira antes de salvar.', 'error');
+        showToast('Não foi possível carregar a configuração salva — os valores abaixo são apenas padrões, não a configuração real. Confira antes de salvar.', 'error');
+        _configEventos = {};
       }
+      renderEventosNotificacao(container, _configEventos);
+      ligarEventosListaEventos();
+    }
 
-      container.innerHTML = FLUXOS_LEMBRETE.map(function (f) {
-        var c = cfg[f.id] || {};
-        return '<div class="card" style="padding:var(--space-5);margin-bottom:var(--space-4);">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">' +
-          '<h3 style="font-size:var(--font-size-md);font-weight:600;margin:0;">' + escapeHtml(f.label) + '</h3>' +
-          '<label class="toggle-switch"><input type="checkbox" id="lemb-' + f.id + '-ativo"' + (c.ativo !== false ? ' checked' : '') + '><span class="toggle-track"></span></label>' +
-          '</div>' +
-          '<div class="form-row">' +
-          '<div class="form-group"><label class="form-label">Canal</label>' +
-          '<div class="form-check"><input type="checkbox" id="lemb-' + f.id + '-canal-email"' + (c.canalEmail !== false ? ' checked' : '') + '><label class="form-check-label" for="lemb-' + f.id + '-canal-email">E-mail</label></div>' +
-          '<div class="form-check"><input type="checkbox" id="lemb-' + f.id + '-canal-sistema"' + (c.canalSistema !== false ? ' checked' : '') + '><label class="form-check-label" for="lemb-' + f.id + '-canal-sistema">Sistema (sino)</label></div>' +
-          '</div>' +
-          '<div class="form-group"><label class="form-label" for="lemb-' + f.id + '-dias-antes">Dias úteis antes do prazo</label><input type="number" id="lemb-' + f.id + '-dias-antes" class="form-control" min="0" value="' + (c.diasAntes || 1) + '"></div>' +
-          '<div class="form-group"><label class="form-label" for="lemb-' + f.id + '-freq-pos">Frequência após vencido (dias)</label><input type="number" id="lemb-' + f.id + '-freq-pos" class="form-control" min="1" value="' + (c.frequenciaPosVencido || 3) + '"></div>' +
-          '<div class="form-group"><label class="form-label" for="lemb-' + f.id + '-max-reenvios">Máx. de reenvios</label><input type="number" id="lemb-' + f.id + '-max-reenvios" class="form-control" min="0" value="' + (c.maxReenvios || 3) + '"></div>' +
-          '<div class="form-group"><label class="form-label" for="lemb-' + f.id + '-escalar">Escalar pra Central após (dias)</label><input type="number" id="lemb-' + f.id + '-escalar" class="form-control" min="0" value="' + (c.escalarAdminApos || 10) + '"></div>' +
-          '</div>' +
-          '<button type="button" class="btn btn-secondary btn-sm" data-salvar-lembrete="' + f.id + '">Salvar</button>' +
-          '</div>';
-      }).join('');
-
-      container.querySelectorAll('[data-salvar-lembrete]').forEach(function (btn) {
-        btn.addEventListener('click', function () { salvarLembrete(btn.dataset.salvarLembrete, btn); });
+    function ligarEventosListaEventos() {
+      var container = document.getElementById('lista-eventos');
+      container.querySelectorAll('.evt-ativo, .evt-canal-email, .evt-canal-sistema').forEach(function (cb) {
+        cb.addEventListener('change', function () { salvarFlagsEvento(cb.dataset.evento); });
+      });
+      container.querySelectorAll('[data-editar-evento]').forEach(function (btn) {
+        btn.addEventListener('click', function () { abrirEditorEvento(btn.dataset.editarEvento); });
       });
     }
 
-    async function salvarLembrete(fluxoId, btn) {
+    async function salvarFlagsEvento(eventoId) {
+      var container = document.getElementById('lista-eventos');
+      var dados = _configEventos[eventoId] || {};
+      dados.ativo = container.querySelector('.evt-ativo[data-evento="' + eventoId + '"]').checked;
+      dados.canalEmail = container.querySelector('.evt-canal-email[data-evento="' + eventoId + '"]').checked;
+      dados.canalSistema = container.querySelector('.evt-canal-sistema[data-evento="' + eventoId + '"]').checked;
+      _configEventos[eventoId] = dados;
+      try {
+        await API.post('salvarConfigNotificacoes', { eventos: { evento: eventoId, dados: dados } });
+      } catch (err) {
+        showToast('Erro ao salvar "' + eventoId + '": ' + err.message, 'error');
+      }
+    }
+
+    function filtrarEventos() {
+      var busca = document.getElementById('eventos-busca').value.toLowerCase().trim();
+      document.querySelectorAll('#lista-eventos tbody tr').forEach(function (tr) {
+        if (tr.classList.contains('table-group-row')) return;
+        var texto = tr.textContent.toLowerCase();
+        tr.style.display = (!busca || texto.indexOf(busca) !== -1) ? '' : 'none';
+      });
+    }
+
+    function abrirEditorEvento(eventoId) {
+      var evento = EVENTOS_NOTIFICACAO.find(function (e) { return e.id === eventoId; });
+      if (!evento) return;
+      _eventoAtual = evento;
+      document.getElementById('modal-evento-titulo').textContent = evento.label;
+      document.getElementById('modal-evento-body').innerHTML = renderEditorEvento(evento, _configEventos[eventoId]);
+      document.getElementById('modal-evento').classList.add('is-open');
+    }
+
+    function fecharModalEvento() {
+      document.getElementById('modal-evento').classList.remove('is-open');
+      _eventoAtual = null;
+    }
+
+    async function salvarEditorEvento() {
+      if (!_eventoAtual) return;
+      var btn = document.getElementById('btn-salvar-evento');
       var orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Salvando…';
       try {
-        await API.post('salvarConfigNotificacoes', {
-          lembretes: { fluxo: fluxoId, dados: {
-            ativo: document.getElementById('lemb-' + fluxoId + '-ativo').checked,
-            canalEmail: document.getElementById('lemb-' + fluxoId + '-canal-email').checked,
-            canalSistema: document.getElementById('lemb-' + fluxoId + '-canal-sistema').checked,
-            diasAntes: parseInt(document.getElementById('lemb-' + fluxoId + '-dias-antes').value, 10) || 0,
-            frequenciaPosVencido: parseInt(document.getElementById('lemb-' + fluxoId + '-freq-pos').value, 10) || 1,
-            maxReenvios: parseInt(document.getElementById('lemb-' + fluxoId + '-max-reenvios').value, 10) || 0,
-            escalarAdminApos: parseInt(document.getElementById('lemb-' + fluxoId + '-escalar').value, 10) || 0,
-          } },
-        });
-        showToast('✅ Configuração salva.', 'success');
+        var body = document.getElementById('modal-evento-body');
+        var dadosMensagem = coletarEditorEvento(_eventoAtual, body);
+        var dados = Object.assign({}, _configEventos[_eventoAtual.id] || {}, dadosMensagem);
+        _configEventos[_eventoAtual.id] = dados;
+        await API.post('salvarConfigNotificacoes', { eventos: { evento: _eventoAtual.id, dados: dados } });
+        showToast('✅ Mensagem salva.', 'success');
+        fecharModalEvento();
       } catch (err) {
         showToast('Erro: ' + err.message, 'error');
       } finally {
@@ -292,51 +313,6 @@
       }
     }
 
-    /* ── E-mails do Sistema (templates) ── */
-    function renderListaTemplates() {
-      document.getElementById('lista-templates').innerHTML = TEMPLATES_EMAIL.map(function (t) {
-        return '<button type="button" class="btn btn-ghost btn-sm" style="display:block;width:100%;text-align:left;margin-bottom:var(--space-1);" data-template-id="' + t.id + '">' + escapeHtml(t.label) + '</button>';
-      }).join('');
-      document.querySelectorAll('[data-template-id]').forEach(function (btn) {
-        btn.addEventListener('click', function () { abrirTemplate(btn.dataset.templateId); });
-      });
-    }
-
-    async function abrirTemplate(templateId) {
-      var editor = document.getElementById('editor-template');
-      editor.innerHTML = '<div class="spinner" style="margin:0 auto;"></div>';
-      try {
-        var t = await API.get('obterTemplateEmail', { id: templateId });
-        t = t || {};
-        editor.innerHTML =
-          '<div class="form-group"><label class="form-label" for="tpl-assunto">Assunto</label><input type="text" id="tpl-assunto" class="form-control" value="' + escapeHtml(t.assunto || '') + '"></div>' +
-          '<div class="form-group"><label class="form-label" for="tpl-abertura">Parágrafo de abertura</label><textarea id="tpl-abertura" class="form-control" rows="3">' + escapeHtml(t.abertura || '') + '</textarea></div>' +
-          '<div class="form-group"><label class="form-label" for="tpl-fechamento">Parágrafo de fechamento</label><textarea id="tpl-fechamento" class="form-control" rows="3">' + escapeHtml(t.fechamento || '') + '</textarea></div>' +
-          '<p class="form-hint" style="margin-bottom:var(--space-4);">Variáveis disponíveis: {{nomeEstudante}}, {{idEstagio}}, {{curso}}, {{empresa}}, {{link}}</p>' +
-          '<button type="button" class="btn btn-primary btn-sm" id="btn-salvar-template">Salvar Template</button>';
-        document.getElementById('btn-salvar-template').addEventListener('click', function () { salvarTemplate(templateId, this); });
-      } catch (err) {
-        editor.innerHTML = '<div class="alert alert-error"><div class="alert-content">Erro: ' + escapeHtml(err.message) + '</div></div>';
-      }
-    }
-
-    async function salvarTemplate(templateId, btn) {
-      var orig = btn.textContent;
-      btn.disabled = true; btn.textContent = 'Salvando…';
-      try {
-        await API.post('salvarTemplateEmail', {
-          id: templateId,
-          assunto: document.getElementById('tpl-assunto').value.trim(),
-          abertura: document.getElementById('tpl-abertura').value.trim(),
-          fechamento: document.getElementById('tpl-fechamento').value.trim(),
-        });
-        showToast('✅ Template salvo.', 'success');
-      } catch (err) {
-        showToast('Erro: ' + err.message, 'error');
-      } finally {
-        btn.disabled = false; btn.textContent = orig;
-      }
-    }
   </script>
 </body>
 </html>
